@@ -1,0 +1,15 @@
+const MEDIA_CONFIG = {
+  PROXY_BASE: "https://media-proxy.andreiflorea.workers.dev",
+  ANILIST_URL: "https://graphql.anilist.co",
+  TMDB_IMAGE_BASE: "https://image.tmdb.org/t/p/w342",
+  ARCHIVE_KEY: "media-archive-v1",
+  SEARCH_DEBOUNCE_MS: 400,
+  STATUSES: ["planning", "watching", "completed", "dropped"],
+};
+
+function isProxyConfigured() {
+  return (
+    MEDIA_CONFIG.PROXY_BASE &&
+    !MEDIA_CONFIG.PROXY_BASE.includes("YOUR_SUBDOMAIN")
+  );
+}

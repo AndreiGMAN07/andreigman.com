@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>andreigman.com | Media-Watched</title>
+  <meta name="description" content="Browse live anime, games, movies and TV — track what you watch in your personal archive." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/media.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="logo">andreigman<span>.com</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="media-watched.html" class="active">Media-Watched</a>
+        <a href="functions.html">Functions</a>
+        <a href="credits.html">Credits</a>
+      </nav>
+      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Media-Watched</p>
+          <h1>Browse live databases</h1>
+          <p class="lead">Search live media databases for anime, games, movies, and TV — then add anything straight into your personal archive.</p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card hover-card">
+            <p class="mini-meta">entry_01</p>
+            <h3>Anime &amp; Manga</h3>
+            <p>Live from AniList — trending, top-rated, and seasonal anime and manga. Browse, search, and add directly to your archive.</p>
+            <a href="media-anime.html" class="text-link">Open</a>
+          </article>
+
+          <article class="card hover-card">
+            <p class="mini-meta">entry_02</p>
+            <h3>Games</h3>
+            <p>Powered by IGDB — discover games by genre, platform, and rating, then track them in your archive.</p>
+            <a href="media-games.html" class="text-link">Open</a>
+          </article>
+
+          <article class="card hover-card">
+            <p class="mini-meta">entry_03</p>
+            <h3>Movies &amp; TV</h3>
+            <p>From TMDB — films and series with posters, scores, and full descriptions. Add what you watch to the archive.</p>
+            <a href="media-movies.html" class="text-link">Open</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">My Archive</p>
+          <h2>Your watchlist</h2>
+        </div>
+
+        <div class="media-filters">
+          <div class="media-filter-group">
+            <span class="media-filter-label">Category</span>
+            <div class="media-filter-chips">
+              <label class="media-chip"><input type="radio" name="archiveCategory" value="all" checked /> All</label>
+              <label class="media-chip"><input type="radio" name="archiveCategory" value="anime" /> Anime</label>
+              <label class="media-chip"><input type="radio" name="archiveCategory" value="games" /> Games</label>
+              <label class="media-chip"><input type="radio" name="archiveCategory" value="movies" /> Movies</label>
+            </div>
+          </div>
+          <div class="media-filter-group">
+            <label class="media-filter-label" for="archiveStatusFilter">Status</label>
+            <select id="archiveStatusFilter" class="status-select">
+              <option value="all">All statuses</option>
+              <option value="planning">planning</option>
+              <option value="watching">watching</option>
+              <option value="completed">completed</option>
+              <option value="dropped">dropped</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="archiveGrid" class="media-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3 class="logo">andreigman<span>.com</span></h3>
+        <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
+      </div>
+      <div>
+        <h4>Pages</h4>
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="media-watched.html">Media-Watched</a>
+        <a href="credits.html">Credits</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/script.js"></script>
+  <script src="assets/js/media-config.js"></script>
+  <script src="assets/js/media-archive.js"></script>
+  <script src="assets/js/media-ui.js"></script>
+  <script src="assets/js/media-watched.js"></script>
+</body>
+</html>

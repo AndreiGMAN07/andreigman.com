@@ -1,0 +1,6 @@
+name = "media-proxy"
+main = "workers/media-proxy.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# Secrets set via: wrangler secret put TMDB_API_KEY

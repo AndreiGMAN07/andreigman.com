@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>andreigman.com | Movies &amp; TV</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/media.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="logo">andreigman<span>.com</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="media-watched.html" class="active">Media-Watched</a>
+        <a href="functions.html">Functions</a>
+        <a href="credits.html">Credits</a>
+      </nav>
+      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow"><a href="media-watched.html" class="media-back-link">← Media-Watched</a></p>
+          <h1>Movies &amp; TV</h1>
+          <p class="lead">From TMDB — search and add to your archive.</p>
+        </div>
+
+        <div class="media-search-wrap">
+          <label for="mediaSearch" class="media-filter-label">Search</label>
+          <input type="search" id="mediaSearch" class="media-search" placeholder="Search movies and TV…" autocomplete="off" />
+        </div>
+
+        <p id="mediaError" class="media-error" hidden></p>
+        <div id="mediaGrid" class="media-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3 class="logo">andreigman<span>.com</span></h3>
+        <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
+      </div>
+      <div>
+        <h4>Pages</h4>
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="media-watched.html">Media-Watched</a>
+        <a href="credits.html">Credits</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/script.js"></script>
+  <script src="assets/js/media-config.js"></script>
+  <script src="assets/js/media-archive.js"></script>
+  <script src="assets/js/media-api.js"></script>
+  <script src="assets/js/media-ui.js"></script>
+  <script src="assets/js/media-movies.js"></script>
+</body>
+</html>

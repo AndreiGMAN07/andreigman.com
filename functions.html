@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>andreigman.com &mdash; Functions</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .functions-page .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .functions-page .tools-grid { grid-template-columns: 1fr; }
+    }
+
+    .functions-page .tool-display {
+      font-size: 2rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--primary-2);
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      letter-spacing: 0.04em;
+    }
+
+    .functions-page .tool-alert {
+      display: none;
+      background: rgba(37,126,67,0.18);
+      border: 1px solid rgba(54,168,93,0.55);
+      border-radius: 12px;
+      color: var(--primary-2);
+      font-weight: 700;
+      text-align: center;
+      padding: 0.6rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .functions-page .tool-alert.show { display: block; }
+
+    .functions-page .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .functions-page .btn-row .btn {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      padding: 0.65rem 0.5rem;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    .functions-page .timer-inputs {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+
+    .functions-page .timer-inputs input {
+      width: 100%;
+      padding: 0.55rem 0.6rem;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg-soft);
+      color: var(--text);
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: inherit;
+    }
+
+    .functions-page .timer-inputs input:focus,
+    .calc-input:focus,
+    .calc-select:focus,
+    .calc-bounds input:focus {
+      outline: 2px solid rgba(54,168,93,0.5);
+      outline-offset: 2px;
+    }
+
+    .functions-page .timer-inputs span {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .functions-page .lap-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.75rem 0 0;
+      max-height: 160px;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .functions-page .lap-list li {
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
+    .functions-page .lap-list li:last-child { border-bottom: none; }
+
+    /* Shared calculator styles */
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .calc-display-box {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+    }
+
+    .calc-mini {
+      font-size: 0.78rem;
+      color: var(--muted);
+      min-height: 1rem;
+      margin-bottom: 0.25rem;
+      word-break: break-word;
+    }
+
+    .calc-main {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--primary-2);
+      word-break: break-word;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+    }
+
+    .mode-row,
+    .calc-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .mode-label,
+    .calc-row label,
+    .calc-section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      white-space: nowrap;
+    }
+
+    .mode-btn,
+    .pill-btn,
+    .hint-btn {
+      border: 1px solid var(--line);
+      background: var(--bg-soft);
+      color: var(--muted);
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-btn,
+    .pill-btn {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .mode-btn.active,
+    .pill-btn.active {
+      background: rgba(37,126,67,0.2);
+      border-color: rgba(54,168,93,0.6);
+      color: var(--primary-2);
+    }
+
+    .calc-input,
+    .calc-select {
+      padding: 0.55rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg-soft);
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+      min-width: 0;
+    }
+
+    .calc-input { flex: 1; }
+    .calc-select { cursor: pointer; }
+
+    .calc-notation {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      word-break: break-word;
+    }
+
+    .calc-notation span { color: var(--primary-2); }
+
+    .hint-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.2rem;
+    }
+
+    .hint-btn {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+    }
+
+    .hint-btn:hover,
+    .mode-btn:hover,
+    .pill-btn:hover {
+      background: rgba(99,130,255,0.12);
+      border-color: rgba(99,130,255,0.4);
+      color: #8fa8ff;
+    }
+
+    .calc-result-box {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      display: none;
+    }
+
+    .calc-result-box.show { display: block; }
+
+    .calc-result-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.35rem;
+    }
+
+    .calc-result-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-2);
+      word-break: break-word;
+    }
+
+    .calc-steps {
+      margin-top: 0.75rem;
+      border-top: 1px solid var(--line);
+      padding-top: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .calc-step {
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.55;
+      padding-left: 0.85rem;
+      border-left: 2px solid rgba(54,168,93,0.35);
+    }
+
+    .calc-step strong { color: var(--text); }
+
+    .calc-error {
+      font-size: 0.9rem;
+      color: #f87171;
+      font-weight: 700;
+    }
+
+    /* Scientific calculator */
+    .sci-calc { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .sci-calc-display {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      text-align: right;
+      min-height: 4.8rem;
+    }
+
+    .sci-calc-expr {
+      font-size: 0.78rem;
+      color: var(--muted);
+      min-height: 1rem;
+      word-break: break-all;
+      margin-bottom: 0.2rem;
+    }
+
+    .sci-calc-result {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      word-break: break-all;
+      line-height: 1.1;
+    }
+
+    .sci-calc-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.38rem;
+    }
+
+    .sci-calc-grid button {
+      padding: 0.65rem 0.3rem;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg-soft);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.13s ease, transform 0.1s ease, border-color 0.13s ease;
+      white-space: nowrap;
+    }
+
+    .sci-calc-grid button:hover {
+      background: rgba(37,126,67,0.15);
+      border-color: rgba(54,168,93,0.5);
+      transform: translateY(-1px);
+    }
+
+    .sci-calc-grid button:active { transform: translateY(0); }
+
+    .sci-calc-grid button.op {
+      background: rgba(37,126,67,0.1);
+      color: var(--primary-2);
+      border-color: rgba(54,168,93,0.3);
+    }
+
+    .sci-calc-grid button.eq {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: var(--white);
+      border-color: transparent;
+    }
+
+    .sci-calc-grid button.eq:hover {
+      background: linear-gradient(135deg, var(--primary-2), var(--primary));
+    }
+
+    .sci-calc-grid button.clr {
+      background: rgba(248,113,113,0.1);
+      color: #f87171;
+      border-color: rgba(248,113,113,0.28);
+    }
+
+    .sci-calc-grid button.sci {
+      background: rgba(99,130,255,0.08);
+      color: #8fa8ff;
+      border-color: rgba(99,130,255,0.22);
+      font-size: 0.75rem;
+    }
+
+    .sci-calc-grid button.sci:hover {
+      background: rgba(99,130,255,0.18);
+      border-color: rgba(99,130,255,0.5);
+    }
+
+    .sci-calc-grid button.span2 { grid-column: span 2; }
+
+    .calc-bounds {
+      display: none;
+      gap: 0.45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .calc-bounds.show { display: flex; }
+
+    .calc-bounds input {
+      width: 80px;
+      padding: 0.5rem 0.55rem;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg-soft);
+      color: var(--text);
+      text-align: center;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <nav class="nav">
+      <a href="index.html" class="logo">andreigman<span>.com</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu">&#9776;</button>
+      <div class="nav-menu" id="navMenu">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="media-watched.html">Media-Watched</a>
+        <a href="functions.html" class="active">Functions</a>
+        <a href="credits.html">Credits</a>
+      </div>
+      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">&#127769;</button>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <section class="section functions-page">
+    <div class="container">
+
+      <div class="section-head">
+        <p class="eyebrow">Tools</p>
+        <h1>Functions</h1>
+      </div>
+
+      <div class="tools-grid">
+
+        <!-- TOOL 1 -->
+        <div class="card">
+          <h3 class="stack">&#9201; Countdown Timer</h3>
+          <div class="timer-inputs">
+            <input type="number" id="timerH" min="0" max="99" value="0" placeholder="HH" />
+            <span>:</span>
+            <input type="number" id="timerM" min="0" max="59" value="0" placeholder="MM" />
+            <span>:</span>
+            <input type="number" id="timerS" min="0" max="59" value="0" placeholder="SS" />
+          </div>
+          <div class="tool-display" id="timerDisplay">00:00:00</div>
+          <div class="tool-alert" id="timerAlert">&#9200; Time's up!</div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="timerStart()">Start</button>
+            <button class="btn btn-secondary" onclick="timerPause()">Pause</button>
+            <button class="btn btn-secondary" onclick="timerReset()">Reset</button>
+          </div>
+        </div>
+
+        <!-- TOOL 2 -->
+        <div class="card">
+          <h3 class="stack">&#9202; Stopwatch</h3>
+          <div class="tool-display" id="swDisplay">00:00:00.000</div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="swToggleBtn" onclick="swToggle()">Start</button>
+            <button class="btn btn-secondary" id="swLapBtn" onclick="swLap()" disabled>Lap</button>
+            <button class="btn btn-secondary" onclick="swReset()">Reset</button>
+          </div>
+          <ul class="lap-list" id="swLapList"></ul>
+        </div>
+
+        <!-- TOOL 3 -->
+        <div class="card sci-calc">
+          <h3 class="stack">&#129518; Scientific Calculator</h3>
+
+          <div class="sci-calc-display">
+            <div class="sci-calc-expr" id="scExpr"></div>
+            <div class="sci-calc-result" id="scResult">0</div>
+          </div>
+
+          <div class="mode-row">
+            <span class="mode-label">Angle:</span>
+            <button class="mode-btn active" id="modeDeg" onclick="scSetMode('deg')">DEG</button>
+            <button class="mode-btn" id="modeRad" onclick="scSetMode('rad')">RAD</button>
+          </div>
+
+          <div class="sci-calc-grid">
+            <button class="clr span2" onclick="scClear()">C</button>
+            <button class="op" onclick="scBackspace()">&#9003;</button>
+            <button class="op" onclick="scInsertPercent()">%</button>
+            <button class="op" onclick="scInsert('/')">&#247;</button>
+
+            <button class="sci" onclick="scFunc('sin')">sin</button>
+            <button class="sci" onclick="scFunc('cos')">cos</button>
+            <button class="sci" onclick="scFunc('tan')">tan</button>
+            <button class="sci" onclick="scFunc('cot')">cot</button>
+            <button class="op" onclick="scInsert('*')">&#215;</button>
+
+            <button class="sci" onclick="scFunc('asin')">sin&#8315;&#185;</button>
+            <button class="sci" onclick="scFunc('acos')">cos&#8315;&#185;</button>
+            <button class="sci" onclick="scFunc('atan')">tan&#8315;&#185;</button>
+            <button class="sci" onclick="scFunc('acot')">cot&#8315;&#185;</button>
+            <button class="op" onclick="scInsert('-')">&#8722;</button>
+
+            <button class="sci" onclick="scFunc('log')">log</button>
+            <button class="sci" onclick="scFunc('ln')">ln</button>
+            <button class="sci" onclick="scFunc('sqrt')">&#8730;</button>
+            <button class="sci" onclick="scInsert('^')">x&#8319;</button>
+            <button class="op" onclick="scInsert('+')">+</button>
+
+            <button onclick="scInsert('7')">7</button>
+            <button onclick="scInsert('8')">8</button>
+            <button onclick="scInsert('9')">9</button>
+            <button class="sci" onclick="scInsert('pi')">&#960;</button>
+            <button class="sci" onclick="scInsert('e')">e</button>
+
+            <button onclick="scInsert('4')">4</button>
+            <button onclick="scInsert('5')">5</button>
+            <button onclick="scInsert('6')">6</button>
+            <button onclick="scToggleSign()">&#177;</button>
+            <button class="eq" onclick="scEquals()" style="grid-row: span 2">=</button>
+
+            <button onclick="scInsert('1')">1</button>
+            <button onclick="scInsert('2')">2</button>
+            <button onclick="scInsert('3')">3</button>
+            <button onclick="scInsert('.')">.</button>
+
+            <button class="span2" onclick="scInsert('0')">0</button>
+            <button class="sci" onclick="scInsert('(')">(</button>
+            <button class="sci" onclick="scInsert(')')">)</button>
+          </div>
+        </div>
+
+        <!-- TOOL 4 -->
+        <div class="card tool-card">
+          <h3 class="stack">&#8594; Limit Calculator</h3>
+
+          <div class="calc-notation" id="limNotation">
+            lim <span id="limNotVar">x</span>&#8594;<span id="limNotVal">a</span>
+            &nbsp;f(<span id="limNotVar2">x</span>)
+          </div>
+
+          <div class="calc-row">
+            <label for="limExpr">f(x) =</label>
+            <input class="calc-input" id="limExpr" type="text" placeholder="e.g. (x^2 - 4) / (x - 2)" oninput="limUpdateNotation()" autocomplete="off" />
+          </div>
+
+          <div class="calc-row">
+            <label>Variable</label>
+            <select class="calc-select" id="limVar" onchange="limUpdateNotation()">
+              <option value="x">x</option>
+              <option value="t">t</option>
+              <option value="n">n</option>
+            </select>
+            <label>&#8594;</label>
+            <input class="calc-input" id="limVal" type="text" placeholder="0, inf, -inf, pi..." oninput="limUpdateNotation()" style="max-width: 90px" />
+          </div>
+
+          <div class="calc-row">
+            <label>Direction</label>
+            <button class="pill-btn active" id="dirBoth" onclick="limSetDir('both')">Both</button>
+            <button class="pill-btn" id="dirLeft" onclick="limSetDir('left')">Left (&#8315;)</button>
+            <button class="pill-btn" id="dirRight" onclick="limSetDir('right')">Right (+)</button>
+          </div>
+
+          <div>
+            <div class="calc-section-label">Examples</div>
+            <div class="hint-list">
+              <button class="hint-btn" onclick="limExample('(x^2-4)/(x-2)','2','both')">(x²-4)/(x-2), x→2</button>
+              <button class="hint-btn" onclick="limExample('sin(x)/x','0','both')">sin(x)/x, x→0</button>
+              <button class="hint-btn" onclick="limExample('1/x','0','right')">1/x, x→0⁺</button>
+              <button class="hint-btn" onclick="limExample('(1+1/x)^x','inf','both')">(1+1/x)^x, x→∞</button>
+              <button class="hint-btn" onclick="limExample('(e^x-1)/x','0','both')">(e^x-1)/x, x→0</button>
+              <button class="hint-btn" onclick="limExample('(sqrt(x+1)-1)/x','0','both')">(√(x+1)-1)/x, x→0</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="limCalc()" style="width: 100%">Calculate Limit</button>
+
+          <div class="calc-result-box" id="limResultBox">
+            <div class="calc-result-label">Result</div>
+            <div class="calc-result-value" id="limResultValue"></div>
+            <div class="calc-steps" id="limSteps"></div>
+          </div>
+        </div>
+
+        <!-- TOOL 5 -->
+        <div class="card tool-card">
+          <h3 class="stack">&#8747; Integral Calculator</h3>
+
+          <div class="mode-row">
+            <button class="mode-btn active" id="intTypeIndef" onclick="intSetType('indefinite')">Indefinite ∫f dx</button>
+            <button class="mode-btn" id="intTypeDefi" onclick="intSetType('definite')">Definite ∫ᵃᵇ f dx</button>
+          </div>
+
+          <div class="calc-notation" id="intNotation">
+            <span>&#8747;</span> <span id="intNotExpr">f(x)</span> &nbsp;d<span id="intNotVar">x</span>
+          </div>
+
+          <div class="calc-row">
+            <label for="intExpr">f(x) =</label>
+            <input class="calc-input" id="intExpr" type="text" placeholder="e.g. x^2 + sin(x)" oninput="intUpdateNotation()" autocomplete="off" />
+          </div>
+
+          <div class="calc-row">
+            <label>Variable</label>
+            <select class="calc-select" id="intVar" onchange="intUpdateNotation()">
+              <option value="x">x</option>
+              <option value="t">t</option>
+              <option value="u">u</option>
+            </select>
+          </div>
+
+          <div class="calc-bounds" id="intBoundsWrap">
+            <label>From</label>
+            <input type="text" id="intLower" placeholder="a" oninput="intUpdateNotation()" />
+            <label>To</label>
+            <input type="text" id="intUpper" placeholder="b" oninput="intUpdateNotation()" />
+          </div>
+
+          <div>
+            <div class="calc-section-label">Examples</div>
+            <div class="hint-list">
+              <button class="hint-btn" onclick="intExample('x^2','indefinite','','')">∫ x² dx</button>
+              <button class="hint-btn" onclick="intExample('sin(x)','indefinite','','')">∫ sin(x) dx</button>
+              <button class="hint-btn" onclick="intExample('e^x','indefinite','','')">∫ eˣ dx</button>
+              <button class="hint-btn" onclick="intExample('1/x','indefinite','','')">∫ 1/x dx</button>
+              <button class="hint-btn" onclick="intExample('x^2','definite','0','3')">∫₀³ x² dx</button>
+              <button class="hint-btn" onclick="intExample('sin(x)','definite','0','pi')">∫₀^π sin(x) dx</button>
+              <button class="hint-btn" onclick="intExample('x^3-2*x','definite','-1','2')">∫₋₁² x³−2x dx</button>
+              <button class="hint-btn" onclick="intExample('sqrt(x)','definite','0','4')">∫₀⁴ √x dx</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="intCalc()" style="width: 100%">Calculate Integral</button>
+
+          <div class="calc-result-box" id="intResultBox">
+            <div class="calc-result-label">Result</div>
+            <div class="calc-result-value" id="intResultValue"></div>
+            <div class="calc-steps" id="intSteps"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h3 class="logo">andreigman<span>.com</span></h3>
+        <p style="color:var(--muted);font-size:0.9rem">
+          Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.
+        </p>
+      </div>
+      <div>
+        <h4>Pages</h4>
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="media-watched.html">Media-Watched</a>
+        <a href="functions.html">Functions</a>
+        <a href="credits.html">Credits</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/script.js"></script>
+<script>
+/* ══════════════════════════════════════
+   COUNTDOWN TIMER
+══════════════════════════════════════ */
+let timerInterval = null;
+let timerEnd = null;
+let timerRemaining = 0;
+let timerRunning = false;
+
+function timerFormat(totalSec) {
+  const hh = Math.floor(totalSec / 3600);
+  const mm = Math.floor((totalSec % 3600) / 60);
+  const ss = totalSec % 60;
+  return (
+    String(hh).padStart(2, "0") + ":" +
+    String(mm).padStart(2, "0") + ":" +
+    String(ss).padStart(2, "0")
+  );
+}
+
+function timerStart() {
+  if (timerRunning) return;
+
+  const h = parseInt(document.getElementById("timerH").value, 10) || 0;
+  const m = parseInt(document.getElementById("timerM").value, 10) || 0;
+  const s = parseInt(document.getElementById("timerS").value, 10) || 0;
+  const total = (h * 3600 + m * 60 + s) * 1000;
+
+  if (total <= 0 && timerRemaining <= 0) return;
+
+  document.getElementById("timerAlert").classList.remove("show");
+  timerRemaining = timerRemaining > 0 ? timerRemaining : total;
+  timerEnd = Date.now() + timerRemaining;
+  timerRunning = true;
+  timerTick();
+  timerInterval = setInterval(timerTick, 100);
+}
+
+function timerTick() {
+  const left = timerEnd - Date.now();
+
+  if (left <= 0) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    timerRunning = false;
+    timerRemaining = 0;
+    document.getElementById("timerDisplay").textContent = "00:00:00";
+    document.getElementById("timerAlert").classList.add("show");
+    return;
+  }
+
+  timerRemaining = left;
+  document.getElementById("timerDisplay").textContent = timerFormat(Math.ceil(left / 1000));
+}
+
+function timerPause() {
+  if (!timerRunning) return;
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerRemaining = timerEnd - Date.now();
+  timerRunning = false;
+}
+
+function timerReset() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerEnd = null;
+  timerRemaining = 0;
+  timerRunning = false;
+  document.getElementById("timerDisplay").textContent = "00:00:00";
+  document.getElementById("timerAlert").classList.remove("show");
+  document.getElementById("timerH").value = 0;
+  document.getElementById("timerM").value = 0;
+  document.getElementById("timerS").value = 0;
+}
+
+/* ══════════════════════════════════════
+   STOPWATCH
+══════════════════════════════════════ */
+let swInterval = null;
+let swStartTime = null;
+let swElapsed = 0;
+let swRunning = false;
+let swLapCount = 0;
+
+function swFormat(ms) {
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  const ms3 = ms % 1000;
+  return (
+    String(h).padStart(2, "0") + ":" +
+    String(m).padStart(2, "0") + ":" +
+    String(s).padStart(2, "0") + "." +
+    String(ms3).padStart(3, "0")
+  );
+}
+
+function swTick() {
+  swElapsed = Date.now() - swStartTime;
+  document.getElementById("swDisplay").textContent = swFormat(swElapsed);
+}
+
+function swToggle() {
+  if (!swRunning) {
+    swStartTime = Date.now() - swElapsed;
+    swRunning = true;
+    swTick();
+    swInterval = setInterval(swTick, 31);
+    document.getElementById("swToggleBtn").textContent = "Stop";
+    document.getElementById("swLapBtn").disabled = false;
+  } else {
+    clearInterval(swInterval);
+    swInterval = null;
+    swElapsed = Date.now() - swStartTime;
+    swRunning = false;
+    document.getElementById("swToggleBtn").textContent = "Start";
+  }
+}
+
+function swLap() {
+  if (!swRunning) return;
+  swLapCount++;
+  const list = document.getElementById("swLapList");
+  const li = document.createElement("li");
+  li.innerHTML = "<span>Lap " + swLapCount + "</span><span>" + swFormat(swElapsed) + "</span>";
+  list.insertBefore(li, list.firstChild);
+}
+
+function swReset() {
+  clearInterval(swInterval);
+  swInterval = null;
+  swStartTime = null;
+  swElapsed = 0;
+  swRunning = false;
+  swLapCount = 0;
+  document.getElementById("swDisplay").textContent = "00:00:00.000";
+  document.getElementById("swToggleBtn").textContent = "Start";
+  document.getElementById("swLapBtn").disabled = true;
+  document.getElementById("swLapList").innerHTML = "";
+}
+
+/* ══════════════════════════════════════
+   SCIENTIFIC CALCULATOR
+══════════════════════════════════════ */
+let scExpr = "";
+let scMode = "deg";
+
+function scUpdate() {
+  document.getElementById("scExpr").textContent = scExpr;
+  document.getElementById("scResult").textContent = scExpr || "0";
+}
+
+function scSetMode(mode) {
+  scMode = mode;
+  document.getElementById("modeDeg").classList.toggle("active", mode === "deg");
+  document.getElementById("modeRad").classList.toggle("active", mode === "rad");
+}
+
+function scInsert(value) {
+  if (document.getElementById("scResult").textContent === "Error") scExpr = "";
+  scExpr += value;
+  scUpdate();
+}
+
+function scFunc(name) {
+  if (document.getElementById("scResult").textContent === "Error") scExpr = "";
+  scExpr += name + "(";
+  scUpdate();
+}
+
+function scInsertPercent() {
+  if (!scExpr) return;
+  scExpr += "/100";
+  scUpdate();
+}
+
+function scToggleSign() {
+  if (!scExpr) {
+    scExpr = "-";
+  } else if (scExpr.startsWith("-")) {
+    scExpr = scExpr.slice(1);
+  } else {
+    scExpr = "-" + scExpr;
+  }
+  scUpdate();
+}
+
+function scBackspace() {
+  if (document.getElementById("scResult").textContent === "Error") {
+    scExpr = "";
+    scUpdate();
+    return;
+  }
+  scExpr = scExpr.slice(0, -1);
+  scUpdate();
+}
+
+function scClear() {
+  scExpr = "";
+  scUpdate();
+}
+
+function scRound(value) {
+  if (!isFinite(value)) return value;
+  return parseFloat(Number(value).toFixed(10));
+}
+
+function scEvaluateExpression(expr) {
+  let js = expr.replace(/\s+/g, "");
+
+  const fnMap = [
+    ["acot", "ACOT"],
+    ["asin", "ASIN"],
+    ["acos", "ACOS"],
+    ["atan", "ATAN"],
+    ["sqrt", "SQRT"],
+    ["sin", "SIN"],
+    ["cos", "COS"],
+    ["tan", "TAN"],
+    ["cot", "COT"],
+    ["log", "LOG"],
+    ["ln", "LN"]
+  ];
+
+  fnMap.forEach(([from, to]) => {
+    js = js.replace(new RegExp("\\b" + from + "\\b", "g"), to);
+  });
+
+  js = js.replace(/\^/g, "**");
+  js = js.replace(/\bpi\b/g, "Math.PI");
+  js = js.replace(/\be\b/g, "Math.E");
+
+  const SIN  = x => Math.sin(scMode === "deg" ? x * Math.PI / 180 : x);
+  const COS  = x => Math.cos(scMode === "deg" ? x * Math.PI / 180 : x);
+  const TAN  = x => Math.tan(scMode === "deg" ? x * Math.PI / 180 : x);
+  const COT  = x => 1 / TAN(x);
+  const ASIN = x => scMode === "deg" ? Math.asin(x) * 180 / Math.PI : Math.asin(x);
+  const ACOS = x => scMode === "deg" ? Math.acos(x) * 180 / Math.PI : Math.acos(x);
+  const ATAN = x => scMode === "deg" ? Math.atan(x) * 180 / Math.PI : Math.atan(x);
+  const ACOT = x => scMode === "deg"
+    ? (Math.PI / 2 - Math.atan(x)) * 180 / Math.PI
+    : (Math.PI / 2 - Math.atan(x));
+  const LOG  = x => Math.log10(x);
+  const LN   = x => Math.log(x);
+  const SQRT = x => Math.sqrt(x);
+
+  const result = Function(
+    "SIN","COS","TAN","COT","ASIN","ACOS","ATAN","ACOT","LOG","LN","SQRT",
+    '"use strict"; return (' + js + ');'
+  )(SIN,COS,TAN,COT,ASIN,ACOS,ATAN,ACOT,LOG,LN,SQRT);
+
+  if (!isFinite(result) || isNaN(result)) throw new Error("Invalid");
+  return scRound(result);
+}
+
+function scEquals() {
+  if (!scExpr) return;
+  try {
+    const result = scEvaluateExpression(scExpr);
+    document.getElementById("scResult").textContent = String(result);
+    document.getElementById("scExpr").textContent = scExpr;
+    scExpr = String(result);
+  } catch (e) {
+    document.getElementById("scExpr").textContent = scExpr;
+    document.getElementById("scResult").textContent = "Error";
+  }
+}
+
+/* ══════════════════════════════════════
+   SHARED MATH HELPERS
+══════════════════════════════════════ */
+function fmtNum(n) {
+  if (typeof n !== "number" || isNaN(n)) return "NaN";
+  if (!isFinite(n)) return n > 0 ? "+∞" : "−∞";
+  const rounded = parseFloat(n.toFixed(8));
+  if (Math.abs(rounded - Math.round(rounded)) < 1e-8) return String(Math.round(rounded));
+  return String(parseFloat(rounded.toFixed(6)));
+}
+
+function parseMathValue(str) {
+  const s = String(str).trim().toLowerCase();
+  if (s === "inf" || s === "+inf" || s === "infinity" || s === "+infinity") return Infinity;
+  if (s === "-inf" || s === "-infinity") return -Infinity;
+  if (s === "pi") return Math.PI;
+  if (s === "e") return Math.E;
+  const v = parseFloat(s);
+  return isNaN(v) ? null : v;
+}
+
+function preprocessMathExpr(expr) {
+  let s = String(expr).trim();
+  s = s.replace(/\s+/g, "");
+  s = s.replace(/π/g, "pi");
+  s = s.replace(/√/g, "sqrt");
+  s = s.replace(/\^/g, "**");
+
+  s = s.replace(/\bacot\b/g, "ACOT");
+  s = s.replace(/\basin\b/g, "Math.asin");
+  s = s.replace(/\bacos\b/g, "Math.acos");
+  s = s.replace(/\batan\b/g, "Math.atan");
+  s = s.replace(/\bsin\b/g, "Math.sin");
+  s = s.replace(/\bcos\b/g, "Math.cos");
+  s = s.replace(/\btan\b/g, "Math.tan");
+  s = s.replace(/\bcot\b/g, "COT");
+  s = s.replace(/\bsqrt\b/g, "Math.sqrt");
+  s = s.replace(/\babs\b/g, "Math.abs");
+  s = s.replace(/\bln\b/g, "Math.log");
+  s = s.replace(/\blog\b/g, "Math.log10");
+  s = s.replace(/\bpi\b/g, "Math.PI");
+  s = s.replace(/\be\^\(([^()]+)\)/g, "Math.exp($1)");
+  s = s.replace(/\be\^([a-zA-Z0-9.+\-*/]+)/g, "Math.exp($1)");
+  s = s.replace(/\be\b/g, "Math.E");
+
+  return s;
+}
+
+function evalMathExpr(expr, variable, value) {
+  try {
+    let s = preprocessMathExpr(expr);
+    const re = new RegExp("\\b" + variable + "\\b", "g");
+    s = s.replace(re, "(" + value + ")");
+    const COT = x => 1 / Math.tan(x);
+    const ACOT = x => Math.PI / 2 - Math.atan(x);
+    return Function("COT", "ACOT", '"use strict"; return (' + s + ');')(COT, ACOT);
+  } catch (e) {
+    return NaN;
+  }
+}
+
+function splitTopLevelTerms(expr) {
+  const s = expr.replace(/\s+/g, "");
+  const terms = [];
+  let cur = "";
+  let depth = 0;
+
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (i > 0 && depth === 0 && (ch === "+" || ch === "-")) {
+      terms.push(cur);
+      cur = ch;
+    } else {
+      cur += ch;
+    }
+  }
+  if (cur) terms.push(cur);
+  return terms;
+}
+
+function simpson(expr, variable, a, b, n = 1000) {
+  if (n % 2 !== 0) n++;
+  const h = (b - a) / n;
+  let sum = evalMathExpr(expr, variable, a) + evalMathExpr(expr, variable, b);
+
+  for (let i = 1; i < n; i++) {
+    const x = a + i * h;
+    const fx = evalMathExpr(expr, variable, x);
+    if (!isFinite(fx) || isNaN(fx)) return NaN;
+    sum += (i % 2 === 0 ? 2 : 4) * fx;
+  }
+  return (h / 3) * sum;
+}
+
+/* ══════════════════════════════════════
+   LIMIT CALCULATOR
+══════════════════════════════════════ */
+let limDirection = "both";
+
+function limSetDir(dir) {
+  limDirection = dir;
+  document.getElementById("dirBoth").classList.toggle("active", dir === "both");
+  document.getElementById("dirLeft").classList.toggle("active", dir === "left");
+  document.getElementById("dirRight").classList.toggle("active", dir === "right");
+  limUpdateNotation();
+}
+
+function limUpdateNotation() {
+  const vari = document.getElementById("limVar").value || "x";
+  const val = document.getElementById("limVal").value || "a";
+  const suffix = limDirection === "left" ? "&#8315;" : limDirection === "right" ? "&#8314;" : "";
+  document.getElementById("limNotVar").textContent = vari;
+  document.getElementById("limNotVar2").textContent = vari;
+  document.getElementById("limNotVal").innerHTML = val + suffix;
+}
+
+function limExample(expr, val, dir) {
+  document.getElementById("limExpr").value = expr;
+  document.getElementById("limVal").value = val;
+  limSetDir(dir);
+  limUpdateNotation();
+}
+
+function limSample(expr, vari, point, dir) {
+  const eps = [1e-2, 1e-3, 1e-4, 1e-5];
+  if (point === Infinity || point === -Infinity) {
+    const sign = point === Infinity ? 1 : -1;
+    return [1e3, 1e4, 1e5, 1e6].map(v => evalMathExpr(expr, vari, sign * v));
+  }
+  if (dir === "left") return eps.map(e => evalMathExpr(expr, vari, point - e));
+  if (dir === "right") return eps.map(e => evalMathExpr(expr, vari, point + e));
+  return {
+    left: eps.map(e => evalMathExpr(expr, vari, point - e)),
+    right: eps.map(e => evalMathExpr(expr, vari, point + e))
+  };
+}
+
+function limStable(vals) {
+  if (!Array.isArray(vals) || vals.length < 2) return false;
+  const last = vals[vals.length - 1];
+  const prev = vals[vals.length - 2];
+  return isFinite(last) && isFinite(prev) && Math.abs(last - prev) < 1e-3;
+}
+
+function limCalc() {
+  const expr = document.getElementById("limExpr").value.trim();
+  const vari = document.getElementById("limVar").value;
+  const valS = document.getElementById("limVal").value.trim();
+  const box = document.getElementById("limResultBox");
+  const res = document.getElementById("limResultValue");
+  const stps = document.getElementById("limSteps");
+
+  box.classList.remove("show");
+  stps.innerHTML = "";
+
+  if (!expr) {
+    res.innerHTML = '<span class="calc-error">Please enter a function.</span>';
+    box.classList.add("show");
+    return;
+  }
+
+  if (!valS) {
+    res.innerHTML = '<span class="calc-error">Please enter an approach value.</span>';
+    box.classList.add("show");
+    return;
+  }
+
+  const approach = parseMathValue(valS);
+  if (approach === null) {
+    res.innerHTML = '<span class="calc-error">Invalid approach value. Use a number, pi, e, inf, or -inf.</span>';
+    box.classList.add("show");
+    return;
+  }
+
+  const steps = [];
+  let answer = "";
+
+  const dirText = limDirection === "left" ? "⁻" : limDirection === "right" ? "⁺" : "";
+  const valDisp = approach === Infinity ? "+∞" : approach === -Infinity ? "−∞" : valS;
+  steps.push("<strong>Step 1:</strong> Evaluate lim " + vari + "→" + valDisp + dirText + " of " + expr);
+
+  if (isFinite(approach)) {
+    const direct = evalMathExpr(expr, vari, approach);
+    if (isFinite(direct) && !isNaN(direct)) {
+      steps.push("<strong>Step 2:</strong> Direct substitution works.");
+      steps.push("<strong>Result:</strong> " + fmtNum(direct));
+      answer = fmtNum(direct);
+    } else {
+      steps.push("<strong>Step 2:</strong> Direct substitution is undefined, so use nearby values.");
+    }
+  } else {
+    steps.push("<strong>Step 2:</strong> Use large values to estimate behavior at infinity.");
+  }
+
+  if (!answer) {
+    if (approach === Infinity || approach === -Infinity) {
+      const vals = limSample(expr, vari, approach, limDirection);
+      const last = vals[vals.length - 1];
+      const prev = vals[vals.length - 2];
+
+      if (!isFinite(last)) {
+        answer = last > 0 ? "+∞" : "−∞";
+      } else if (isFinite(last) && isFinite(prev) && Math.abs(last - prev) < 1e-3) {
+        answer = fmtNum(last);
+      } else {
+        answer = "Does not settle clearly";
+      }
+
+      steps.push("<strong>Step 3:</strong> Sample values: " + vals.map(fmtNum).join(", "));
+      steps.push("<strong>Result:</strong> " + answer);
+    } else if (limDirection === "left" || limDirection === "right") {
+      const vals = limSample(expr, vari, approach, limDirection);
+      const last = vals[vals.length - 1];
+
+      if (!isFinite(last)) {
+        answer = last > 0 ? "+∞" : "−∞";
+      } else if (limStable(vals)) {
+        answer = fmtNum(last);
+      } else {
+        answer = "Does not settle clearly";
+      }
+
+      steps.push("<strong>Step 3:</strong> One-sided samples: " + vals.map(fmtNum).join(", "));
+      steps.push("<strong>Result:</strong> " + answer);
+    } else {
+      const both = limSample(expr, vari, approach, "both");
+      const leftVals = both.left;
+      const rightVals = both.right;
+      const leftLast = leftVals[leftVals.length - 1];
+      const rightLast = rightVals[rightVals.length - 1];
+
+      steps.push("<strong>Step 3:</strong> Left samples: " + leftVals.map(fmtNum).join(", "));
+      steps.push("<strong>Step 4:</strong> Right samples: " + rightVals.map(fmtNum).join(", "));
+
+      if (!isFinite(leftLast) && !isFinite(rightLast) && Math.sign(leftLast) === Math.sign(rightLast)) {
+        answer = leftLast > 0 ? "+∞" : "−∞";
+      } else if (limStable(leftVals) && limStable(rightVals) && Math.abs(leftLast - rightLast) < 1e-3) {
+        answer = fmtNum((leftLast + rightLast) / 2);
+      } else {
+        answer = "DNE";
+      }
+
+      steps.push("<strong>Result:</strong> " + answer);
+    }
+  }
+
+  res.textContent = answer;
+  stps.innerHTML = steps.map(s => '<div class="calc-step">' + s + "</div>").join("");
+  box.classList.add("show");
+}
+
+/* ══════════════════════════════════════
+   INTEGRAL CALCULATOR
+══════════════════════════════════════ */
+let intType = "indefinite";
+
+function intSetType(type) {
+  intType = type;
+  document.getElementById("intTypeIndef").classList.toggle("active", type === "indefinite");
+  document.getElementById("intTypeDefi").classList.toggle("active", type === "definite");
+  document.getElementById("intBoundsWrap").classList.toggle("show", type === "definite");
+  intUpdateNotation();
+}
+
+function intUpdateNotation() {
+  const expr = document.getElementById("intExpr").value.trim() || "f(x)";
+  const vari = document.getElementById("intVar").value;
+  const lower = document.getElementById("intLower").value.trim() || "a";
+  const upper = document.getElementById("intUpper").value.trim() || "b";
+  document.getElementById("intNotVar").textContent = vari;
+
+  if (intType === "definite") {
+    document.getElementById("intNotation").innerHTML =
+      "<span>&#8747;</span><sub>" + lower + "</sub><sup>" + upper + "</sup> <span>" + expr + "</span> &nbsp;d<span>" + vari + "</span>";
+  } else {
+    document.getElementById("intNotation").innerHTML =
+      "<span>&#8747;</span> <span>" + expr + "</span> &nbsp;d<span>" + vari + "</span>";
+  }
+}
+
+function intExample(expr, type, lower, upper) {
+  document.getElementById("intExpr").value = expr;
+  document.getElementById("intLower").value = lower;
+  document.getElementById("intUpper").value = upper;
+  intSetType(type);
+  intUpdateNotation();
+}
+
+function intSymbolicTerm(term, variable) {
+  const x = variable;
+  const t = term.replace(/\s+/g, "");
+
+  if (t === x) {
+    return { display: x + "^2/2", evalExpr: "(" + x + "**2)/2", rule: "Power rule" };
+  }
+
+  if (/^[+-]?\d+(\.\d+)?$/.test(t)) {
+    return { display: t + "*" + x, evalExpr: "(" + t + ")*(" + x + ")", rule: "Constant rule" };
+  }
+
+  let m = t.match(new RegExp("^" + x + "\\^([+-]?\\d+(?:\\.\\d+)?)$"));
+  if (m) {
+    const n = parseFloat(m[1]);
+    if (n === -1) {
+      return { display: "ln|" + x + "|", evalExpr: "Math.log(Math.abs(" + x + "))", rule: "Log rule" };
+    }
+    const p = n + 1;
+    return {
+      display: x + "^" + p + "/" + p,
+      evalExpr: "(" + x + "**" + p + ")/(" + p + ")",
+      rule: "Power rule"
+    };
+  }
+
+  m = t.match(new RegExp("^([+-]?\\d+(?:\\.\\d+)?)\\*" + x + "$"));
+  if (m) {
+    const c = parseFloat(m[1]);
+    return {
+      display: "(" + c + "/2)*" + x + "^2",
+      evalExpr: "((" + c + ")/2)*(" + x + "**2)",
+      rule: "Constant multiple rule"
+    };
+  }
+
+  m = t.match(new RegExp("^([+-]?\\d+(?:\\.\\d+)?)\\*" + x + "\\^([+-]?\\d+(?:\\.\\d+)?)$"));
+  if (m) {
+    const c = parseFloat(m[1]);
+    const n = parseFloat(m[2]);
+    if (n === -1) {
+      return {
+        display: c + "*ln|" + x + "|",
+        evalExpr: "(" + c + ")*Math.log(Math.abs(" + x + "))",
+        rule: "Constant multiple log rule"
+      };
+    }
+    const p = n + 1;
+    return {
+      display: "(" + c + "/" + p + ")*" + x + "^" + p,
+      evalExpr: "((" + c + ")/(" + p + "))*(" + x + "**" + p + ")",
+      rule: "Constant multiple power rule"
+    };
+  }
+
+  if (t === "sin(" + x + ")") {
+    return { display: "-cos(" + x + ")", evalExpr: "-Math.cos(" + x + ")", rule: "Trig rule" };
+  }
+
+  if (t === "cos(" + x + ")") {
+    return { display: "sin(" + x + ")", evalExpr: "Math.sin(" + x + ")", rule: "Trig rule" };
+  }
+
+  if (t === "tan(" + x + ")") {
+    return { display: "-ln|cos(" + x + ")|", evalExpr: "-Math.log(Math.abs(Math.cos(" + x + ")))", rule: "Trig rule" };
+  }
+
+  if (t === "e^" + x || t === "e^(" + x + ")") {
+    return { display: "e^" + x, evalExpr: "Math.exp(" + x + ")", rule: "Exponential rule" };
+  }
+
+  if (t === "1/" + x) {
+    return { display: "ln|" + x + "|", evalExpr: "Math.log(Math.abs(" + x + "))", rule: "Log rule" };
+  }
+
+  if (t === "1/" + x + "^2") {
+    return { display: "-1/" + x, evalExpr: "-1/(" + x + ")", rule: "Power rule" };
+  }
+
+  if (t === "sqrt(" + x + ")") {
+    return {
+      display: "(2/3)*" + x + "^(3/2)",
+      evalExpr: "(2/3)*(" + x + "**(3/2))",
+      rule: "Power rule"
+    };
+  }
+
+  if (t === "ln(" + x + ")") {
+    return {
+      display: x + "*ln(" + x + ")-" + x,
+      evalExpr: "(" + x + ")*Math.log(" + x + ")-(" + x + ")",
+      rule: "Integration by parts formula"
+    };
+  }
+
+  return null;
+}
+
+function intSymbolic(expr, variable) {
+  const terms = splitTopLevelTerms(expr);
+  const parts = [];
+  const rules = [];
+
+  for (let i = 0; i < terms.length; i++) {
+    const sym = intSymbolicTerm(terms[i], variable);
+    if (!sym) return null;
+    parts.push(sym);
+    rules.push(sym.rule);
+  }
+
+  return {
+    display: parts.map(p => p.display).join(" + ").replace(/\+\s-\s/g, "- "),
+    evalExpr: parts.map(p => "(" + p.evalExpr + ")").join(" + "),
+    rules
+  };
+}
+
+function intEvalAntiderivative(evalExpr, variable, value) {
+  try {
+    const re = new RegExp("\\b" + variable + "\\b", "g");
+    const js = evalExpr.replace(re, "(" + value + ")");
+    return Function('"use strict"; return (' + js + ');')();
+  } catch (e) {
+    return NaN;
+  }
+}
+
+function intCalc() {
+  const expr = document.getElementById("intExpr").value.trim();
+  const vari = document.getElementById("intVar").value;
+  const box = document.getElementById("intResultBox");
+  const res = document.getElementById("intResultValue");
+  const stps = document.getElementById("intSteps");
+
+  box.classList.remove("show");
+  stps.innerHTML = "";
+
+  if (!expr) {
+    res.innerHTML = '<span class="calc-error">Please enter a function.</span>';
+    box.classList.add("show");
+    return;
+  }
+
+  const steps = [];
+  let answer = "";
+
+  if (intType === "indefinite") {
+    steps.push("<strong>Step 1:</strong> Compute ∫ " + expr + " d" + vari);
+
+    const sym = intSymbolic(expr, vari);
+    if (sym) {
+      steps.push("<strong>Step 2:</strong> Apply known integration rule(s): " + Array.from(new Set(sym.rules)).join(", "));
+      steps.push("<strong>Step 3:</strong> Antiderivative = " + sym.display + " + C");
+      answer = sym.display + " + C";
+    } else {
+      steps.push("<strong>Step 2:</strong> This expression is not in the simple symbolic rule set.");
+      steps.push("<strong>Note:</strong> Switch to definite mode for a numerical approximation.");
+      answer = "No simple closed form found";
+    }
+  } else {
+    const lowerS = document.getElementById("intLower").value.trim();
+    const upperS = document.getElementById("intUpper").value.trim();
+
+    if (!lowerS || !upperS) {
+      res.innerHTML = '<span class="calc-error">Please enter both bounds.</span>';
+      box.classList.add("show");
+      return;
+    }
+
+    const a = parseMathValue(lowerS);
+    const b = parseMathValue(upperS);
+
+    if (a === null || b === null) {
+      res.innerHTML = '<span class="calc-error">Invalid bounds. Use numbers, pi, e, inf, or -inf.</span>';
+      box.classList.add("show");
+      return;
+    }
+
+    steps.push("<strong>Step 1:</strong> Compute ∫ from " + lowerS + " to " + upperS + " of " + expr + " d" + vari);
+
+    const sym = intSymbolic(expr, vari);
+    if (sym && isFinite(a) && isFinite(b)) {
+      const Fb = intEvalAntiderivative(sym.evalExpr, vari, b);
+      const Fa = intEvalAntiderivative(sym.evalExpr, vari, a);
+
+      if (isFinite(Fb) && isFinite(Fa)) {
+        const val = Fb - Fa;
+        steps.push("<strong>Step 2:</strong> Antiderivative = " + sym.display);
+        steps.push("<strong>Step 3:</strong> Apply FTC: F(" + upperS + ") - F(" + lowerS + ")");
+        steps.push("<strong>Step 4:</strong> " + fmtNum(Fb) + " - " + fmtNum(Fa));
+        steps.push("<strong>Result:</strong> " + fmtNum(val));
+        answer = fmtNum(val);
+      }
+    }
+
+    if (!answer) {
+      if (!isFinite(a) || !isFinite(b)) {
+        res.innerHTML = '<span class="calc-error">Improper integrals with ±∞ are not handled numerically here.</span>';
+        box.classList.add("show");
+        return;
+      }
+
+      const numerical = simpson(expr, vari, a, b, 1000);
+      if (isNaN(numerical) || !isFinite(numerical)) {
+        res.innerHTML = '<span class="calc-error">Could not evaluate. Check the expression syntax.</span>';
+        box.classList.add("show");
+        return;
+      }
+
+      steps.push("<strong>Step 2:</strong> No simple symbolic form found, so use Simpson's Rule.");
+      steps.push("<strong>Step 3:</strong> Numerical approximation with 1000 subintervals.");
+      steps.push("<strong>Result:</strong> ≈ " + fmtNum(numerical));
+      answer = "≈ " + fmtNum(numerical);
+    }
+  }
+
+  res.textContent = answer;
+  stps.innerHTML = steps.map(s => '<div class="calc-step">' + s + "</div>").join("");
+  box.classList.add("show");
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+document.addEventListener("DOMContentLoaded", function () {
+  scUpdate();
+  limUpdateNotation();
+  intUpdateNotation();
+});
+</script>
+</body>
+</html>
