@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return checked ? checked.value : "all";
   };
 
-  const renderArchive = () => {
-    let items = MediaArchive.filterByCategory(getCategory());
+  const renderArchive = async () => {
+    let items = await MediaArchive.filterByCategory(getCategory());
     items = MediaArchive.filterByStatus(items, statusFilter?.value || "all");
 
     grid.innerHTML = "";
