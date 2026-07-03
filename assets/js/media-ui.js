@@ -90,7 +90,7 @@ const MediaUI = {
     ).join("");
   },
 
-  openModal(item, options = {}) {
+  async openModal(item, options = {}) {
     this.closeModal();
     const overlay = document.createElement("div");
     overlay.className = "media-modal-overlay";
@@ -99,13 +99,13 @@ const MediaUI = {
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-label", item.title);
 
-    const inArchive = MediaArchive.isInArchive(item.id);
-    const genres = (item.genres || []).join(", ") || "—";
-    const poster = item.posterUrl
-    await MediaArchive.getAll();
-      ? `<img class="media-modal-poster" src="${item.posterUrl}" alt="${item.title}" />`
-      : `<div class="media-poster media-poster-placeholder">No image</div>`;
-
+ await MediaArchive.getAll();
+const inArchive = MediaArchive.isInArchive(item.id);
+const genres = (item.genres || []).join(", ") || "—";
+const poster = item.posterUrl
+  ? `<img class="media-modal-poster" src="${item.posterUrl}" alt="${item.title}" />`
+  : `<div class="media-poster media-poster-placeholder">No image</div>`;
+   
     overlay.innerHTML = `
       <div class="media-modal card">
         <button type="button" class="media-modal-close" aria-label="Close">×</button>
