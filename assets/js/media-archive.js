@@ -2,6 +2,10 @@ const MediaArchive = {
   WORKER_URL: "https://media-proxy.andreiflorea.workers.dev",
   _cache: [],
 
+  _adminKey() {
+    return localStorage.getItem("admin_key") || "";
+  },
+
   async getAll() {
     try {
       const res = await fetch(`${this.WORKER_URL}/api/watchlist`);
@@ -15,10 +19,18 @@ const MediaArchive = {
 
   async save(items) {
     this._cache = items;
-    await fetch(`${this.WORKER_URL}/api/watchlist`, {
+    const res = await fetch(`${this.WORKER_URL}/api/watchlist`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Key": this._adminKey(),
+      },
       body: JSON.stringify(items),
     });
+    if (res.status === 401) {
+      MediaUI.showToast("Not authorized to modify the watchlist");
+      throw new Error("UNAUTHORIZED");
+    }
   },
 
   async add(item, status = "planning") {

@@ -1,7 +1,7 @@
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers": "Content-Type, X-Admin-Key",
 };
 
 let cachedToken = null;
@@ -38,6 +38,10 @@ export default {
     try {
       if (url.pathname === "/api/watchlist") {
         if (request.method === "POST") {
+          const providedKey = request.headers.get("X-Admin-Key");
+          if (providedKey !== env.ADMIN_KEY) {
+            return new Response("Unauthorized", { status: 401, headers: CORS_HEADERS });
+          }
           const data = await request.json();
           await env.WATCHLIST.put("list", JSON.stringify(data));
           return new Response("Saved", { status: 200, headers: CORS_HEADERS });
@@ -50,7 +54,6 @@ export default {
           });
         }
       }
-
       if (url.pathname.startsWith("/api/tmdb/")) {
         const tmdbPath = url.pathname.replace("/api/tmdb/", "");
         const tmdbUrl = new URL(`https://api.themoviedb.org/3/${tmdbPath}`);
