@@ -1,19 +1,28 @@
 const MediaArchive = {
-  getAll() {
+  WORKER_URL: "https://media-proxy.andreiflorea.workers.dev",
+  _cache: [],
+
+  async getAll() {
     try {
-      const raw = localStorage.getItem(MEDIA_CONFIG.ARCHIVE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const res = await fetch(`${this.WORKER_URL}/api/watchlist`);
+      const items = await res.json();
+      this._cache = items;
+      return items;
     } catch {
-      return [];
+      return this._cache;
     }
   },
 
-  save(items) {
-    localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(items));
+  async save(items) {
+    this._cache = items;
+    await fetch(`${this.WORKER_URL}/api/watchlist`, {
+      method: "POST",
+      body: JSON.stringify(items),
+    });
   },
 
-  add(item, status = "planning") {
-    const items = this.getAll();
+  async add(item, status = "planning") {
+    const items = await this.getAll();
     if (items.some((entry) => entry.id === item.id)) {
       return { added: false, reason: "duplicate" };
     }
@@ -22,24 +31,27 @@ const MediaArchive = {
       status,
       addedAt: new Date().toISOString(),
     });
-    this.save(items);
+    await this.save(items);
     return { added: true };
   },
 
-  remove(id) {
-    this.save(this.getAll().filter((entry) => entry.id !== id));
+  async remove(id) {
+    const items = await this.getAll();
+    await this.save(items.filter((entry) => entry.id !== id));
   },
 
-  updateStatus(id, status) {
-    const items = this.getAll().map((entry) =>
+  async updateStatus(id, status) {
+    const items = await this.getAll();
+    const updated = items.map((entry) =>
       entry.id === id ? { ...entry, status } : entry
     );
-    this.save(items);
+    await this.save(updated);
   },
 
-  filterByCategory(category) {
-    if (!category || category === "all") return this.getAll();
-    return this.getAll().filter((entry) => entry.category === category);
+  async filterByCategory(category) {
+    const items = await this.getAll();
+    if (!category || category === "all") return items;
+    return items.filter((entry) => entry.category === category);
   },
 
   filterByStatus(items, status) {
@@ -48,6 +60,6 @@ const MediaArchive = {
   },
 
   isInArchive(id) {
-    return this.getAll().some((entry) => entry.id === id);
+    return this._cache.some((entry) => entry.id === id);
   },
 };

@@ -102,6 +102,7 @@ const MediaUI = {
     const inArchive = MediaArchive.isInArchive(item.id);
     const genres = (item.genres || []).join(", ") || "—";
     const poster = item.posterUrl
+    await MediaArchive.getAll();
       ? `<img class="media-modal-poster" src="${item.posterUrl}" alt="${item.title}" />`
       : `<div class="media-poster media-poster-placeholder">No image</div>`;
 
@@ -145,9 +146,9 @@ const MediaUI = {
 
     const addBtn = overlay.querySelector("#modalAddBtn");
     if (addBtn && !inArchive) {
-      addBtn.addEventListener("click", () => {
+      addBtn.addEventListener("click", async () => {
         const status = overlay.querySelector("#modalStatus").value;
-        const result = MediaArchive.add(item, status);
+        const result = await MediaArchive.add(item, status);
         if (result.added) {
           this.showToast(`Added "${item.title}" to archive`);
           addBtn.disabled = true;
@@ -187,15 +188,15 @@ const MediaUI = {
         </div>
       </div>`;
 
-    card.querySelector(".archive-status-select").addEventListener("change", (e) => {
-      MediaArchive.updateStatus(item.id, e.target.value);
+    card.querySelector(".archive-status-select").addEventListener("change", async (e) => {
+      await MediaArchive.updateStatus(item.id, e.target.value);
       card.querySelector(".archive-badge").textContent = e.target.value;
       card.querySelector(".archive-badge").className = `archive-badge archive-badge--${e.target.value}`;
       MediaUI.showToast("Status updated");
     });
 
-    card.querySelector(".media-remove-btn").addEventListener("click", () => {
-      MediaArchive.remove(item.id);
+    card.querySelector(".media-remove-btn").addEventListener("click", async () => {
+      await MediaArchive.remove(item.id);
       card.remove();
       const grid = document.getElementById("archiveGrid");
       if (grid && !grid.children.length) {

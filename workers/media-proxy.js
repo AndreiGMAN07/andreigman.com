@@ -36,6 +36,21 @@ export default {
     const url = new URL(request.url);
 
     try {
+      if (url.pathname === "/api/watchlist") {
+        if (request.method === "POST") {
+          const data = await request.json();
+          await env.WATCHLIST.put("list", JSON.stringify(data));
+          return new Response("Saved", { status: 200, headers: CORS_HEADERS });
+        }
+
+        if (request.method === "GET") {
+          const data = await env.WATCHLIST.get("list");
+          return new Response(data || "[]", {
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+          });
+        }
+      }
+
       if (url.pathname.startsWith("/api/tmdb/")) {
         const tmdbPath = url.pathname.replace("/api/tmdb/", "");
         const tmdbUrl = new URL(`https://api.themoviedb.org/3/${tmdbPath}`);
