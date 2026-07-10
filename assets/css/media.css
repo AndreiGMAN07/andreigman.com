@@ -301,6 +301,33 @@
   color: #f87171;
 }
 
+.grade-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  margin-bottom: 0.4rem;
+  margin-left: 0.35rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid currentColor;
+}
+
+.grade-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.grade-input:focus {
+  outline: 2px solid rgba(54, 168, 93, 0.45);
+  outline-offset: 2px;
+}
+
 .media-archive-card {
   cursor: default;
 }

@@ -5,6 +5,43 @@ const MediaUI = {
     return d.innerHTML;
   },
 
+  getGradeColor(grade) {
+    if (grade == null || grade === "") return null;
+    const g = Number(grade);
+    if (Number.isNaN(g)) return null;
+    if (g < 5) return "#ef4444";
+    if (g < 6.5) return "#f97316";
+    if (g < 8) return "#eab308";
+    if (g < 9) return "#86efac";
+    if (g < 9.7) return "#16a34a";
+    return "#67e8f9";
+  },
+
+  gradeBadgeHtml(grade) {
+    if (grade == null) return "";
+    const color = this.getGradeColor(grade);
+    const display = Number(grade).toFixed(2);
+    return `<span class="grade-badge" style="color: ${color}">★ ${display}</span>`;
+  },
+
+  updateGradeBadge(card, grade) {
+    const badgeRow = card.querySelector(".archive-badge-row");
+    if (!badgeRow) return;
+
+    const existing = badgeRow.querySelector(".grade-badge");
+    if (existing) existing.remove();
+
+    if (grade != null) {
+      const color = this.getGradeColor(grade);
+      const display = Number(grade).toFixed(2);
+      const badge = document.createElement("span");
+      badge.className = "grade-badge";
+      badge.style.color = color;
+      badge.textContent = `★ ${display}`;
+      badgeRow.appendChild(badge);
+    }
+  },
+
   showToast(message) {
     let toast = document.getElementById("mediaToast");
     if (!toast) {
@@ -174,25 +211,55 @@ const MediaUI = {
     const poster = item.posterUrl
       ? `<img class="media-poster" src="${item.posterUrl}" alt="${item.title}" loading="lazy" />`
       : `<div class="media-poster media-poster-placeholder">No image</div>`;
+    const gradeValue = item.grade != null ? Number(item.grade) : "";
     card.innerHTML = `
       ${poster}
       <div class="media-card-body">
-        <span class="archive-badge archive-badge--${item.status}">${item.status}</span>
+        <div class="archive-badge-row">
+          <span class="archive-badge archive-badge--${item.status}">${item.status}</span>
+          ${this.gradeBadgeHtml(item.grade)}
+        </div>
         <h3 class="media-card-title">${this.escapeHtml(item.title)}</h3>
         <p class="media-score">${item.category}${item.year ? ` · ${item.year}` : ""}</p>
         <div class="media-archive-actions">
           <select class="status-select archive-status-select" aria-label="Update status for ${item.title}">
             ${this.statusOptions(item.status)}
           </select>
+          <input
+            type="number"
+            class="grade-input"
+            min="1"
+            max="10"
+            step="0.01"
+            placeholder="Rate (1–10)"
+            aria-label="Personal grade for ${item.title}"
+            value="${gradeValue}"
+          />
           <button type="button" class="btn btn-secondary media-remove-btn">Remove</button>
         </div>
       </div>`;
 
     card.querySelector(".archive-status-select").addEventListener("change", async (e) => {
       await MediaArchive.updateStatus(item.id, e.target.value);
-      card.querySelector(".archive-badge").textContent = e.target.value;
-      card.querySelector(".archive-badge").className = `archive-badge archive-badge--${e.target.value}`;
+      const badge = card.querySelector(".archive-badge");
+      badge.textContent = e.target.value;
+      badge.className = `archive-badge archive-badge--${e.target.value}`;
       MediaUI.showToast("Status updated");
+    });
+
+    const gradeInput = card.querySelector(".grade-input");
+    gradeInput.addEventListener("change", async (e) => {
+      const raw = e.target.value.trim();
+      const result = await MediaArchive.updateGrade(item.id, raw === "" ? null : raw);
+      if (result.saved) {
+        if (result.grade != null) {
+          e.target.value = result.grade;
+        } else {
+          e.target.value = "";
+        }
+        MediaUI.updateGradeBadge(card, result.grade);
+        MediaUI.showToast("Grade saved");
+      }
     });
 
     card.querySelector(".media-remove-btn").addEventListener("click", async () => {
@@ -246,6 +313,7 @@ const MediaUI = {
       try {
         const items = await fetchFn();
         MediaUI.renderGrid(grid, items, openDetail);
+        window.initScrollReveal?.();
       } catch (err) {
         if (needsProxy && (err.message === "PROXY_NOT_CONFIGURED" || !isProxyConfigured())) {
           MediaUI.renderProxySetup(grid);
@@ -272,6 +340,7 @@ const MediaUI = {
           try {
             const items = await search(q);
             MediaUI.renderGrid(grid, items, openDetail);
+            window.initScrollReveal?.();
           } catch (err) {
             if (needsProxy && (err.message === "PROXY_NOT_CONFIGURED" || !isProxyConfigured())) {
               MediaUI.renderProxySetup(grid);

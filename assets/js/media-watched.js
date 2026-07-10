@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const grid = document.getElementById("archiveGrid");
   const categoryInputs = document.querySelectorAll('input[name="archiveCategory"]');
   const statusFilter = document.getElementById("archiveStatusFilter");
+  const sortFilter = document.getElementById("archiveSortFilter");
 
   const getCategory = () => {
     const checked = document.querySelector('input[name="archiveCategory"]:checked');
@@ -11,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const renderArchive = async () => {
     let items = await MediaArchive.filterByCategory(getCategory());
     items = MediaArchive.filterByStatus(items, statusFilter?.value || "all");
+    items = MediaArchive.sortItems(items, sortFilter?.value || "date-added");
 
     grid.innerHTML = "";
     grid.className = "media-grid";
@@ -24,9 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     items.forEach((item) => grid.appendChild(MediaUI.renderArchiveCard(item)));
+    window.initScrollReveal?.();
   };
 
   categoryInputs.forEach((input) => input.addEventListener("change", renderArchive));
   statusFilter?.addEventListener("change", renderArchive);
+  sortFilter?.addEventListener("change", renderArchive);
   renderArchive();
 });
