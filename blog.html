@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>andreigman.com – Blog</title>
-  <link rel="stylesheet" href="assets/css/style.css?v=2" />
+  <link rel="stylesheet" href="assets/css/style.css?v=4" />
 </head>
 <body>
 
@@ -48,6 +48,9 @@
 
         <div class="grid-3" id="blogList">
 
+          <!-- Static fallback: these cards render if JS is disabled or
+               posts.json fails to load. If JS succeeds, they are replaced
+               by cards generated from the manifest. -->
           <article class="card hover-card" data-tag="diary">
             <p class="mini-meta">June 2026 · Diary</p>
             <h3>My first blog entry</h3>
@@ -69,7 +72,7 @@
             <a href="posts/blog-post-03.html" class="text-link">Read post</a>
           </article>
 
-          <!-- ADD NEW POSTS HERE -->
+          <!-- ADD NEW POSTS HERE (or, preferred: add an entry to posts/posts.json) -->
 
         </div>
 
@@ -94,20 +97,69 @@
     </div>
   </footer>
 
-  <script src="assets/js/script.js"></script>
+  <script src="assets/js/script.js?v=4"></script>
+  <script src="assets/js/search.js?v=4"></script>
   <script>
-    const tags = document.querySelectorAll('.blog-tag');
-    const cards = document.querySelectorAll('#blogList .card');
-    tags.forEach(btn => {
+    /* ── Tag filter ──
+       Re-queries .card on every click so it works with both the static
+       fallback cards and any dynamically-rendered cards from posts.json. */
+    const tagButtons = document.querySelectorAll('.blog-tag');
+    tagButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        tags.forEach(t => t.classList.remove('active'));
+        tagButtons.forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
         const selected = btn.dataset.tag;
-        cards.forEach(card => {
+        document.querySelectorAll('#blogList .card').forEach(card => {
           card.style.display = (selected === 'all' || card.dataset.tag === selected) ? '' : 'none';
         });
       });
     });
+
+    /* ── Auto-index from posts/posts.json ──
+       On success: replaces the static fallback cards with cards built
+       from the manifest (sorted newest-first). On failure: silently
+       keeps the static fallback already in the HTML. */
+    (async function () {
+      try {
+        const res = await fetch('posts/posts.json', { cache: 'no-cache' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data || !Array.isArray(data.posts) || data.posts.length === 0) return;
+
+        const list = document.getElementById('blogList');
+        if (!list) return;
+
+        const sorted = data.posts.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+        const tagLabel = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+        const html = sorted.map(p => {
+          const tag = p.tag || 'thoughts';
+          const dateDisplay = p.dateDisplay || '';
+          const blurb = p.blurb || '';
+          const title = p.title || '(untitled)';
+          const file = p.file || '#';
+          return '<article class="card hover-card" data-tag="' + tag + '">' +
+                   '<p class="mini-meta">' + dateDisplay + ' &middot; ' + tagLabel(tag) + '</p>' +
+                   '<h3>' + title + '</h3>' +
+                   '<p>' + blurb + '</p>' +
+                   '<a href="' + file + '" class="text-link">Read post</a>' +
+                 '</article>';
+        }).join('');
+
+        // Only replace if we actually generated something useful
+        if (html) {
+          list.innerHTML = html;
+          // Re-init scroll reveal for the freshly injected cards
+          if (typeof window.initScrollReveal === 'function') {
+            window.initScrollReveal();
+          }
+        }
+      } catch (e) {
+        // Silent: static fallback is already in the DOM
+        if (window.console) console.warn('posts.json load failed, using static cards:', e);
+      }
+    })();
   </script>
 
 </body>

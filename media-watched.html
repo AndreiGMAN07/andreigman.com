@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>andreigman.com | Media-Watched</title>
   <meta name="description" content="Browse live anime, games, movies and TV — track what you watch in your personal archive." />
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/style.css?v=4" />
   <link rel="stylesheet" href="assets/css/media.css" />
 </head>
 <body>
@@ -45,8 +45,8 @@
 
           <article class="card hover-card">
             <p class="mini-meta">entry_02</p>
-            <h3>Games</h3>
-            <p>Powered by IGDB — discover games by genre, platform, and rating, then track them in your archive.</p>
+            <h3>Games <span class="badge badge-pending" title="Awaiting Twitch API key">Coming soon &mdash; auth pending</span></h3>
+            <p>Games search is waiting on a Twitch Developer API key (IGDB OAuth). The card will activate as soon as the key is configured. Browse anime, movies, and your archive in the meantime.</p>
             <a href="media-games.html" class="text-link">Open</a>
           </article>
 
@@ -114,13 +114,14 @@
         <a href="blog.html">Blog</a>
         <a href="resources.html">Resources</a>
         <a href="media-watched.html">Media-Watched</a>
-        <a href="../functions.html">Functions</a>
+        <a href="functions.html">Functions</a>
         <a href="credits.html">Credits</a>
       </div>
     </div>
   </footer>
 
-  <script src="assets/js/script.js"></script>
+  <script src="assets/js/script.js?v=4"></script>
+  <script src="assets/js/search.js?v=4"></script>
   <script src="assets/js/media-config.js"></script>
   <script src="assets/js/media-archive.js"></script>
   <script src="assets/js/media-ui.js"></script>

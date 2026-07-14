@@ -88,3 +88,97 @@ const initScrollReveal = () => {
 
 document.addEventListener("DOMContentLoaded", initScrollReveal);
 window.initScrollReveal = initScrollReveal;
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE 2 — Scroll progress + page-transition curtain wipe
+   All additive, scoped to their own elements. No conflicts with
+   existing nav toggle / theme toggle / reveal observer.
+   ═══════════════════════════════════════════════════════════════ */
+
+(function () {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) return;
+
+  /* --- Grain overlay layer (injected once, sits above content visually but
+       is non-interactive and very faint; respects --grain-opacity via CSS) --- */
+  if (!document.querySelector("body > .phase2-grain")) {
+    const grain = document.createElement("div");
+    grain.className = "phase2-grain";
+    grain.setAttribute("aria-hidden", "true");
+    document.body.appendChild(grain);
+  }
+
+  /* --- Scroll progress indicator (inserted once into sticky header) --- */
+  const header = document.querySelector(".site-header");
+  if (header && !header.querySelector(".scroll-progress")) {
+    const track = document.createElement("div");
+    track.className = "scroll-progress";
+    const bar = document.createElement("div");
+    bar.className = "scroll-progress__bar";
+    track.appendChild(bar);
+    header.appendChild(track);
+
+    const updateBar = () => {
+      const doc = document.documentElement;
+      const max = (doc.scrollHeight - doc.clientHeight) || 1;
+      const pct = Math.min(100, Math.max(0, (window.scrollY / max) * 100));
+      bar.style.width = pct + "%";
+    };
+    updateBar();
+    window.addEventListener("scroll", updateBar, { passive: true });
+    window.addEventListener("resize", updateBar, { passive: true });
+  }
+
+  /* --- Page-transition green curtain wipe ---
+     Reads existing .page-transition + .page-transition__loader markup
+     if present on the page; if absent, builds it once. Triggers on
+     internal <a> clicks that navigate to a .html file in the same
+     origin (not external, not hash links, not target=_blank).        */
+  let curtain = document.querySelector(".page-transition");
+
+  if (!curtain) {
+    curtain = document.createElement("div");
+    curtain.className = "page-transition";
+    const loader = document.createElement("div");
+    loader.className = "page-transition__loader";
+    curtain.appendChild(loader);
+    document.body.appendChild(curtain);
+  }
+
+  curtain.addEventListener("transitionend", function () {
+    if (curtain.classList.contains("active")) return; // only handle outward
+  });
+
+  const isInternalHtml = (href) => {
+    if (!href) return false;
+    if (href.startsWith("http") || href.startsWith("//")) return false;
+    if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return false;
+    return /\.html(\?|$|#)/.test(href) || href.endsWith("/");
+  };
+
+  document.addEventListener("click", function (e) {
+    const a = e.target.closest("a");
+    if (!a) return;
+    const href = a.getAttribute("href");
+    if (!isInternalHtml(href)) return;
+    if (a.target === "_blank" || a.hasAttribute("download")) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    // Same URL: don't fire curtain
+    const url = new URL(href, window.location.href);
+    if (url.href === window.location.href) return;
+
+    e.preventDefault();
+    curtain.classList.add("active");
+    setTimeout(() => { window.location.href = url.href; }, 280);
+  });
+
+  // Safety net: if bfcache restore leaves curtain visible, clear it.
+  window.addEventListener("pageshow", function (ev) {
+    if (ev.persisted) curtain.classList.remove("active");
+  });
+  window.addEventListener("load", function () {
+    // Hide curtain if a new page loaded with it stuck open
+    requestAnimationFrame(() => curtain.classList.remove("active"));
+  });
+})();
