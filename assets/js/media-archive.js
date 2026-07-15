@@ -119,12 +119,44 @@ const MediaArchive = {
         return sorted.sort((a, b) =>
           (b.title || "").localeCompare(a.title || "", undefined, { sensitivity: "base" })
         );
+      case "grade-asc":
+        return sorted.sort((a, b) => {
+          const ga = a.grade != null ? Number(a.grade) : -Infinity;
+          const gb = b.grade != null ? Number(b.grade) : -Infinity;
+          return ga - gb;
+        });
+      case "grade-desc":
+        return sorted.sort((a, b) => {
+          const ga = a.grade != null ? Number(a.grade) : -Infinity;
+          const gb = b.grade != null ? Number(b.grade) : -Infinity;
+          return gb - ga;
+        });
+      case "year-asc":
+        return sorted.sort((a, b) => {
+          const ya = a.year != null ? Number(a.year) : Infinity;
+          const yb = b.year != null ? Number(b.year) : Infinity;
+          return ya - yb;
+        });
+      case "year-desc":
+        return sorted.sort((a, b) => {
+          const ya = a.year != null ? Number(a.year) : -Infinity;
+          const yb = b.year != null ? Number(b.year) : -Infinity;
+          return yb - ya;
+        });
       case "date-added":
       default:
         return sorted.sort(
           (a, b) => new Date(b.addedAt || 0) - new Date(a.addedAt || 0)
         );
     }
+  },
+
+  filterByName(items, query) {
+    if (!query || !query.trim()) return items;
+    const q = query.trim().toLowerCase();
+    return items.filter((item) =>
+      (item.title || "").toLowerCase().includes(q)
+    );
   },
 
   isInArchive(id) {

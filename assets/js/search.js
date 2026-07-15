@@ -73,6 +73,7 @@
         title: p.title,
         href: depth + (p.file || ""),
         kind: "post",
+        tag: p.tag || "",
         keywords: (p.tag || "") + " " + (p.blurb || "") + " " + (p.dateDisplay || "")
       })) : [];
       return postsCache;
@@ -126,7 +127,7 @@
     }
     box.innerHTML = results.map((r, i) =>
       '<a href="' + r.href + '" class="search-result" data-idx="' + i + '" tabindex="0">' +
-        '<span class="search-result__kind search-result__kind--' + r.kind + '">' + r.kind + '</span>' +
+        '<span class="search-result__kind search-result__kind--' + r.kind + '">' + (r.tag || r.kind) + '</span>' +
         '<span class="search-result__title">' + escapeHtml(r.title) + '</span>' +
       '</a>'
     ).join("");

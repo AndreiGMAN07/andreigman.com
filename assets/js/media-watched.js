@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoryInputs = document.querySelectorAll('input[name="archiveCategory"]');
   const statusFilter = document.getElementById("archiveStatusFilter");
   const sortFilter = document.getElementById("archiveSortFilter");
+  const nameSearch = document.getElementById("archiveSearchName");
 
   const getCategory = () => {
     const checked = document.querySelector('input[name="archiveCategory"]:checked');
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const renderArchive = async () => {
     let items = await MediaArchive.filterByCategory(getCategory());
     items = MediaArchive.filterByStatus(items, statusFilter?.value || "all");
+    items = MediaArchive.filterByName(items, nameSearch?.value || "");
     items = MediaArchive.sortItems(items, sortFilter?.value || "date-added");
 
     grid.innerHTML = "";
@@ -32,5 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
   categoryInputs.forEach((input) => input.addEventListener("change", renderArchive));
   statusFilter?.addEventListener("change", renderArchive);
   sortFilter?.addEventListener("change", renderArchive);
+  nameSearch?.addEventListener("input", renderArchive);
   renderArchive();
 });
