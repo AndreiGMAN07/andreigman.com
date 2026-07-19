@@ -3,7 +3,13 @@ const MediaArchive = {
   _cache: [],
 
   _adminKey() {
-    return localStorage.getItem("admin_key") || "";
+    if (MediaArchive._key == null) {
+      MediaArchive._key = localStorage.getItem("admin_key") || prompt("Enter admin key:") || "";
+      if (MediaArchive._key) {
+        sessionStorage.setItem("admin_key", MediaArchive._key);
+      }
+    }
+    return MediaArchive._key || sessionStorage.getItem("admin_key") || "";
   },
 
   async getAll() {

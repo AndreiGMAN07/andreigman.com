@@ -248,7 +248,7 @@ const MediaUI = {
     });
 
     const gradeInput = card.querySelector(".grade-input");
-    gradeInput.addEventListener("change", async (e) => {
+    const saveGrade = async (e) => {
       const raw = e.target.value.trim();
       const result = await MediaArchive.updateGrade(item.id, raw === "" ? null : raw);
       if (result.saved) {
@@ -260,7 +260,9 @@ const MediaUI = {
         MediaUI.updateGradeBadge(card, result.grade);
         MediaUI.showToast("Grade saved");
       }
-    });
+    };
+    const debouncedSaveGrade = MediaUI.debounce(saveGrade, 300);
+    gradeInput.addEventListener("input", debouncedSaveGrade);
 
     card.querySelector(".media-remove-btn").addEventListener("click", async () => {
       await MediaArchive.remove(item.id);

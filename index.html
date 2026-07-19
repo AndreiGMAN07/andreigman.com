@@ -5,9 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>andreigman.com | Home</title>
   <meta name="description" content="Personal website of Andrei - blog, resources, and projects." />
-  <link rel="stylesheet" href="assets/css/style.css?v=4" />
+  <meta property="og:title" content="andreigman.com | Home" />
+  <meta property="og:description" content="Personal website of Andrei - blog, resources, and projects." />
+  <meta property="og:url" content="https://andreigman.com/index.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://andreigman.com/favicon.svg" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <link rel="stylesheet" href="assets/css/style.css?v=5" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Andrei-Daniel Florea",
+    "alternateName": "andreigman",
+    "url": "https://andreigman.com",
+    "sameAs": [
+      "https://www.instagram.com/andrei._.gman",
+      "https://github.com/AndreiGMAN07",
+      "https://www.youtube.com/@andreigman6747",
+      "https://www.linkedin.com/in/andrei-daniel-florea-86075a355/"
+    ],
+    "jobTitle": "Student"
+  }
+  </script>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
+
   <header class="site-header">
     <div class="container nav">
       <a href="index.html" class="logo">andreigman<span>.com</span></a>
@@ -15,7 +41,7 @@
       <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
 
       <nav class="nav-menu" id="navMenu">
-        <a href="index.html" class="active">Home</a>
+        <a href="index.html" class="active" aria-current="page">Home</a>
         <a href="about.html">About</a>
         <a href="blog.html">Blog</a>
         <a href="resources.html">Resources</a>
@@ -28,7 +54,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-text">
@@ -116,8 +142,8 @@
     </div>
   </footer>
 
-  <script src="assets/js/script.js?v=4"></script>
-  <script src="assets/js/search.js?v=4"></script>
+  <script defer src="assets/js/script.js?v=5"></script>
+  <script defer src="assets/js/search.js?v=5"></script>
 </body>
 </html>
 

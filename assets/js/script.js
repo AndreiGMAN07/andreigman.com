@@ -145,10 +145,6 @@ window.initScrollReveal = initScrollReveal;
     document.body.appendChild(curtain);
   }
 
-  curtain.addEventListener("transitionend", function () {
-    if (curtain.classList.contains("active")) return; // only handle outward
-  });
-
   const isInternalHtml = (href) => {
     if (!href) return false;
     if (href.startsWith("http") || href.startsWith("//")) return false;
@@ -180,5 +176,10 @@ window.initScrollReveal = initScrollReveal;
   window.addEventListener("load", function () {
     // Hide curtain if a new page loaded with it stuck open
     requestAnimationFrame(() => curtain.classList.remove("active"));
+  });
+
+  // Handle back/forward navigation: close curtain immediately
+  window.addEventListener("popstate", function () {
+    curtain.classList.remove("active");
   });
 })();

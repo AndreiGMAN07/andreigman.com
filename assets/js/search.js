@@ -160,8 +160,6 @@
     inputEl = document.getElementById("searchInput");
     overlayEl.classList.add("search-overlay--open");
     document.body.classList.add("search-open");
-    // load posts.json in the background while typing
-    if (!postsCache) loadPosts(depth);
     setTimeout(() => inputEl && inputEl.focus(), 50);
     renderResults("", await loadPosts(depth));
     activeIdx = -1;

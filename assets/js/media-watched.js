@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   categoryInputs.forEach((input) => input.addEventListener("change", renderArchive));
   statusFilter?.addEventListener("change", renderArchive);
   sortFilter?.addEventListener("change", renderArchive);
-  nameSearch?.addEventListener("input", renderArchive);
+  const debouncedRender = MediaUI.debounce(renderArchive, 150);
+  nameSearch?.addEventListener("input", debouncedRender);
   renderArchive();
 });

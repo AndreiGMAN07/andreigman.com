@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>andreigman.com</title>
+    <link>https://andreigman.com</link>
+    <description>Personal blog of Andrei — thoughts, notes, and diary entries.</description>
+    <language>en</language>
+    <lastBuildDate>Sun, 19 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://andreigman.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>New people, new ages</title>
+      <link>https://andreigman.com/posts/blog-post-03.html</link>
+      <description>I've met some of my new college buddies and I think that...</description>
+      <pubDate>Mon, 13 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://andreigman.com/posts/blog-post-03.html</guid>
+    </item>
+    <item>
+      <title>The END??</title>
+      <link>https://andreigman.com/posts/blog-post-02.html</link>
+      <description>If something has finished, does it truly mean the end?</description>
+      <pubDate>Thu, 02 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://andreigman.com/posts/blog-post-02.html</guid>
+    </item>
+    <item>
+      <title>My first blog entry</title>
+      <link>https://andreigman.com/posts/blog-post-01.html</link>
+      <description>A short intro about why I started writing here.</description>
+      <pubDate>Thu, 25 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://andreigman.com/posts/blog-post-01.html</guid>
+    </item>
+  </channel>
+</rss>
