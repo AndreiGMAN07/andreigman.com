@@ -54,6 +54,12 @@
           <button type="button" class="blog-tag" data-tag="tech">Tech</button>
           <button type="button" class="blog-tag" data-tag="thoughts">Thoughts</button>
           <button type="button" class="blog-tag" data-tag="university">University</button>
+          <select id="blogSort" class="blog-sort" aria-label="Sort posts">
+            <option value="date-desc">Newest first</option>
+            <option value="date-asc">Oldest first</option>
+            <option value="title-asc">Title A–Z</option>
+            <option value="title-desc">Title Z–A</option>
+          </select>
         </div>
 
         <div class="blog-layout">
@@ -118,73 +124,118 @@
   <script defer src="assets/js/script.js?v=5"></script>
   <script defer src="assets/js/search.js?v=5"></script>
   <script>
+    let postsData = [];
+    let activeTag = "all";
+
     /* ── Tag filter ──
-       Re-queries .card on every click so it works with both the static
-       fallback cards and any dynamically-rendered cards from posts.json. */
-    const tagButtons = document.querySelectorAll('.blog-tag');
-    tagButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tagButtons.forEach(t => {
-          t.classList.remove('active');
-          t.setAttribute('aria-pressed', 'false');
+       Hides/shows cards based on the active tag. */
+    const tagButtons = document.querySelectorAll(".blog-tag");
+    tagButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        tagButtons.forEach((t) => {
+          t.classList.remove("active");
+          t.setAttribute("aria-pressed", "false");
         });
-        btn.classList.add('active');
-        btn.setAttribute('aria-pressed', 'true');
-        const selected = btn.dataset.tag;
-        document.querySelectorAll('#blogList .card').forEach(card => {
-          card.style.display = (selected === 'all' || card.dataset.tag === selected) ? '' : 'none';
+        btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
+        activeTag = btn.dataset.tag;
+        document.querySelectorAll("#blogList .card").forEach((card) => {
+          card.style.display =
+            activeTag === "all" || card.dataset.tag === activeTag ? "" : "none";
         });
       });
     });
 
-    /* ── Auto-index from posts/posts.json ──
-       On success: replaces the static fallback cards with cards built
-       from the manifest (sorted newest-first). On failure: silently
-       keeps the static fallback already in the HTML. */
+    function sortPosts(posts) {
+      const sortVal = document.getElementById("blogSort").value;
+      const sorted = posts.slice();
+      switch (sortVal) {
+        case "date-desc":
+          sorted.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+          break;
+        case "date-asc":
+          sorted.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+          break;
+        case "title-asc":
+          sorted.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+          break;
+        case "title-desc":
+          sorted.sort((a, b) => (b.title || "").localeCompare(a.title || ""));
+          break;
+      }
+      return sorted;
+    }
+
+    function renderPosts() {
+      const list = document.getElementById("blogList");
+      if (!list || !postsData.length) return;
+
+      const sorted = sortPosts(postsData);
+      const tagLabel = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+      list.innerHTML = sorted
+        .map((p) => {
+          const tag = p.tag || "thoughts";
+          return (
+            '<article class="card hover-card" data-tag="' +
+            tag +
+            '">' +
+            '<p class="mini-meta">' +
+            (p.dateDisplay || "") +
+            " &middot; " +
+            tagLabel(tag) +
+            "</p>" +
+            "<h3>" +
+            (p.title || "(untitled)") +
+            "</h3>" +
+            "<p>" +
+            (p.blurb || "") +
+            "</p>" +
+            '<a href="' +
+            (p.file || "#") +
+            '" class="text-link">Read post</a>' +
+            "</article>"
+          );
+        })
+        .join("");
+
+      if (typeof window.initScrollReveal === "function") {
+        window.initScrollReveal();
+      }
+
+      // Re-apply active tag filter
+      document.querySelectorAll("#blogList .card").forEach((card) => {
+        card.style.display =
+          activeTag === "all" || card.dataset.tag === activeTag ? "" : "none";
+      });
+
+      // Recent posts sidebar
+      const recentList = document.getElementById("recentPosts");
+      if (recentList) {
+        recentList.innerHTML = sorted
+          .slice(0, 3)
+          .map(
+            (p) => '<li><a href="' + p.file + '">' + p.title + "</a></li>"
+          )
+          .join("");
+      }
+    }
+
+    /* ── Sort dropdown ── */
+    document
+      .getElementById("blogSort")
+      ?.addEventListener("change", renderPosts);
+
+    /* ── Auto-index from posts/posts.json ── */
     (async function () {
       try {
-        const res = await fetch('posts/posts.json', { cache: 'no-cache' });
+        const res = await fetch("posts/posts.json", { cache: "no-cache" });
         if (!res.ok) return;
         const data = await res.json();
-        if (!data || !Array.isArray(data.posts) || data.posts.length === 0) return;
-
-        const list = document.getElementById('blogList');
-        if (!list) return;
-
-        const sorted = data.posts.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-        const tagLabel = (t) => t.charAt(0).toUpperCase() + t.slice(1);
-
-        const html = sorted.map(p => {
-          const tag = p.tag || 'thoughts';
-          const dateDisplay = p.dateDisplay || '';
-          const blurb = p.blurb || '';
-          const title = p.title || '(untitled)';
-          const file = p.file || '#';
-          return '<article class="card hover-card" data-tag="' + tag + '">' +
-                   '<p class="mini-meta">' + dateDisplay + ' &middot; ' + tagLabel(tag) + '</p>' +
-                   '<h3>' + title + '</h3>' +
-                   '<p>' + blurb + '</p>' +
-                   '<a href="' + file + '" class="text-link">Read post</a>' +
-                 '</article>';
-        }).join('');
-
-        // Only replace if we actually generated something useful
-        if (html) {
-          list.innerHTML = html;
-          // Re-init scroll reveal for the freshly injected cards
-          if (typeof window.initScrollReveal === 'function') {
-            window.initScrollReveal();
-          }
-        }
-
-        // Populate recent posts sidebar
-        const recentList = document.getElementById('recentPosts');
-        if (recentList && sorted.length) {
-          recentList.innerHTML = sorted.slice(0, 3).map(p =>
-            '<li><a href="' + p.file + '">' + p.title + '</a></li>'
-          ).join('');
-        }
+        if (!data || !Array.isArray(data.posts) || data.posts.length === 0)
+          return;
+        postsData = data.posts;
+        renderPosts();
       } catch (e) {
         // Silent: static fallback is already in the DOM
       }

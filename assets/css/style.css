@@ -569,6 +569,28 @@ main {
   color: var(--primary-2);
 }
 
+.blog-sort {
+  margin-left: auto;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+.blog-sort:hover,
+.blog-sort:focus {
+  border-color: rgba(54, 168, 93, 0.55);
+  color: var(--primary-2);
+}
+@media (max-width: 600px) {
+  .blog-sort { margin-left: 0; }
+}
+
 /* ── Blog post page ── */
 .blog-back-link {
   display: inline-block;
