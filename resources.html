@@ -13,7 +13,7 @@
   <meta name="twitter:card" content="summary" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=5" />
+  <link rel="stylesheet" href="assets/css/style.css?v=6" />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to content</a>
@@ -41,30 +41,69 @@
         <div class="section-head">
           <p class="eyebrow">Resources</p>
           <h1>Notes, courses, and useful files</h1>
+          <p class="lead">Study materials, documents, and links I've collected &mdash; all in one place.</p>
         </div>
 
-        <div class="grid-3">
+        <div class="res-bar">
+          <button id="manageToggle" class="btn btn-sm">&#9998; Manage</button>
+        </div>
+
+        <div class="grid-3" id="resourcesGrid">
+
+          <!-- Notes -->
           <div class="card">
-            <h3>Notes</h3>
-            <ul class="clean-list">
-              <li><em>Coming soon</em></li>
-            </ul>
+            <h3>&#128221; Notes</h3>
+            <ul class="clean-list" id="list-notes"></ul>
+            <div class="manage-scope" id="manage-notes" hidden>
+              <hr />
+              <div class="add-link-row">
+                <input type="text" class="link-title" placeholder="Title" />
+                <input type="url" class="link-url" placeholder="https://..." />
+                <button class="btn btn-sm add-link-btn" data-category="notes">Add Link</button>
+              </div>
+              <div class="drop-zone" data-category="notes">
+                <p>Drop files or links here, or click to browse</p>
+                <input type="file" multiple hidden />
+              </div>
+            </div>
           </div>
 
+          <!-- Courses -->
           <div class="card">
-            <h3>Courses</h3>
-            <ul class="clean-list">
-              <li><em>Coming soon</em></li>
-            </ul>
+            <h3>&#127891; Courses</h3>
+            <ul class="clean-list" id="list-courses"></ul>
+            <div class="manage-scope" id="manage-courses" hidden>
+              <hr />
+              <div class="add-link-row">
+                <input type="text" class="link-title" placeholder="Title" />
+                <input type="url" class="link-url" placeholder="https://..." />
+                <button class="btn btn-sm add-link-btn" data-category="courses">Add Link</button>
+              </div>
+              <div class="drop-zone" data-category="courses">
+                <p>Drop files or links here, or click to browse</p>
+                <input type="file" multiple hidden />
+              </div>
+            </div>
           </div>
 
+          <!-- Files -->
           <div class="card">
-            <h3>Files</h3>
-            <ul class="clean-list">
-              <li><a href="https://drive.google.com/drive/folders/1Pdny61HOaFEQu-Jd3ZCyskeCKBbjd6Jf?usp=sharing">Highschool Files</a></li>
-              
-            </ul>
+            <h3>&#128230; Files</h3>
+            <ul class="clean-list" id="list-files"></ul>
+            <div class="manage-scope" id="manage-files" hidden>
+              <hr />
+              <div class="add-link-row">
+                <input type="text" class="link-title" placeholder="Title" />
+                <input type="url" class="link-url" placeholder="https://..." />
+                <button class="btn btn-sm add-link-btn" data-category="files">Add Link</button>
+              </div>
+              <div class="drop-zone" data-category="files">
+                <p>Drop files or links here, or click to browse</p>
+                <input type="file" multiple hidden />
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
     </section>
@@ -90,5 +129,6 @@
 
   <script defer src="assets/js/script.js?v=5"></script>
   <script defer src="assets/js/search.js?v=5"></script>
+  <script defer src="assets/js/resources.js?v=5"></script>
 </body>
 </html>
