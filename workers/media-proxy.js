@@ -1,7 +1,7 @@
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers": "Content-Type, X-Archive-Password",
 };
 
 export default {
@@ -15,14 +15,9 @@ export default {
     try {
       if (url.pathname === "/api/watchlist") {
         if (request.method === "POST") {
-          const origin = request.headers.get("Origin") || request.headers.get("Referer") || "";
-          const allowed = [
-            "andreigman.com", "andreiflorea.workers.dev", "andreigman07.github.io",
-            "localhost", "127.0.0.1", "0.0.0.0", "::1",
-          ];
-          const allowedIP = /^https?:\/\/(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/;
-          if (!allowed.some((d) => origin.includes(d)) && !allowedIP.test(origin)) {
-            return new Response(`Forbidden - origin: ${origin}`, { status: 403, headers: CORS_HEADERS });
+          const sent = request.headers.get("X-Archive-Password") || "";
+          if (sent !== env.ARCHIVE_PASSWORD) {
+            return new Response("Unauthorized", { status: 401, headers: CORS_HEADERS });
           }
           const data = await request.json();
           await env.WATCHLIST.put("list", JSON.stringify(data));

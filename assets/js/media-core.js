@@ -229,14 +229,29 @@ const MediaArchive = {
     }
   },
 
+  _getPassword() {
+    let pw = sessionStorage.getItem("media-archive-pw");
+    if (!pw) {
+      pw = prompt("Enter archive password to save changes:");
+      if (pw) sessionStorage.setItem("media-archive-pw", pw);
+    }
+    return pw;
+  },
+
   async save(items) {
     this._cache = items;
     localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(items));
+    const pw = this._getPassword();
+    if (!pw) throw new Error("Password required");
     const res = await fetch(`${this.WORKER_URL}/api/watchlist`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Archive-Password": pw },
       body: JSON.stringify(items),
     });
+    if (res.status === 401) {
+      sessionStorage.removeItem("media-archive-pw");
+      throw new Error("Wrong password");
+    }
     if (!res.ok) {
       const body = await res.text();
       throw new Error(body || "Save failed");
@@ -388,11 +403,18 @@ const MediaArchive = {
     if (!Array.isArray(data)) throw new Error("Invalid backup file");
     this._cache = data;
     localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(data));
-    await fetch(`${this.WORKER_URL}/api/watchlist`, {
+    const pw = this._getPassword();
+    if (!pw) throw new Error("Password required");
+    const res = await fetch(`${this.WORKER_URL}/api/watchlist`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Archive-Password": pw },
       body: JSON.stringify(data),
     });
+    if (res.status === 401) {
+      sessionStorage.removeItem("media-archive-pw");
+      throw new Error("Wrong password");
+    }
+    if (!res.ok) throw new Error("Restore failed");
   },
 };
 
