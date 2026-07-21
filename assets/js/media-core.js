@@ -1,3 +1,401 @@
+const MEDIA_CONFIG = {
+  PROXY_BASE: "https://media-proxy.andreiflorea.workers.dev",
+  ANILIST_URL: "https://graphql.anilist.co",
+  TMDB_IMAGE_BASE: "https://image.tmdb.org/t/p/w342",
+  ARCHIVE_KEY: "media-archive-v1",
+  SEARCH_DEBOUNCE_MS: 400,
+  STATUSES: ["planning", "watching", "playing", "completed", "dropped"],
+};
+
+function isProxyConfigured() {
+  return (
+    MEDIA_CONFIG.PROXY_BASE &&
+    !MEDIA_CONFIG.PROXY_BASE.includes("YOUR_SUBDOMAIN")
+  );
+}
+
+const MediaAPI = {
+  async anilistQuery(query, variables = {}) {
+    const res = await fetch(MEDIA_CONFIG.ANILIST_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ query, variables }),
+    });
+    if (!res.ok) throw new Error("AniList request failed");
+    const json = await res.json();
+    if (json.errors) throw new Error(json.errors[0]?.message || "AniList error");
+    return json.data;
+  },
+
+  stripHtml(text) {
+    if (!text) return "";
+    const el = document.createElement("div");
+    el.innerHTML = text.replace(/<br\s*\/?>/gi, "\n");
+    return el.textContent.trim();
+  },
+
+  normalizeAniList(media) {
+    return {
+      id: `anime-${media.id}`,
+      category: "anime",
+      externalId: media.id,
+      title:
+        media.title?.english ||
+        media.title?.romaji ||
+        media.title?.native ||
+        "Untitled",
+      posterUrl: media.coverImage?.large || "",
+      score: media.averageScore != null ? media.averageScore / 10 : null,
+      year: media.startDate?.year || null,
+      description: this.stripHtml(media.description),
+      genres: media.genres || [],
+      mediaType: media.type || "ANIME",
+    };
+  },
+
+  normalizeTmdb(item) {
+    const isMovie = item.media_type === "movie" || Boolean(item.title);
+    return {
+      id: `movies-${item.id}`,
+      category: "movies",
+      externalId: item.id,
+      title: item.title || item.name || "Untitled",
+      posterUrl: item.poster_path
+        ? `${MEDIA_CONFIG.TMDB_IMAGE_BASE}${item.poster_path}`
+        : "",
+      score: item.vote_average ?? null,
+      year: parseInt((item.release_date || item.first_air_date || "").slice(0, 4), 10) || null,
+      description: item.overview || "",
+      genres: (item.genre_ids || []).map(String),
+      mediaType: item.media_type || (isMovie ? "movie" : "tv"),
+    };
+  },
+
+  normalizeRawg(game) {
+    return {
+      id: `games-${game.id}`,
+      category: "games",
+      externalId: game.id,
+      title: game.name || "Untitled",
+      posterUrl: game.background_image || "",
+      score: game.rating ?? null,
+      year: game.released ? parseInt(game.released.slice(0, 4), 10) : null,
+      description: game.description_raw || game.short_description || "",
+      genres: (game.genres || []).map((g) => g.name).filter(Boolean),
+      mediaType: "game",
+    };
+  },
+
+  async searchTrendingAnime() {
+    const data = await this.anilistQuery(`
+      query {
+        Page(page: 1, perPage: 20) {
+          media(sort: TRENDING_DESC, type: ANIME, isAdult: false) {
+            id
+            type
+            title { romaji english native }
+            coverImage { large }
+            averageScore
+            startDate { year }
+            description
+            genres
+          }
+        }
+      }
+    `);
+    return data.Page.media.map((m) => this.normalizeAniList(m));
+  },
+
+  async searchAnime(query) {
+    const data = await this.anilistQuery(
+      `
+      query ($search: String) {
+        Page(page: 1, perPage: 20) {
+          media(search: $search, sort: SEARCH_MATCH, isAdult: false) {
+            id
+            type
+            title { romaji english native }
+            coverImage { large }
+            averageScore
+            startDate { year }
+            description
+            genres
+          }
+        }
+      }
+    `,
+      { search: query }
+    );
+    return data.Page.media.map((m) => this.normalizeAniList(m));
+  },
+
+  async getAnimeDetail(id) {
+    const data = await this.anilistQuery(
+      `
+      query ($id: Int) {
+        Media(id: $id) {
+          id
+          type
+          title { romaji english native }
+          coverImage { large extraLarge }
+          averageScore
+          startDate { year }
+          description
+          genres
+        }
+      }
+    `,
+      { id: Number(id) }
+    );
+    const item = this.normalizeAniList(data.Media);
+    if (data.Media.coverImage?.extraLarge) {
+      item.posterUrl = data.Media.coverImage.extraLarge;
+    }
+    return item;
+  },
+
+  async proxyFetch(path, options = {}) {
+    if (!isProxyConfigured()) {
+      throw new Error("PROXY_NOT_CONFIGURED");
+    }
+    const url = `${MEDIA_CONFIG.PROXY_BASE}${path}`;
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error(`Proxy error: ${res.status}`);
+    return res.json();
+  },
+
+  async searchTrendingMovies() {
+    const data = await this.proxyFetch("/api/tmdb/trending/all/week");
+    return (data.results || [])
+      .filter((item) => item.media_type === "movie" || item.media_type === "tv")
+      .map((item) => this.normalizeTmdb(item));
+  },
+
+  async searchMovies(query) {
+    const data = await this.proxyFetch(
+      `/api/tmdb/search/multi?query=${encodeURIComponent(query)}`
+    );
+    return (data.results || [])
+      .filter((item) => item.media_type === "movie" || item.media_type === "tv")
+      .map((item) => this.normalizeTmdb(item));
+  },
+
+  async getMovieDetail(id, mediaType) {
+    const endpoint = mediaType === "tv" ? "tv" : "movie";
+    const data = await this.proxyFetch(`/api/tmdb/${endpoint}/${id}`);
+    const normalized = this.normalizeTmdb({ ...data, media_type: endpoint });
+    normalized.genres = (data.genres || []).map((g) => g.name);
+    return normalized;
+  },
+
+  async searchTrendingGames() {
+    const data = await this.proxyFetch(
+      "/api/rawg/games?ordering=-rating&page_size=20"
+    );
+    return (data.results || []).map((g) => this.normalizeRawg(g));
+  },
+
+  async searchGames(query) {
+    const data = await this.proxyFetch(
+      `/api/rawg/games?search=${encodeURIComponent(query)}&page_size=20`
+    );
+    return (data.results || []).map((g) => this.normalizeRawg(g));
+  },
+
+  async getGameDetail(id) {
+    const data = await this.proxyFetch(`/api/rawg/games/${Number(id)}`);
+    return this.normalizeRawg(data);
+  },
+};
+
+const MediaArchive = {
+  WORKER_URL: "https://media-proxy.andreiflorea.workers.dev",
+  _cache: [],
+
+  async getAll() {
+    try {
+      const res = await fetch(`${this.WORKER_URL}/api/watchlist`);
+      const items = await res.json();
+      this._cache = items;
+      localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(items));
+      return items;
+    } catch {
+      const saved = localStorage.getItem(MEDIA_CONFIG.ARCHIVE_KEY);
+      if (saved) {
+        this._cache = JSON.parse(saved);
+        return this._cache;
+      }
+      return this._cache;
+    }
+  },
+
+  async save(items) {
+    this._cache = items;
+    localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(items));
+    const res = await fetch(`${this.WORKER_URL}/api/watchlist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(items),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(body || "Save failed");
+    }
+  },
+
+  async add(item, status = "planning") {
+    const items = await this.getAll();
+    if (items.some((entry) => entry.id === item.id)) {
+      return { added: false, reason: "duplicate" };
+    }
+    items.unshift({
+      ...item,
+      status,
+      grade: null,
+      addedAt: new Date().toISOString(),
+    });
+    await this.save(items);
+    return { added: true };
+  },
+
+  async remove(id) {
+    const items = await this.getAll();
+    await this.save(items.filter((entry) => entry.id !== id));
+  },
+
+  async updateStatus(id, status) {
+    const items = await this.getAll();
+    const updated = items.map((entry) =>
+      entry.id === id ? { ...entry, status } : entry
+    );
+    await this.save(updated);
+  },
+
+  _validateGrade(grade) {
+    if (grade === null || grade === undefined || grade === "") {
+      return { valid: true, value: null };
+    }
+
+    const num = Number(grade);
+    if (Number.isNaN(num) || num < 1 || num > 10) {
+      return { valid: false, reason: "invalid-range" };
+    }
+
+    const rounded = Math.round(num * 100) / 100;
+    const decimalPart = String(grade).includes(".")
+      ? String(grade).split(".")[1]
+      : "";
+    if (decimalPart.length > 2) {
+      return { valid: false, reason: "invalid-decimals" };
+    }
+
+    return { valid: true, value: rounded };
+  },
+
+  async updateGrade(id, grade) {
+    const validation = this._validateGrade(grade);
+    if (!validation.valid) {
+      return { saved: false, reason: validation.reason };
+    }
+
+    const items = await this.getAll();
+    const updated = items.map((entry) =>
+      entry.id === id ? { ...entry, grade: validation.value } : entry
+    );
+    await this.save(updated);
+    return { saved: true, grade: validation.value };
+  },
+
+  async filterByCategory(category) {
+    const items = await this.getAll();
+    if (!category || category === "all") return items;
+    return items.filter((entry) => entry.category === category);
+  },
+
+  filterByStatus(items, status) {
+    if (!status || status === "all") return items;
+    return items.filter((entry) => entry.status === status);
+  },
+
+  sortItems(items, sortBy = "date-added") {
+    const sorted = [...items];
+
+    switch (sortBy) {
+      case "name-asc":
+        return sorted.sort((a, b) =>
+          (a.title || "").localeCompare(b.title || "", undefined, { sensitivity: "base" })
+        );
+      case "name-desc":
+        return sorted.sort((a, b) =>
+          (b.title || "").localeCompare(a.title || "", undefined, { sensitivity: "base" })
+        );
+      case "grade-asc":
+        return sorted.sort((a, b) => {
+          const ga = a.grade != null ? Number(a.grade) : -Infinity;
+          const gb = b.grade != null ? Number(b.grade) : -Infinity;
+          return ga - gb;
+        });
+      case "grade-desc":
+        return sorted.sort((a, b) => {
+          const ga = a.grade != null ? Number(a.grade) : -Infinity;
+          const gb = b.grade != null ? Number(b.grade) : -Infinity;
+          return gb - ga;
+        });
+      case "year-asc":
+        return sorted.sort((a, b) => {
+          const ya = a.year != null ? Number(a.year) : Infinity;
+          const yb = b.year != null ? Number(b.year) : Infinity;
+          return ya - yb;
+        });
+      case "year-desc":
+        return sorted.sort((a, b) => {
+          const ya = a.year != null ? Number(a.year) : -Infinity;
+          const yb = b.year != null ? Number(b.year) : -Infinity;
+          return yb - ya;
+        });
+      case "date-added":
+      default:
+        return sorted.sort(
+          (a, b) => new Date(b.addedAt || 0) - new Date(a.addedAt || 0)
+        );
+    }
+  },
+
+  filterByName(items, query) {
+    if (!query || !query.trim()) return items;
+    const q = query.trim().toLowerCase();
+    return items.filter((item) =>
+      (item.title || "").toLowerCase().includes(q)
+    );
+  },
+
+  isInArchive(id) {
+    return this._cache.some((entry) => entry.id === id);
+  },
+
+  async export() {
+    const items = await this.getAll();
+    const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `archive-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  async restore(data) {
+    if (!Array.isArray(data)) throw new Error("Invalid backup file");
+    this._cache = data;
+    localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(data));
+    await fetch(`${this.WORKER_URL}/api/watchlist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  },
+};
+
 const MediaUI = {
   escapeHtml(str) {
     const d = document.createElement("div");

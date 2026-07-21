@@ -14,16 +14,28 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
   <link rel="stylesheet" href="assets/css/style.css?v=5" />
-  <link rel="stylesheet" href="assets/css/media.css?v=5" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="screen" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" onload="document.querySelectorAll('pre code').forEach((b) => { hljs.highlightElement(b); })"></script>
+    <link rel="stylesheet" href="assets/css/media.css?v=5" />
+  <script>
+    (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
+  </script>
 </head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to content</a>
 
-  <header class="site-header">
-    <div class="container nav">
-      <a href="index.html" class="logo">andreigman<span>.com</span></a>
-      <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
-      <nav class="nav-menu" id="navMenu">
+<body>
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="index.html" class="logo">andreigman<span>.com</span></a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
         <a href="index.html">Home</a>
         <a href="about.html">About</a>
         <a href="blog.html">Blog</a>
@@ -31,55 +43,55 @@
         <a href="media-watched.html" class="active" aria-current="page">Media-Watched</a>
         <a href="functions.html">Functions</a>
         <a href="credits.html">Credits</a>
-      </nav>
-      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+    </nav>
+
+    <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+  </div>
+</header>
+
+<main id="main-content" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow"><a href="media-watched.html" class="media-back-link">&larr; Media-Watched</a></p>
+        <h1>Games</h1>
+        <p class="lead">Powered by RAWG &mdash; search games and add them to your archive.</p>
+      </div>
+
+      <div class="media-search-wrap">
+        <label for="mediaSearch" class="media-filter-label">Search</label>
+        <input type="search" id="mediaSearch" class="media-search" placeholder="Search games&hellip;" autocomplete="off" />
+      </div>
+
+      <p id="mediaError" class="media-error" hidden></p>
+      <div id="mediaGrid" class="media-grid"></div>
     </div>
-  </header>
-
-  <main id="main-content" class="page">
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow"><a href="media-watched.html" class="media-back-link">← Media-Watched</a></p>
-          <h1>Games <span class="badge badge-pending">Coming soon &mdash; auth pending</span></h1>
-          <p class="lead">Games search is powered by IGDB, which requires a Twitch Developer API key. Search and archive tools will activate as soon as the key is configured.</p>
-        </div>
-
-        <div class="media-search-wrap">
-          <label for="mediaSearch" class="media-filter-label">Search</label>
-          <input type="search" id="mediaSearch" class="media-search" placeholder="Search games…" autocomplete="off" />
-        </div>
-
-        <p id="mediaError" class="media-error" hidden></p>
-        <div id="mediaGrid" class="media-grid"></div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <h3 class="logo">andreigman<span>.com</span></h3>
-        <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
-      </div>
-      <div>
-        <h4>Pages</h4>
-        <a href="about.html">About</a>
-        <a href="blog.html">Blog</a>
-        <a href="resources.html">Resources</a>
-        <a href="media-watched.html">Media-Watched</a>
-        <a href="functions.html">Functions</a>
-        <a href="credits.html">Credits</a>
-      </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h3 class="logo">andreigman<span>.com</span></h3>
+      <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
     </div>
-  </footer>
+    <div>
+      <h4>Pages</h4>
+      <a href="about.html">About</a>
+      <a href="blog.html">Blog</a>
+      <a href="resources.html">Resources</a>
+      <a href="media-watched.html">Media-Watched</a>
+      <a href="functions.html">Functions</a>
+      <a href="credits.html">Credits</a>
+    </div>
+  </div>
+</footer>
 
-  <script defer src="assets/js/script.js?v=5"></script>
-  <script defer src="assets/js/search.js?v=5"></script>
-  <script defer src="assets/js/media-config.js?v=5"></script>
-  <script defer src="assets/js/media-archive.js?v=5"></script>
-  <script defer src="assets/js/media-api.js?v=5"></script>
-  <script defer src="assets/js/media-ui.js?v=5"></script>
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/media-core.js"></script>
   <script defer src="assets/js/media-games.js?v=5"></script>
 </body>
 </html>

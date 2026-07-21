@@ -4,7 +4,7 @@ const MEDIA_CONFIG = {
   TMDB_IMAGE_BASE: "https://image.tmdb.org/t/p/w342",
   ARCHIVE_KEY: "media-archive-v1",
   SEARCH_DEBOUNCE_MS: 400,
-  STATUSES: ["planning", "watching", "completed", "dropped"],
+  STATUSES: ["planning", "watching", "playing", "completed", "dropped"],
 };
 
 function isProxyConfigured() {

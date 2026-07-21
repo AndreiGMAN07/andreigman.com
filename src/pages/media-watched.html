@@ -1,54 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>andreigman.com | Media-Watched</title>
-  <meta name="description" content="Browse live anime, games, movies and TV — track what you watch in your personal archive." />
-  <meta property="og:title" content="andreigman.com | Media-Watched" />
-  <meta property="og:description" content="Browse live anime, games, movies and TV — track what you watch in your personal archive." />
-  <meta property="og:url" content="https://andreigman.com/media-watched.html" />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://andreigman.com/favicon.svg" />
-  <meta name="twitter:card" content="summary" />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=5" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="screen" />
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" onload="document.querySelectorAll('pre code').forEach((b) => { hljs.highlightElement(b); })"></script>
-    <link rel="stylesheet" href="assets/css/media.css?v=5" />
-  <script>
-    (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
-  </script>
-</head>
-
+{{head}}
 <body>
-<a href="#main-content" class="skip-link">Skip to content</a>
-
-<header class="site-header">
-  <div class="container nav">
-    <a href="index.html" class="logo">andreigman<span>.com</span></a>
-
-    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
-      <span class="nav-toggle__bar"></span>
-      <span class="nav-toggle__bar"></span>
-      <span class="nav-toggle__bar"></span>
-    </button>
-
-    <nav class="nav-menu" id="navMenu">
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="blog.html">Blog</a>
-        <a href="resources.html">Resources</a>
-        <a href="media-watched.html" class="active" aria-current="page">Media-Watched</a>
-        <a href="functions.html">Functions</a>
-        <a href="credits.html">Credits</a>
-    </nav>
-
-    <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
-  </div>
-</header>
-
+{{header}}
 <main id="main-content" class="page">
   <section class="section">
     <div class="container">
@@ -141,30 +95,7 @@
     </div>
   </section>
 </main>
-<footer class="site-footer">
-  <div class="container footer-grid">
-    <div>
-      <h3 class="logo">andreigman<span>.com</span></h3>
-      <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
-    </div>
-    <div>
-      <h4>Pages</h4>
-      <a href="about.html">About</a>
-      <a href="blog.html">Blog</a>
-      <a href="resources.html">Resources</a>
-      <a href="media-watched.html">Media-Watched</a>
-      <a href="functions.html">Functions</a>
-      <a href="credits.html">Credits</a>
-    </div>
-  </div>
-</footer>
-
-<button class="back-to-top" id="backToTop" aria-label="Back to top">
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
-</button>
-
-  <script defer src="assets/js/main.js"></script>
-  <script defer src="assets/js/media-core.js"></script>
-  <script defer src="assets/js/media-watched.js?v=5"></script>
+{{footer}}
+{{scripts}}
 </body>
 </html>

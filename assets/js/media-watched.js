@@ -36,5 +36,22 @@ document.addEventListener("DOMContentLoaded", () => {
   sortFilter?.addEventListener("change", renderArchive);
   const debouncedRender = MediaUI.debounce(renderArchive, 150);
   nameSearch?.addEventListener("input", debouncedRender);
+
+  document.getElementById("exportArchiveBtn")?.addEventListener("click", () => MediaArchive.export());
+  document.getElementById("importArchiveInput")?.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      await MediaArchive.restore(data);
+      renderArchive();
+      MediaUI.showToast("Backup restored");
+    } catch {
+      MediaUI.showToast("Invalid backup file");
+    }
+    e.target.value = "";
+  });
+
   renderArchive();
 });

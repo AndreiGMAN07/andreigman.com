@@ -2,40 +2,34 @@ const MediaArchive = {
   WORKER_URL: "https://media-proxy.andreiflorea.workers.dev",
   _cache: [],
 
-  _adminKey() {
-    if (MediaArchive._key == null) {
-      MediaArchive._key = localStorage.getItem("admin_key") || prompt("Enter admin key:") || "";
-      if (MediaArchive._key) {
-        sessionStorage.setItem("admin_key", MediaArchive._key);
-      }
-    }
-    return MediaArchive._key || sessionStorage.getItem("admin_key") || "";
-  },
-
   async getAll() {
     try {
       const res = await fetch(`${this.WORKER_URL}/api/watchlist`);
       const items = await res.json();
       this._cache = items;
+      localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(items));
       return items;
     } catch {
+      const saved = localStorage.getItem(MEDIA_CONFIG.ARCHIVE_KEY);
+      if (saved) {
+        this._cache = JSON.parse(saved);
+        return this._cache;
+      }
       return this._cache;
     }
   },
 
   async save(items) {
     this._cache = items;
+    localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(items));
     const res = await fetch(`${this.WORKER_URL}/api/watchlist`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Admin-Key": this._adminKey(),
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(items),
     });
-    if (res.status === 401) {
-      MediaUI.showToast("Not authorized to modify the watchlist");
-      throw new Error("UNAUTHORIZED");
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(body || "Save failed");
     }
   },
 
@@ -167,5 +161,27 @@ const MediaArchive = {
 
   isInArchive(id) {
     return this._cache.some((entry) => entry.id === id);
+  },
+
+  async export() {
+    const items = await this.getAll();
+    const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `archive-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  async restore(data) {
+    if (!Array.isArray(data)) throw new Error("Invalid backup file");
+    this._cache = data;
+    localStorage.setItem(MEDIA_CONFIG.ARCHIVE_KEY, JSON.stringify(data));
+    await fetch(`${this.WORKER_URL}/api/watchlist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
   },
 };

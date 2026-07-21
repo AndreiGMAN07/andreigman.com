@@ -13,16 +13,29 @@
   <meta name="twitter:card" content="summary" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=6" />
+  <link rel="stylesheet" href="assets/css/style.css?v=5" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="screen" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" onload="document.querySelectorAll('pre code').forEach((b) => { hljs.highlightElement(b); })"></script>
+  
+  <script>
+    (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
+  </script>
 </head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to content</a>
 
-  <header class="site-header">
-    <div class="container nav">
-      <a href="index.html" class="logo">andreigman<span>.com</span></a>
-      <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
-      <nav class="nav-menu" id="navMenu">
+<body>
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="index.html" class="logo">andreigman<span>.com</span></a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
         <a href="index.html">Home</a>
         <a href="about.html">About</a>
         <a href="blog.html">Blog</a>
@@ -30,105 +43,108 @@
         <a href="media-watched.html">Media-Watched</a>
         <a href="functions.html">Functions</a>
         <a href="credits.html">Credits</a>
-      </nav>
-      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
-    </div>
-  </header>
+    </nav>
 
-  <main id="main-content" class="page">
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow">Resources</p>
-          <h1>Notes, courses, and useful files</h1>
-          <p class="lead">Study materials, documents, and links I've collected &mdash; all in one place.</p>
-        </div>
+    <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+  </div>
+</header>
 
-        <div class="res-bar">
-          <button id="manageToggle" class="btn btn-sm">&#9998; Manage</button>
-        </div>
-
-        <div class="grid-3" id="resourcesGrid">
-
-          <!-- Notes -->
-          <div class="card">
-            <h3>&#128221; Notes</h3>
-            <ul class="clean-list" id="list-notes"></ul>
-            <div class="manage-scope" id="manage-notes" hidden>
-              <hr />
-              <div class="add-link-row">
-                <input type="text" class="link-title" placeholder="Title" />
-                <input type="url" class="link-url" placeholder="https://..." />
-                <button class="btn btn-sm add-link-btn" data-category="notes">Add Link</button>
-              </div>
-              <div class="drop-zone" data-category="notes">
-                <p>Drop files or links here, or click to browse</p>
-                <input type="file" multiple hidden />
-              </div>
-            </div>
-          </div>
-
-          <!-- Courses -->
-          <div class="card">
-            <h3>&#127891; Courses</h3>
-            <ul class="clean-list" id="list-courses"></ul>
-            <div class="manage-scope" id="manage-courses" hidden>
-              <hr />
-              <div class="add-link-row">
-                <input type="text" class="link-title" placeholder="Title" />
-                <input type="url" class="link-url" placeholder="https://..." />
-                <button class="btn btn-sm add-link-btn" data-category="courses">Add Link</button>
-              </div>
-              <div class="drop-zone" data-category="courses">
-                <p>Drop files or links here, or click to browse</p>
-                <input type="file" multiple hidden />
-              </div>
-            </div>
-          </div>
-
-          <!-- Files -->
-          <div class="card">
-            <h3>&#128230; Files</h3>
-            <ul class="clean-list" id="list-files"></ul>
-            <div class="manage-scope" id="manage-files" hidden>
-              <hr />
-              <div class="add-link-row">
-                <input type="text" class="link-title" placeholder="Title" />
-                <input type="url" class="link-url" placeholder="https://..." />
-                <button class="btn btn-sm add-link-btn" data-category="files">Add Link</button>
-              </div>
-              <div class="drop-zone" data-category="files">
-                <p>Drop files or links here, or click to browse</p>
-                <input type="file" multiple hidden />
-              </div>
-            </div>
-          </div>
-
-        </div>
+<main id="main-content" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Resources</p>
+        <h1>Notes, courses, and useful files</h1>
+        <p class="lead">Study materials, documents, and links I've collected &mdash; all in one place.</p>
       </div>
-    </section>
-  </main>
 
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <h3 class="logo">andreigman<span>.com</span></h3>
-        <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
+      <div class="res-bar">
+        <button id="manageToggle" class="btn btn-sm">&#9998; Manage</button>
       </div>
-      <div>
-        <h4>Pages</h4>
-        <a href="about.html">About</a>
-        <a href="blog.html">Blog</a>
-        <a href="resources.html">Resources</a>
-        <a href="media-watched.html">Media-Watched</a>
-        <a href="functions.html">Functions</a>
-        <a href="credits.html">Credits</a>
+
+      <div class="grid-3" id="resourcesGrid">
+
+        <!-- Notes -->
+        <div class="card">
+          <h3>&#128221; Notes</h3>
+          <ul class="clean-list" id="list-notes"></ul>
+          <div class="manage-scope" id="manage-notes" hidden>
+            <hr />
+            <div class="add-link-row">
+              <input type="text" class="link-title" placeholder="Title" />
+              <input type="url" class="link-url" placeholder="https://..." />
+              <button class="btn btn-sm add-link-btn" data-category="notes">Add Link</button>
+            </div>
+            <div class="drop-zone" data-category="notes">
+              <p>Drop files or links here, or click to browse</p>
+              <input type="file" multiple hidden />
+            </div>
+          </div>
+        </div>
+
+        <!-- Courses -->
+        <div class="card">
+          <h3>&#127891; Courses</h3>
+          <ul class="clean-list" id="list-courses"></ul>
+          <div class="manage-scope" id="manage-courses" hidden>
+            <hr />
+            <div class="add-link-row">
+              <input type="text" class="link-title" placeholder="Title" />
+              <input type="url" class="link-url" placeholder="https://..." />
+              <button class="btn btn-sm add-link-btn" data-category="courses">Add Link</button>
+            </div>
+            <div class="drop-zone" data-category="courses">
+              <p>Drop files or links here, or click to browse</p>
+              <input type="file" multiple hidden />
+            </div>
+          </div>
+        </div>
+
+        <!-- Files -->
+        <div class="card">
+          <h3>&#128230; Files</h3>
+          <ul class="clean-list" id="list-files"></ul>
+          <div class="manage-scope" id="manage-files" hidden>
+            <hr />
+            <div class="add-link-row">
+              <input type="text" class="link-title" placeholder="Title" />
+              <input type="url" class="link-url" placeholder="https://..." />
+              <button class="btn btn-sm add-link-btn" data-category="files">Add Link</button>
+            </div>
+            <div class="drop-zone" data-category="files">
+              <p>Drop files or links here, or click to browse</p>
+              <input type="file" multiple hidden />
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-  </footer>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h3 class="logo">andreigman<span>.com</span></h3>
+      <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
+    </div>
+    <div>
+      <h4>Pages</h4>
+      <a href="about.html">About</a>
+      <a href="blog.html">Blog</a>
+      <a href="resources.html">Resources</a>
+      <a href="media-watched.html">Media-Watched</a>
+      <a href="functions.html">Functions</a>
+      <a href="credits.html">Credits</a>
+    </div>
+  </div>
+</footer>
 
-  <script defer src="assets/js/script.js?v=5"></script>
-  <script defer src="assets/js/search.js?v=5"></script>
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+  <script defer src="assets/js/main.js"></script>
   <script defer src="assets/js/resources.js?v=5"></script>
 </body>
 </html>

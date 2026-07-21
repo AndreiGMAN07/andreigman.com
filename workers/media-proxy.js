@@ -1,31 +1,8 @@
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, X-Admin-Key",
+  "Access-Control-Allow-Headers": "Content-Type",
 };
-
-let cachedToken = null;
-let tokenExpiry = 0;
-
-async function getTwitchToken(env) {
-  if (cachedToken && Date.now() < tokenExpiry) return cachedToken;
-
-  const params = new URLSearchParams({
-    client_id: env.IGDB_CLIENT_ID,
-    client_secret: env.IGDB_CLIENT_SECRET,
-    grant_type: "client_credentials",
-  });
-
-  const res = await fetch(`https://id.twitch.tv/oauth2/token?${params}`, {
-    method: "POST",
-  });
-  if (!res.ok) throw new Error("Failed to obtain Twitch token");
-
-  const data = await res.json();
-  cachedToken = data.access_token;
-  tokenExpiry = Date.now() + (data.expires_in - 120) * 1000;
-  return cachedToken;
-}
 
 export default {
   async fetch(request, env) {
@@ -38,9 +15,14 @@ export default {
     try {
       if (url.pathname === "/api/watchlist") {
         if (request.method === "POST") {
-          const providedKey = request.headers.get("X-Admin-Key");
-          if (providedKey !== env.ADMIN_KEY) {
-            return new Response("Unauthorized", { status: 401, headers: CORS_HEADERS });
+          const origin = request.headers.get("Origin") || request.headers.get("Referer") || "";
+          const allowed = [
+            "andreigman.com", "andreiflorea.workers.dev", "andreigman07.github.io",
+            "localhost", "127.0.0.1", "0.0.0.0", "::1",
+          ];
+          const allowedIP = /^https?:\/\/(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/;
+          if (!allowed.some((d) => origin.includes(d)) && !allowedIP.test(origin)) {
+            return new Response(`Forbidden - origin: ${origin}`, { status: 403, headers: CORS_HEADERS });
           }
           const data = await request.json();
           await env.WATCHLIST.put("list", JSON.stringify(data));
@@ -54,6 +36,7 @@ export default {
           });
         }
       }
+
       if (url.pathname.startsWith("/api/tmdb/")) {
         const tmdbPath = url.pathname.replace("/api/tmdb/", "");
         const tmdbUrl = new URL(`https://api.themoviedb.org/3/${tmdbPath}`);
@@ -67,22 +50,19 @@ export default {
         });
       }
 
-      if (url.pathname.startsWith("/api/igdb/")) {
-        const igdbPath = url.pathname.replace("/api/igdb/", "");
-        const token = await getTwitchToken(env);
-        const body =
-          request.method === "POST" ? await request.text() : "fields name; limit 1;";
+      if (url.pathname.startsWith("/api/rawg/")) {
+        const rawgPath = url.pathname.replace("/api/rawg/", "");
+        const rawgUrl = new URL(`https://api.rawg.io/api/${rawgPath}`);
+        url.searchParams.forEach((value, key) => rawgUrl.searchParams.set(key, value));
 
-        const res = await fetch(`https://api.igdb.com/v4/${igdbPath}`, {
-          method: "POST",
-          headers: {
-            "Client-ID": env.IGDB_CLIENT_ID,
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "text/plain",
-          },
-          body,
-        });
+        if (!env.RAWG_API_KEY) {
+          return new Response(JSON.stringify({ error: "RAWG_API_KEY not configured" }), {
+            status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+          });
+        }
+        rawgUrl.searchParams.set("key", env.RAWG_API_KEY);
 
+        const res = await fetch(rawgUrl.toString());
         return new Response(await res.text(), {
           status: res.status,
           headers: { ...CORS_HEADERS, "Content-Type": "application/json" },

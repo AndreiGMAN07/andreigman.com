@@ -5,7 +5,9 @@ const root = document.documentElement;
 
 if (navToggle && navMenu) {
   navToggle.addEventListener("click", () => {
-    navMenu.classList.toggle("show");
+    const isOpen = navMenu.classList.toggle("show");
+    navToggle.setAttribute("aria-expanded", isOpen);
+    navToggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
   });
 }
 
@@ -88,6 +90,19 @@ const initScrollReveal = () => {
 
 document.addEventListener("DOMContentLoaded", initScrollReveal);
 window.initScrollReveal = initScrollReveal;
+
+/* ── Back to top ── */
+const backToTop = document.getElementById("backToTop");
+if (backToTop) {
+  const toggleBtt = () => {
+    backToTop.classList.toggle("back-to-top--visible", window.scrollY > 300);
+  };
+  toggleBtt();
+  window.addEventListener("scroll", toggleBtt, { passive: true });
+  backToTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
 
 /* ═══════════════════════════════════════════════════════════════
    PHASE 2 — Scroll progress + page-transition curtain wipe

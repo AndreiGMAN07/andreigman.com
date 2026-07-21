@@ -55,23 +55,17 @@ const MediaAPI = {
     };
   },
 
-  normalizeIgdb(game) {
-    const coverUrl = game.cover?.url
-      ? (game.cover.url.startsWith("//") ? `https:${game.cover.url}` : game.cover.url).replace("t_thumb", "t_cover_big")
-      : "";
-    const year = game.first_release_date
-      ? new Date(game.first_release_date * 1000).getFullYear()
-      : null;
+  normalizeRawg(game) {
     return {
       id: `games-${game.id}`,
       category: "games",
       externalId: game.id,
       title: game.name || "Untitled",
-      posterUrl: coverUrl,
-      score: game.aggregated_rating != null ? game.aggregated_rating / 10 : null,
-      year,
-      description: game.summary || "",
-      genres: (game.genres || []).map((g) => (typeof g === "object" ? g.name : g)).filter(Boolean),
+      posterUrl: game.background_image || "",
+      score: game.rating ?? null,
+      year: game.released ? parseInt(game.released.slice(0, 4), 10) : null,
+      description: game.description_raw || game.short_description || "",
+      genres: (game.genres || []).map((g) => g.name).filter(Boolean),
       mediaType: "game",
     };
   },
@@ -179,34 +173,21 @@ const MediaAPI = {
   },
 
   async searchTrendingGames() {
-    const body =
-      "fields name,cover.url,aggregated_rating,first_release_date,summary,genres.name; where aggregated_rating != null; sort aggregated_rating desc; limit 20;";
-    const data = await this.proxyFetch("/api/igdb/games", {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body,
-    });
-    return (Array.isArray(data) ? data : []).map((g) => this.normalizeIgdb(g));
+    const data = await this.proxyFetch(
+      "/api/rawg/games?ordering=-rating&page_size=20"
+    );
+    return (data.results || []).map((g) => this.normalizeRawg(g));
   },
 
   async searchGames(query) {
-    const body = `search "${query.replace(/"/g, "")}"; fields name,cover.url,aggregated_rating,first_release_date,summary,genres.name; limit 20;`;
-    const data = await this.proxyFetch("/api/igdb/games", {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body,
-    });
-    return (Array.isArray(data) ? data : []).map((g) => this.normalizeIgdb(g));
+    const data = await this.proxyFetch(
+      `/api/rawg/games?search=${encodeURIComponent(query)}&page_size=20`
+    );
+    return (data.results || []).map((g) => this.normalizeRawg(g));
   },
 
   async getGameDetail(id) {
-    const body = `fields name,cover.url,aggregated_rating,first_release_date,summary,genres.name; where id = ${Number(id)};`;
-    const data = await this.proxyFetch("/api/igdb/games", {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body,
-    });
-    if (!data.length) throw new Error("Game not found");
-    return this.normalizeIgdb(data[0]);
+    const data = await this.proxyFetch(`/api/rawg/games/${Number(id)}`);
+    return this.normalizeRawg(data);
   },
 };

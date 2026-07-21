@@ -14,15 +14,28 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
   <link rel="stylesheet" href="assets/css/style.css?v=5" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="screen" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" onload="document.querySelectorAll('pre code').forEach((b) => { hljs.highlightElement(b); })"></script>
+  
+  <script>
+    (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
+  </script>
 </head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to content</a>
 
-  <header class="site-header">
-    <div class="container nav">
-      <a href="index.html" class="logo">andreigman<span>.com</span></a>
-      <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
-      <nav class="nav-menu" id="navMenu">
+<body>
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="index.html" class="logo">andreigman<span>.com</span></a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
         <a href="index.html">Home</a>
         <a href="about.html">About</a>
         <a href="blog.html">Blog</a>
@@ -30,63 +43,65 @@
         <a href="media-watched.html">Media-Watched</a>
         <a href="functions.html">Functions</a>
         <a href="credits.html" class="active" aria-current="page">Credits</a>
-      </nav>
-      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
-    </div>
-  </header>
+    </nav>
 
-  <main id="main-content" class="page">
-    <section class="section">
-      <div class="container narrow">
-        <div class="section-head">
-          <p class="eyebrow">Credits</p>
-          <h1>Site credits</h1>
-        </div>
+    <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+  </div>
+</header>
 
-        <div class="card stack">
-          <h3>Built by</h3>
-          <p>Made by Florea Andrei-Daniel for andreigman.com.</p>
-          <p>I got some help from Tănase Alexandru-Iulian, owner of: <a href="https://absolking.com/" target="_blank" rel="noopener noreferrer">Absolking.com</a>  </p>
-          
-        </div>
-
-        <div class="card stack">
-          <h3>Tools used</h3>
-          <ul class="clean-list">
-            <li>HTML</li>
-            <li>CSS</li>
-            <li>JavaScript</li>
-            <li>GitHub Pages</li>
-          </ul>
-        </div>
-
-        <div class="card stack">
-          <h3>Purpose</h3>
-          <p>This website is made to present my identity, publish my writing, and organize useful academic material.</p>
-        </div>
+<main id="main-content" class="page">
+  <section class="section">
+    <div class="container narrow">
+      <div class="section-head">
+        <p class="eyebrow">Credits</p>
+        <h1>Site credits</h1>
       </div>
-    </section>
-  </main>
 
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <h3 class="logo">andreigman<span>.com</span></h3>
-        <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
+      <div class="card stack">
+        <h3>Built by</h3>
+        <p>Made by Florea Andrei-Daniel for andreigman.com.</p>
+        <p>I got some help from T&#259;nase Alexandru-Iulian, owner of: <a href="https://absolking.com/" target="_blank" rel="noopener noreferrer">Absolking.com</a></p>
       </div>
-      <div>
-        <h4>Pages</h4>
-        <a href="about.html">About</a>
-        <a href="blog.html">Blog</a>
-        <a href="resources.html">Resources</a>
-        <a href="media-watched.html">Media-Watched</a>
-        <a href="functions.html">Functions</a>
-        <a href="credits.html">Credits</a>
+
+      <div class="card stack">
+        <h3>Tools used</h3>
+        <ul class="clean-list">
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>JavaScript</li>
+          <li>Cloudflare Workers</li>
+        </ul>
+      </div>
+
+      <div class="card stack">
+        <h3>Purpose</h3>
+        <p>This website is made to present my identity, publish my writing, and organize useful academic material.</p>
       </div>
     </div>
-  </footer>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h3 class="logo">andreigman<span>.com</span></h3>
+      <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
+    </div>
+    <div>
+      <h4>Pages</h4>
+      <a href="about.html">About</a>
+      <a href="blog.html">Blog</a>
+      <a href="resources.html">Resources</a>
+      <a href="media-watched.html">Media-Watched</a>
+      <a href="functions.html">Functions</a>
+      <a href="credits.html">Credits</a>
+    </div>
+  </div>
+</footer>
 
-  <script defer src="assets/js/script.js?v=5"></script>
-  <script defer src="assets/js/search.js?v=5"></script>
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+  <script defer src="assets/js/main.js"></script>
 </body>
 </html>
