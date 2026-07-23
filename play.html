@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>andreigman.com – Page Not Found</title>
-  <meta name="description" content="Page not found." />
-  <meta property="og:title" content="andreigman.com – Page Not Found" />
-  <meta property="og:description" content="Page not found." />
-  <meta property="og:url" content="https://andreigman.com/404.html" />
+  <title>andreigman.com — Play</title>
+  <meta name="description" content="Mini games to cure boredom — Dino Run and more." />
+  <meta property="og:title" content="andreigman.com — Play" />
+  <meta property="og:description" content="Mini games to cure boredom — Dino Run and more." />
+  <meta property="og:url" content="https://andreigman.com/play.html" />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://andreigman.com/favicon.svg" />
   <meta name="twitter:card" content="summary" />
@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="assets/css/style.css?v=5" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="screen" />
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" onload="document.querySelectorAll('pre code').forEach((b) => { hljs.highlightElement(b); })"></script>
-  
+    <link rel="stylesheet" href="assets/css/games-play.css?v=5" />
   <script>
     (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
   </script>
@@ -42,7 +42,7 @@
         <a href="resources.html">Resources</a>
         <a href="media-watched.html">Media-Watched</a>
         <a href="functions.html">Functions</a>
-        <a href="play.html">Play</a>
+        <a href="play.html" class="active" aria-current="page">Play</a>
         <a href="credits.html">Credits</a>
     </nav>
 
@@ -51,12 +51,25 @@
 </header>
 
 <main id="main-content" class="page">
-  <section class="section">
-    <div class="container narrow" style="text-align: center; padding: 4rem 0;">
-      <p class="eyebrow">404</p>
-      <h1>Page not found</h1>
-      <p class="lead" style="margin-bottom: 2rem;">The page you're looking for doesn't exist or has moved.</p>
-      <a href="index.html" class="btn btn-primary">Go home</a>
+  <section class="section games-page">
+    <div class="container">
+
+      <div class="section-head">
+        <p class="eyebrow">Games</p>
+        <h1>Play</h1>
+        <p class="lead">Pick a game to cure your boredom.</p>
+      </div>
+
+      <div id="gamesGrid" class="games-grid"></div>
+
+      <div id="gameCanvasWrap" class="game-canvas-wrap" hidden>
+        <div class="game-hud">
+          <button id="gameCloseBtn" class="btn btn-secondary" aria-label="Close game">&larr; Back</button>
+          <span id="gameScore" class="game-score">0</span>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+      </div>
+
     </div>
   </section>
 </main>
@@ -84,5 +97,6 @@
 </button>
 
   <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/games-play.js?v=5"></script>
 </body>
 </html>

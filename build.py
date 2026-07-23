@@ -24,6 +24,7 @@ NAV = [
     ("resources", "Resources"),
     ("media-watched", "Media-Watched"),
     ("functions", "Functions"),
+    ("play", "Play"),
     ("credits", "Credits"),
 ]
 
@@ -259,6 +260,20 @@ add("functions", "functions.html", "functions.html",
     extrahead='  <link rel="stylesheet" href="assets/css/functions.css?v=5" />',
     old_scripts=['<script defer src="assets/js/functions.js?v=5"></script>'])
 
+# Play
+GAMES_HEAD = '  <link rel="stylesheet" href="assets/css/games-play.css?v=5" />'
+
+add("play", "play.html", "play.html",
+    {"title": "andreigman.com \u2014 Play",
+     "description": "Mini games to cure boredom \u2014 Dino Run and more.",
+     "ogtitle": "andreigman.com \u2014 Play",
+     "ogdesc": "Mini games to cure boredom \u2014 Dino Run and more.",
+     "ogurl": "https://andreigman.com/play.html",
+     "ogtype": "website",
+     "ogimage": "https://andreigman.com/favicon.svg"},
+    extrahead=GAMES_HEAD,
+    old_scripts=['<script defer src="assets/js/games-play.js?v=5"></script>'])
+
 # 404
 add("404", "404.html", "404.html",
     {"title": "andreigman.com \u2013 Page Not Found",
@@ -339,6 +354,14 @@ def bundle_js():
     bundles = {
         "main.js": ["script.js", "search.js"],
         "media-core.js": ["media-config.js", "media-api.js", "media-archive.js", "media-ui.js"],
+        "games-play.js": [
+            "game-core.js",
+            "game-dino.js",
+            "game-snake.js",
+            "game-breakout.js",
+            "game-atari-breakout.js",
+            "game-conway.js"
+        ],
     }
     print("Bundling JS...")
     for out_name, sources in bundles.items():

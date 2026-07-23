@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+{{head}}
+<body>
+{{header}}
+<main id="main-content" class="page">
+  <section class="section games-page">
+    <div class="container">
+
+      <div class="section-head">
+        <p class="eyebrow">Games</p>
+        <h1>Play</h1>
+        <p class="lead">Pick a game to cure your boredom.</p>
+      </div>
+
+      <div id="gamesGrid" class="games-grid"></div>
+
+      <div id="gameCanvasWrap" class="game-canvas-wrap" hidden>
+        <div class="game-hud">
+          <button id="gameCloseBtn" class="btn btn-secondary" aria-label="Close game">&larr; Back</button>
+          <span id="gameScore" class="game-score">0</span>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+      </div>
+
+    </div>
+  </section>
+</main>
+{{footer}}
+{{scripts}}
+</body>
+</html>

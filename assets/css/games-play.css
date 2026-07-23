@@ -1,0 +1,91 @@
+/* ══════════════════════════════════════
+   GAMES PAGE — grid & canvas overlay
+══════════════════════════════════════ */
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+  padding: 1.8rem 1.2rem;
+}
+
+.game-card--locked {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.game-card-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.game-card-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.game-card-desc {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.game-card-btn {
+  margin-top: auto;
+  width: 100%;
+}
+
+/* ── Canvas overlay ── */
+
+.game-canvas-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.game-canvas-wrap[hidden] {
+  display: none !important;
+}
+
+.game-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: #e8e8e8;
+  cursor: pointer;
+}
+
+.game-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+.game-score {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-2);
+  font-family: monospace;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+}
