@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+{{head}}
+<body>
+{{header}}
+<main id="main-content">
+  <section class="section">
+    <div class="container narrow">
+
+      <a href="{{base}}blog.html" class="blog-back-link">&larr; Back to Blog</a>
+
+      <header class="post-header">
+        <p class="mini-meta"><span class="tag">{{type}}</span> &middot; <time datetime="{{date}}">{{dateDisplay}}</time></p>
+        <h1>{{title}}</h1>
+        <p class="lead">{{blurb}}</p>
+      </header>
+
+      <article class="post-body">
+        {{body}}
+      </article>
+
+    </div>
+  </section>
+</main>
+{{footer}}
+{{scripts}}
+</body>
+</html>

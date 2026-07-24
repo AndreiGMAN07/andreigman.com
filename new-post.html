@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>new post tool</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{--bg:#0c1315;--bg2:#141c1e;--card:#1a2326;--line:#263034;--text:#ecf3ef;--muted:#7a9a8c;--green:#4ade80}
+html{font-size:15px}
+body{margin:0;padding:2rem;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif}
+h1{font-size:1.3rem;margin:0 0 .25rem;color:var(--green)}
+h2{font-size:.9rem;font-weight:400;color:var(--muted);margin:0 0 1.5rem}
+.wrap{max-width:760px;margin:0 auto}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.25rem;margin-bottom:1rem}
+label{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.3rem}
+input,select,textarea{width:100%;padding:.5rem .7rem;background:var(--bg2);border:1px solid var(--line);border-radius:6px;color:var(--text);font-family:inherit;font-size:.85rem}
+textarea{resize:vertical;min-height:120px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.slug{font-size:.8rem;color:var(--muted);margin-bottom:1rem}
+.slug span{color:var(--green);font-weight:700}
+.btn{padding:.5rem 1rem;border:1px solid var(--green);border-radius:6px;background:0 0;color:var(--green);font-family:inherit;font-size:.8rem;cursor:pointer}
+.btn:hover{background:rgba(74,222,128,.1)}
+.btn-primary{background:var(--green);color:#0c1315;font-weight:700;border-color:var(--green)}
+.btn-primary:hover{background:#36a85d}
+.out{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:.75rem;font-size:.75rem;line-height:1.5;white-space:pre-wrap;overflow:auto;max-height:240px;user-select:all;margin-bottom:.5rem}
+.out:empty::after{content:"click Generate";color:var(--muted);font-style:italic}
+.sec{margin-bottom:1rem}
+.sec:last-child{margin-bottom:0}
+.sec label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.3rem;display:block}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>~/new-post</h1>
+<h2>generates: post HTML + blog card + feed entry</h2>
+
+<div class="panel">
+  <div style="margin-bottom:1rem">
+    <label>Title</label>
+    <input type="text" id="title" placeholder="My new blog post" autocomplete="off">
+  </div>
+  <div class="row2">
+    <div>
+      <label>Tag</label>
+      <select id="tag">
+        <option value="diary">Diary</option>
+        <option value="tech">Tech</option>
+        <option value="thoughts">Thoughts</option>
+        <option value="university">University</option>
+        <option value="devlog">Devlog</option>
+        <option value="tutorial">Tutorial</option>
+        <option value="opinion">Opinion</option>
+        <option value="update">Update</option>
+      </select>
+    </div>
+    <div>
+      <label>Date</label>
+      <input type="date" id="date">
+    </div>
+  </div>
+  <div style="margin-bottom:1rem">
+    <label>Blurb (excerpt)</label>
+    <textarea id="blurb" rows="2" placeholder="Short summary shown on the blog listing"></textarea>
+  </div>
+  <div class="slug">Slug: <span id="slugDisplay">(from title)</span></div>
+  <div style="margin-bottom:1rem">
+    <label>Body (Markdown)</label>
+    <textarea id="body" rows="8" placeholder="Write your post in Markdown..."></textarea>
+  </div>
+  <button class="btn btn-primary" id="generateBtn">Generate</button>
+</div>
+
+<div class="panel" id="outputs" style="display:none">
+  <div class="sec">
+    <label>1. Post HTML file — save as <code style="color:var(--green)">posts/<span id="fn"></span></code></label>
+    <div class="out" id="outHtml"></div>
+    <div class="bar">
+      <button class="btn btn-primary" id="dlHtmlBtn">&#8681; Download posts/<span id="fn2"></span></button>
+      <button class="btn" id="copyHtmlBtn">Copy</button>
+    </div>
+  </div>
+  <hr style="border:none;border-top:1px solid var(--line);margin:.75rem 0">
+  <div class="sec">
+    <label>2. Card snippet — paste into <code style="color:var(--green)">blog.html</code> (inside <code style="color:var(--green)">#blogList</code>)</label>
+    <div class="out" id="outCard"></div>
+    <div class="bar"><button class="btn" id="copyCardBtn">Copy card</button></div>
+  </div>
+  <hr style="border:none;border-top:1px solid var(--line);margin:.75rem 0">
+  <div class="sec">
+    <label>3. Feed entry — paste into <code style="color:var(--green)">posts/posts.json</code> (inside the <code style="color:var(--green)">posts</code> array)</label>
+    <div class="out" id="outFeed"></div>
+    <div class="bar"><button class="btn" id="copyFeedBtn">Copy feed entry</button></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function slug(s){
+  return s.toLowerCase().replace(/[^\w\s-]/g,'').replace(/[\s_]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')
+}
+function month(iso){
+  if(!iso)return ''
+  return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'long'})
+}
+function fmtDate(iso){
+  if(!iso)return ''
+  return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})
+}
+function tagLabel(t){return t.charAt(0).toUpperCase()+t.slice(1)}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function md(s){
+  if(!s)return ''
+  var h=s
+  h=h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  h=h.replace(/```(\w*)\n?([\s\S]*?)```/g,'<pre><code class="language-$1">$2</code></pre>')
+  h=h.replace(/`([^`]+)`/g,'<code>$1</code>')
+  h=h.replace(/^###### (.*$)/gm,'<h6>$1</h6>')
+  h=h.replace(/^##### (.*$)/gm,'<h5>$1</h5>')
+  h=h.replace(/^#### (.*$)/gm,'<h4>$1</h4>')
+  h=h.replace(/^### (.*$)/gm,'<h3>$1</h3>')
+  h=h.replace(/^## (.*$)/gm,'<h2>$1</h2>')
+  h=h.replace(/^# (.*$)/gm,'<h1>$1</h1>')
+  h=h.replace(/^---\s*$/gm,'<hr>')
+  h=h.replace(/^> (.*$)/gm,'<blockquote><p>$1</p></blockquote>')
+  h=h.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>')
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+  h=h.replace(/\*(.+?)\*/g,'<em>$1</em>')
+  h=h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1">')
+  h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>')
+  h=h.replace(/^- (.*$)/gm,'<li>$1</li>')
+  h=h.replace(/^\d+\. (.*$)/gm,'<li>$1</li>')
+  var L=h.split('\n'),R=[],ul=false,bq=false
+  for(var i=0;i<L.length;i++){
+    var l=L[i],t=l.trim(),li=/^<li>/.test(t),b=/^<blockquote>/.test(t),hr=/^<hr>\/?$/.test(t),hd=/^<h[1-6]>/.test(t),pr=/^<pre>/.test(t)
+    if(pr){if(ul){R.push('</ul>');ul=false}if(bq){R.push('</blockquote>');bq=false}R.push(l);continue}
+    if(li){if(bq){R.push('</blockquote>');bq=false}if(!ul){R.push('<ul>');ul=true}R.push(l);continue}
+    if(ul&&!li){R.push('</ul>');ul=false}
+    if(b){if(ul){R.push('</ul>');ul=false}if(!bq)bq=true;R.push(l);continue}
+    if(bq&&!b){R.push('</blockquote>');bq=false}
+    if(hd||hr||t===''){R.push(l);continue}
+    if(!li&&!b&&!hd&&!hr&&!pr&&t)R.push('<p>'+l+'</p>');else R.push(l)
+  }
+  if(ul)R.push('</ul>')
+  if(bq)R.push('</blockquote>')
+  return R.join('\n').replace(/<\/blockquote>\n<blockquote>/g,'\n')
+}
+
+var now=new Date()
+document.getElementById('date').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0')
+
+var $title=document.getElementById('title'),$tag=document.getElementById('tag'),$date=document.getElementById('date'),
+    $blurb=document.getElementById('blurb'),$body=document.getElementById('body'),
+    $slug=document.getElementById('slugDisplay'),
+    $gen=document.getElementById('generateBtn'),$out=document.getElementById('outputs'),
+    $html=document.getElementById('outHtml'),$card=document.getElementById('outCard'),$feed=document.getElementById('outFeed'),
+    $fn=document.getElementById('fn'),$fn2=document.getElementById('fn2')
+
+$title.addEventListener('input',function(){
+  $slug.textContent=slug($title.value)||'(from title)'
+})
+
+var S = '<' + '/script>'
+
+$gen.addEventListener('click',function(){
+  var title=$title.value.trim()
+  if(!title){alert('Enter a title');return}
+  var slug=slug(title)||'untitled-post',tag=$tag.value,date=$date.value,blurb=$blurb.value.trim(),md=$body.value,
+      bodyHtml=md(md),tLabel=tagLabel(tag),dM=month(date),dF=fmtDate(date),fn=slug+'.html'
+  $fn.textContent=fn;$fn2.textContent=fn
+
+  var ld=JSON.stringify({"@context":"https://schema.org","@type":"BlogPosting",headline:title,description:blurb,author:{"@type":"Person","name":"Andrei-Daniel Florea"},datePublished:date,url:"https://andreigman.com/posts/"+slug+".html"},null,2)
+
+  $html.textContent =
+    '<!DOCTYPE html>\n' +
+    '<html lang="en" data-theme="dark">\n<head>\n' +
+    '<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n' +
+    '<title>andreigman.com \u2013 ' + esc(title) + '</title>\n' +
+    '<meta name="description" content="' + esc(blurb) + '">\n' +
+    '<meta property="og:title" content="andreigman.com \u2013 ' + esc(title) + '">\n' +
+    '<meta property="og:description" content="' + esc(blurb) + '">\n' +
+    '<meta property="og:url" content="https://andreigman.com/posts/' + slug + '.html">\n' +
+    '<meta property="og:type" content="article">\n' +
+    '<meta property="og:image" content="https://andreigman.com/favicon.svg">\n' +
+    '<meta name="twitter:card" content="summary">\n' +
+    '<link rel="icon" href="../favicon.svg">\n' +
+    '<link rel="apple-touch-icon" href="../favicon.svg">\n' +
+    '<link rel="stylesheet" href="../assets/css/style.css?v=5">\n' +
+    '<script type="application/ld+json">\n' + ld + '\n' + S + '\n' +
+    '<' + '/head>\n<body>\n' +
+    '<a href="#main-content" class="skip-link">Skip to content</a>\n\n' +
+    '<header class="site-header">\n<div class="container nav">\n' +
+    '<a href="../index.html" class="logo">andreigman<span>.com</span></a>\n' +
+    '<button class="nav-toggle" id="navToggle" aria-label="Open menu">\u2630</button>\n' +
+    '<nav class="nav-menu" id="navMenu">\n' +
+    '<a href="../index.html">Home</a>\n<a href="../about.html">About</a>\n<a href="../blog.html" class="active">Blog</a>\n' +
+    '<a href="../resources.html">Resources</a>\n<a href="../media-watched.html">Media-Watched</a>\n' +
+    '<a href="../functions.html">Functions</a>\n<a href="../credits.html">Credits</a>\n' +
+    '<' + '/nav>\n<button class="theme-btn" id="themeToggle" aria-label="Toggle theme">\uD83C\uDF19</button>\n' +
+    '<' + '/div>\n<' + '/header>\n\n' +
+    '<main id="main-content">\n<section class="section">\n<div class="container narrow">\n' +
+    '<a href="../blog.html" class="blog-back-link">&larr; Back to Blog</a>\n' +
+    '<header class="post-header">\n' +
+    '<p class="mini-meta"><span class="tag">' + tLabel + '</span> &middot; <time datetime="' + date + '">' + dF + '</time> &middot; 3 min read</p>\n' +
+    '<h1>' + esc(title) + '</h1>\n' +
+    '<p class="lead">' + esc(blurb) + '</p>\n' +
+    '<' + '/header>\n\n' +
+    '<article class="post-body">\n' + bodyHtml + '\n' +
+    '<' + '/article>\n\n' +
+    '<' + '/div>\n<' + '/section>\n<' + '/main>\n\n' +
+    '<footer class="site-footer">\n<div class="container footer-grid">\n<div>\n' +
+    '<h3 class="logo">andreigman<span>.com</span></h3>\n' +
+    '<p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>\n' +
+    '<' + '/div>\n<div>\n<h4>Pages</h4>\n' +
+    '<a href="../about.html">About</a>\n<a href="../blog.html">Blog</a>\n<a href="../resources.html">Resources</a>\n' +
+    '<a href="../media-watched.html">Media-Watched</a>\n<a href="../functions.html">Functions</a>\n<a href="../credits.html">Credits</a>\n' +
+    '<' + '/div>\n<' + '/div>\n<' + '/footer>\n\n' +
+    '<script defer src="../assets/js/script.js?v=5">' + S + '\n' +
+    '<script defer src="../assets/js/search.js?v=5">' + S + '\n' +
+    '<' + '/body>\n<' + '/html>'
+
+  $card.textContent =
+    '<article class="card hover-card" data-tag="' + tag + '">\n' +
+    '  <p class="mini-meta">' + dM + ' &middot; ' + tLabel + '</p>\n' +
+    '  <h3>' + esc(title) + '</h3>\n' +
+    '  <p>' + esc(blurb) + '</p>\n' +
+    '  <a href="posts/' + slug + '.html" class="text-link">Read post</a>\n' +
+    '<' + '/article>'
+
+  $feed.textContent = JSON.stringify({
+    id: slug, file: 'posts/' + slug + '.html', title: title, date: date,
+    dateDisplay: dM, tag: tag, blurb: blurb, readTime: '3 min'
+  }, null, 2)
+
+  $out.style.display = 'block'
+})
+
+document.getElementById('dlHtmlBtn').addEventListener('click',function(){
+  var html=$html.textContent
+  if(!html)return
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'}),
+      a=document.createElement('a')
+  a.href=URL.createObjectURL(blob)
+  a.download=$fn.textContent||'post.html'
+  a.click()
+  URL.revokeObjectURL(a.href)
+})
+
+function cp(id){
+  var t=document.getElementById(id).textContent
+  if(!t)return
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t)}
+  else{
+    var ta=document.createElement('textarea')
+    ta.value=t;ta.style.position='fixed';ta.style.left='-9999px'
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta)
+  }
+}
+document.getElementById('copyHtmlBtn').addEventListener('click',function(){cp('outHtml')})
+document.getElementById('copyCardBtn').addEventListener('click',function(){cp('outCard')})
+document.getElementById('copyFeedBtn').addEventListener('click',function(){cp('outFeed')})
+</script>
+</body>
+</html>

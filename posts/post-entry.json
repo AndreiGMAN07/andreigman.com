@@ -1,0 +1,11 @@
+{
+  "id": "test-postare",
+  "slug": "test-postare",
+  "title": "Test postare",
+  "date": "2026-07-24",
+  "dateDisplay": "July 2026",
+  "tag": "diary",
+  "blurb": "Blalalaalal",
+  "readTime": "3 min",
+  "bodyFile": "src/posts/test-postare.md"
+}

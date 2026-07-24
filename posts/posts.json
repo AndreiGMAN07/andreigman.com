@@ -2,6 +2,16 @@
   "version": 1,
   "posts": [
     {
+      "id": "the-world-hasnt-ended-yet",
+      "file": "posts/the-world-hasnt-ended-yet.html",
+      "title": "The World hasn't ended yet",
+      "date": "2026-07-25",
+      "dateDisplay": "July 2026",
+      "tag": "diary",
+      "blurb": "Everything seems to move on into a good direction. I haven't been that happy for a whole year",
+      "readTime": "3 min"
+    },
+    {
       "id": "blog-post-01",
       "file": "posts/blog-post-01.html",
       "title": "My first blog entry",

@@ -253,7 +253,7 @@ GamesPlay.register({
       const minGap = 280;
       const maxGap = 600;
       const gap = minGap + Math.random() * (maxGap - minGap);
-      cactusTimer = setTimeout(spawnObstacle, (gap / speed) * 1000);
+      cactusTimer = setTimeout(spawnObstacle, (gap / speed) * 15);
     }
 
     function spawnObstacle() {
@@ -2073,7 +2073,7 @@ GamesPlay.register({
           flex-wrap: wrap;
         }
         .conway-hud-btn, .conway-hud-select {
-          background: rgba(26, 32, 34, 0.9);
+          background: rgba(26, 32, 34, 0.95);
           color: var(--text, #ecf3ef);
           border: 1px solid var(--line, #2a3336);
           padding: 0.4rem 0.75rem;
@@ -2082,6 +2082,10 @@ GamesPlay.register({
           font-weight: 700;
           font-size: 0.85rem;
           transition: background 0.2s, border-color 0.2s;
+        }
+        .conway-hud-select option {
+          background-color: #1f2628 !important;
+          color: #ecf3ef !important;
         }
         .conway-hud-btn:hover, .conway-hud-select:hover {
           background: rgba(37, 126, 67, 0.25);

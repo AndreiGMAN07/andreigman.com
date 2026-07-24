@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "posts": [
+    {
+      "id": "blog-post-01",
+      "slug": "blog-post-01",
+      "title": "My first blog entry",
+      "date": "2026-06-25",
+      "dateDisplay": "June 2026",
+      "tag": "diary",
+      "blurb": "A short intro about why I started writing here, what I want to document, and where I see myself going.",
+      "readTime": "3 min",
+      "bodyFile": "src/posts/blog-post-01.html"
+    },
+    {
+      "id": "blog-post-02",
+      "slug": "blog-post-02",
+      "title": "The END??",
+      "date": "2026-07-02",
+      "dateDisplay": "July 2026",
+      "tag": "thoughts",
+      "blurb": "If something has finished, does it truly mean the end? A reflection on endings and beginnings.",
+      "readTime": "3 min",
+      "bodyFile": "src/posts/blog-post-02.html"
+    },
+    {
+      "id": "blog-post-03",
+      "slug": "blog-post-03",
+      "title": "New people, new ages",
+      "date": "2026-07-13",
+      "dateDisplay": "July 2026",
+      "tag": "diary",
+      "blurb": "I've met my \"new family\", a new unknown horizon.",
+      "readTime": "3 min",
+      "bodyFile": "src/posts/blog-post-03.html"
+    }
+  ]
+}
