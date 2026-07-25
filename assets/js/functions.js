@@ -261,9 +261,11 @@ function scEquals() {
   if (!scExpr) return;
   try {
     const result = scEvaluateExpression(scExpr);
+    const exprSnapshot = scExpr;
     document.getElementById("scResult").textContent = String(result);
     document.getElementById("scExpr").textContent = scExpr;
     scExpr = String(result);
+    scAddHistory(exprSnapshot, result);
   } catch (e) {
     document.getElementById("scExpr").textContent = scExpr;
     document.getElementById("scResult").textContent = "Error";
@@ -786,6 +788,369 @@ function intCalc() {
 }
 
 /* ══════════════════════════════════════
+   TIMER PRESETS
+══════════════════════════════════════ */
+function timerSetPreset(minutes) {
+  const total = minutes * 60;
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  document.getElementById("timerH").value = h;
+  document.getElementById("timerM").value = m;
+  document.getElementById("timerS").value = s;
+}
+
+/* ══════════════════════════════════════
+   COPY TO CLIPBOARD
+══════════════════════════════════════ */
+function copyText(text) {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => {});
+  }
+}
+
+/* ══════════════════════════════════════
+   SCIENTIFIC CALCULATOR HISTORY
+══════════════════════════════════════ */
+const SC_HISTORY_KEY = "sc-history";
+const SC_HISTORY_MAX = 10;
+
+function scLoadHistory() {
+  try {
+    const raw = localStorage.getItem(SC_HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function scSaveHistory(items) {
+  try {
+    localStorage.setItem(SC_HISTORY_KEY, JSON.stringify(items));
+  } catch (e) {}
+}
+
+function scAddHistory(expr, result) {
+  const items = scLoadHistory();
+  items.unshift({ expr: String(expr), result: String(result) });
+  if (items.length > SC_HISTORY_MAX) items.length = SC_HISTORY_MAX;
+  scSaveHistory(items);
+  scRenderHistory();
+  const panel = document.getElementById("scHistory");
+  if (panel) panel.hidden = false;
+}
+
+function scRenderHistory() {
+  const list = document.getElementById("scHistoryList");
+  if (!list) return;
+  const items = scLoadHistory();
+  if (!items.length) {
+    list.innerHTML = '<div class="sc-history-item" style="color:var(--muted);font-size:0.78rem;cursor:default">No entries yet.</div>';
+    return;
+  }
+  list.innerHTML = items
+    .map(
+      (entry, i) =>
+        '<div class="sc-history-item" data-idx="' +
+        i +
+        '">' +
+        '<span class="sc-history-item-expr">' + entry.expr + "</span>" +
+        '<span class="sc-history-item-result">= ' + entry.result + "</span>" +
+        "</div>"
+    )
+    .join("");
+
+  list.querySelectorAll(".sc-history-item").forEach((el) => {
+    el.addEventListener("click", () => {
+      const idx = parseInt(el.dataset.idx, 10);
+      const items = scLoadHistory();
+      if (items[idx]) {
+        scExpr = items[idx].expr;
+        scUpdate();
+      }
+    });
+  });
+}
+
+function scClearHistory() {
+  scSaveHistory([]);
+  scRenderHistory();
+  const panel = document.getElementById("scHistory");
+  if (panel) panel.hidden = true;
+}
+
+function scToggleHistory() {
+  const panel = document.getElementById("scHistory");
+  if (!panel) return;
+  panel.hidden = !panel.hidden;
+  if (!panel.hidden) scRenderHistory();
+}
+
+/* ══════════════════════════════════════
+   KEYBOARD INPUT FOR CALCULATOR
+══════════════════════════════════════ */
+const SC_KEY_MAP = {
+  "0": "0", "1": "1", "2": "2", "3": "3", "4": "4",
+  "5": "5", "6": "6", "7": "7", "8": "8", "9": "9",
+  ".": ".", "+": "+", "-": "-", "*": "*", "/": "/",
+  "(": "(", ")": ")", "^": "^",
+};
+
+function scHandleKey(e) {
+  const key = e.key;
+
+  if (key === "Enter") {
+    e.preventDefault();
+    scEquals();
+    return;
+  }
+
+  if (key === "Backspace") {
+    e.preventDefault();
+    scBackspace();
+    return;
+  }
+
+  if (key === "Escape") {
+    e.preventDefault();
+    scClear();
+    return;
+  }
+
+  if (key === "Delete") {
+    e.preventDefault();
+    scClear();
+    return;
+  }
+
+  if (key in SC_KEY_MAP) {
+    e.preventDefault();
+    scInsert(SC_KEY_MAP[key]);
+  }
+}
+
+/* ══════════════════════════════════════
+   DERIVATIVE CALCULATOR
+══════════════════════════════════════ */
+function derivFormatTerm(coeff, power, variable) {
+  const x = variable || "x";
+  if (coeff === 0) return null;
+  if (power === 0) return String(coeff);
+  if (power === 1) {
+    if (coeff === 1) return x;
+    if (coeff === -1) return "-" + x;
+    return coeff + "*" + x;
+  }
+  const cs = coeff === 1 ? "" : coeff === -1 ? "-" : coeff + "*";
+  return cs + x + "^" + power;
+}
+
+function derivPowerTerm(term, variable) {
+  const x = variable || "x";
+  const t = term.replace(/\s+/g, "");
+
+  if (/^[+-]?\d+(\.\d+)?$/.test(t)) {
+    return { display: "0", evalExpr: "0", rule: "Constant rule: d/dx(c) = 0" };
+  }
+
+  if (t === x) {
+    return { display: "1", evalExpr: "1", rule: "Power rule: d/dx(x) = 1" };
+  }
+  if (t === "-" + x) {
+    return { display: "-1", evalExpr: "-1", rule: "Power rule: d/dx(-x) = -1" };
+  }
+
+  let m = t.match(new RegExp("^([+-])?" + x + "\\^([+-]?\\d+(?:\\.\\d+)?)$"));
+  if (m) {
+    const sign = m[1] === "-" ? -1 : 1;
+    const n = parseFloat(m[2]);
+    const newCoeff = sign * n;
+    const newPower = n - 1;
+    if (newPower === 0) return { display: String(newCoeff), evalExpr: String(newCoeff), rule: "Power rule: d/dx(" + t + ") = " + newCoeff };
+    if (newPower === 1) return { display: derivFormatTerm(newCoeff, 1, x), evalExpr: "(" + newCoeff + ")*(" + x + ")", rule: "Power rule" };
+    return { display: derivFormatTerm(newCoeff, newPower, x), evalExpr: "(" + newCoeff + ")*(" + x + "**" + newPower + ")", rule: "Power rule" };
+  }
+
+  m = t.match(new RegExp("^([+-]?\\d+(?:\\.\\d+)?)\\*" + x + "$"));
+  if (m) {
+    const c = parseFloat(m[1]);
+    return { display: String(c), evalExpr: String(c), rule: "Power rule: d/dx(" + c + "·x) = " + c };
+  }
+
+  m = t.match(new RegExp("^([+-]?\\d+(?:\\.\\d+)?)\\*" + x + "\\^([+-]?\\d+(?:\\.\\d+)?)$"));
+  if (m) {
+    const c = parseFloat(m[1]);
+    const n = parseFloat(m[2]);
+    const newCoeff = c * n;
+    const newPower = n - 1;
+    if (newPower === 0) return { display: String(newCoeff), evalExpr: String(newCoeff), rule: "Constant multiple + power rule" };
+    if (newPower === 1) return { display: derivFormatTerm(newCoeff, 1, x), evalExpr: "(" + newCoeff + ")*(" + x + ")", rule: "Constant multiple + power rule" };
+    return { display: derivFormatTerm(newCoeff, newPower, x), evalExpr: "(" + newCoeff + ")*(" + x + "**" + newPower + ")", rule: "Constant multiple + power rule" };
+  }
+
+  return null;
+}
+
+function derivSymbolicTerm(term, variable) {
+  const x = variable || "x";
+  const t = term.replace(/\s+/g, "");
+
+  const powerResult = derivPowerTerm(term, variable);
+  if (powerResult) return powerResult;
+
+  if (t === "sin(" + x + ")") {
+    return { display: "cos(" + x + ")", evalExpr: "Math.cos(" + x + ")", rule: "Trig rule: d/dx(sin(" + x + ")) = cos(" + x + ")" };
+  }
+  if (t === "cos(" + x + ")") {
+    return { display: "-sin(" + x + ")", evalExpr: "-Math.sin(" + x + ")", rule: "Trig rule: d/dx(cos(" + x + ")) = -sin(" + x + ")" };
+  }
+  if (t === "tan(" + x + ")") {
+    return { display: "1/cos(" + x + ")^2", evalExpr: "1/(Math.cos(" + x + ")**2)", rule: "Trig rule: d/dx(tan(" + x + ")) = sec²(" + x + ")" };
+  }
+  if (t === "cot(" + x + ")") {
+    return { display: "-1/sin(" + x + ")^2", evalExpr: "-1/(Math.sin(" + x + ")**2)", rule: "Trig rule: d/dx(cot(" + x + ")) = -csc²(" + x + ")" };
+  }
+  if (t === "e^" + x || t === "e^(" + x + ")" || t === "exp(" + x + ")") {
+    return { display: "e^" + x, evalExpr: "Math.exp(" + x + ")", rule: "Exponential rule: d/dx(e^" + x + ") = e^" + x };
+  }
+  if (t === "ln(" + x + ")") {
+    return { display: "1/" + x, evalExpr: "1/(" + x + ")", rule: "Log rule: d/dx(ln(" + x + ")) = 1/" + x };
+  }
+  if (t === "sqrt(" + x + ")") {
+    return { display: "1/(2*sqrt(" + x + "))", evalExpr: "1/(2*Math.sqrt(" + x + "))", rule: "Power rule: d/dx(√" + x + ") = 1/(2√" + x + ")" };
+  }
+  if (t === "1/" + x) {
+    return { display: "-1/" + x + "^2", evalExpr: "-1/(" + x + "**2)", rule: "Power rule: d/dx(1/" + x + ") = -1/" + x + "²" };
+  }
+
+  return null;
+}
+
+function derivSymbolic(expr, variable) {
+  const terms = splitTopLevelTerms(expr);
+  const parts = [];
+  const rules = [];
+
+  for (let i = 0; i < terms.length; i++) {
+    const sym = derivSymbolicTerm(terms[i], variable);
+    if (!sym) return null;
+    parts.push(sym);
+    rules.push(sym.rule);
+  }
+
+  let display = parts.map(function (p) { return p.display; }).join(" + ");
+  display = display.replace(/\+ -/g, "- ");
+  display = display.replace(/^\+ /, "");
+  display = display.replace(/^\+/, "");
+  display = display.replace(/--/g, "");
+
+  const evalExpr = parts.map(function (p) { return "(" + p.evalExpr + ")"; }).join(" + ");
+
+  return { display: display, evalExpr: evalExpr, rules: rules };
+}
+
+function derivNumeric(expr, variable, point) {
+  const h = 1e-8;
+  const fplus = evalMathExpr(expr, variable, point + h);
+  const fminus = evalMathExpr(expr, variable, point - h);
+  if (!isFinite(fplus) || !isFinite(fminus)) return NaN;
+  return (fplus - fminus) / (2 * h);
+}
+
+function derivCalc() {
+  const expr = document.getElementById("derivExpr").value.trim();
+  const vari = document.getElementById("derivVar").value;
+  const pointS = document.getElementById("derivPoint").value.trim();
+  const box = document.getElementById("derivResultBox");
+  const res = document.getElementById("derivResultValue");
+  const stps = document.getElementById("derivSteps");
+
+  box.classList.remove("show");
+  stps.innerHTML = "";
+
+  if (!expr) {
+    res.innerHTML = '<span class="calc-error">Please enter a function.</span>';
+    box.classList.add("show");
+    return;
+  }
+
+  const steps = [];
+  let answer = "";
+
+  steps.push("<strong>Step 1:</strong> Differentiate f(" + vari + ") = " + expr);
+
+  const sym = derivSymbolic(expr, vari);
+  if (sym) {
+    steps.push("<strong>Step 2:</strong> Apply differentiation rules:");
+    Array.from(new Set(sym.rules)).forEach(function (r, i) {
+      steps.push("<div style='padding-left:1rem'>" + (i + 1) + ". " + r + "</div>");
+    });
+    steps.push("<strong>Step 3:</strong> f'(" + vari + ") = " + sym.display);
+    answer = "f'(" + vari + ") = " + sym.display;
+
+    if (pointS) {
+      const point = parseMathValue(pointS);
+      if (point !== null && isFinite(point)) {
+        let numVal = NaN;
+        try {
+          numVal = evalMathExpr(sym.evalExpr, vari, point);
+        } catch (e) {}
+        if (!isFinite(numVal)) {
+          numVal = derivNumeric(expr, vari, point);
+        }
+        if (isFinite(numVal) && !isNaN(numVal)) {
+          steps.push("<strong>Step 4:</strong> f'(" + pointS + ") = " + fmtNum(numVal));
+          answer += " | f'(" + pointS + ") = " + fmtNum(numVal);
+        }
+      } else {
+        steps.push("<strong>Note:</strong> Could not parse point value.");
+      }
+    }
+  } else {
+    steps.push("<strong>Step 2:</strong> No simple symbolic form found in the rule set.");
+
+    if (pointS) {
+      const point = parseMathValue(pointS);
+      if (point !== null && isFinite(point)) {
+        const numVal = derivNumeric(expr, vari, point);
+        if (isFinite(numVal) && !isNaN(numVal)) {
+          steps.push("<strong>Step 3:</strong> Use central difference with h=10⁻⁸");
+          steps.push("<strong>Step 4:</strong> f'(" + pointS + ") ≈ " + fmtNum(numVal));
+          answer = fmtNum(numVal);
+        } else {
+          answer = "Could not compute";
+          steps.push("<strong>Step 3:</strong> Could not compute derivative. Check expression syntax.");
+        }
+      } else {
+        res.innerHTML = '<span class="calc-error">Please enter a valid point for numerical differentiation.</span>';
+        box.classList.add("show");
+        return;
+      }
+    } else {
+      answer = "No simple closed form found. Provide a point for numerical differentiation.";
+    }
+  }
+
+  res.textContent = answer;
+  stps.innerHTML = steps.map(function (s) { return '<div class="calc-step">' + s + "</div>"; }).join("");
+  box.classList.add("show");
+}
+
+function derivUpdateNotation() {
+  const expr = document.getElementById("derivExpr").value.trim() || "f(x)";
+  const vari = document.getElementById("derivVar").value;
+  document.getElementById("derivNotVar").textContent = vari;
+  document.getElementById("derivNotExpr").textContent = expr;
+}
+
+function derivExample(expr, point) {
+  document.getElementById("derivExpr").value = expr;
+  document.getElementById("derivPoint").value = point;
+  derivUpdateNotation();
+}
+
+/* ══════════════════════════════════════
    INIT
 ══════════════════════════════════════ */
 function initFunctions() {
@@ -809,6 +1174,26 @@ function initFunctions() {
   const swResetBtn = document.getElementById("swResetBtn");
   if (swResetBtn) swResetBtn.addEventListener("click", swReset);
 
+  // Timer presets
+  document.querySelectorAll(".preset-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const min = parseInt(btn.dataset.minutes, 10);
+      if (!isNaN(min)) timerSetPreset(min);
+    });
+  });
+
+  // Copy buttons
+  const timerCopyBtn = document.getElementById("timerCopyBtn");
+  if (timerCopyBtn) timerCopyBtn.addEventListener("click", () => copyText(document.getElementById("timerDisplay")?.textContent?.replace(/[^0-9:]/g, "") || ""));
+  const swCopyBtn = document.getElementById("swCopyBtn");
+  if (swCopyBtn) swCopyBtn.addEventListener("click", () => copyText(document.getElementById("swDisplay")?.textContent?.replace(/[^0-9:.]/g, "") || ""));
+  const scCopyBtn = document.getElementById("scCopyBtn");
+  if (scCopyBtn) scCopyBtn.addEventListener("click", () => copyText(document.getElementById("scResult")?.textContent || ""));
+  const limCopyBtn = document.getElementById("limCopyBtn");
+  if (limCopyBtn) limCopyBtn.addEventListener("click", () => copyText(document.getElementById("limResultValue")?.textContent || ""));
+  const intCopyBtn = document.getElementById("intCopyBtn");
+  if (intCopyBtn) intCopyBtn.addEventListener("click", () => copyText(document.getElementById("intResultValue")?.textContent || ""));
+
   // Calculator mode buttons
   document.getElementById("modeDeg")?.addEventListener("click", () => scSetMode("deg"));
   document.getElementById("modeRad")?.addEventListener("click", () => scSetMode("rad"));
@@ -829,6 +1214,21 @@ function initFunctions() {
     else if (func) scFunc(func);
     else if (insert) scInsert(insert);
   });
+
+  // Calculator keyboard input
+  const sciCard = document.getElementById("sciCalcCard");
+  if (sciCard) {
+    sciCard.addEventListener("click", () => sciCard.focus());
+    sciCard.addEventListener("keydown", scHandleKey);
+    sciCard.setAttribute("tabindex", "0");
+  }
+
+  // Calculator history
+  const scHistoryToggle = document.getElementById("scHistoryToggle");
+  if (scHistoryToggle) scHistoryToggle.addEventListener("click", scToggleHistory);
+  const scHistoryClear = document.getElementById("scHistoryClear");
+  if (scHistoryClear) scHistoryClear.addEventListener("click", scClearHistory);
+  scRenderHistory();
 
   // Limit calculator
   document.querySelectorAll("[data-dir]").forEach((btn) => {
@@ -858,6 +1258,22 @@ function initFunctions() {
   document.getElementById("intVar")?.addEventListener("change", intUpdateNotation);
   document.getElementById("intLower")?.addEventListener("input", intUpdateNotation);
   document.getElementById("intUpper")?.addEventListener("input", intUpdateNotation);
+
+  // Derivative calculator
+  document.getElementById("derivCalcBtn")?.addEventListener("click", derivCalc);
+  document.getElementById("derivExpr")?.addEventListener("input", derivUpdateNotation);
+  document.getElementById("derivVar")?.addEventListener("change", derivUpdateNotation);
+  document.getElementById("derivPoint")?.addEventListener("input", derivUpdateNotation);
+  document.querySelectorAll("[data-deriv-expr]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      derivExample(btn.dataset.derivExpr, btn.dataset.derivPoint);
+    });
+  });
+  const derivCopyBtn = document.getElementById("derivCopyBtn");
+  if (derivCopyBtn) derivCopyBtn.addEventListener("click", function () {
+    copyText(document.getElementById("derivResultValue")?.textContent || "");
+  });
+  derivUpdateNotation();
 }
 
 if (document.readyState === "loading") {

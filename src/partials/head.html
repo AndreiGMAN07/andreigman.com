@@ -9,11 +9,28 @@
   <meta property="og:type" content="{{ogtype}}" />
   <meta property="og:image" content="{{ogimage}}" />
   <meta name="twitter:card" content="summary" />
+  <meta name="theme-color" content="#121617" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f5f8f6" media="(prefers-color-scheme: light)" />
+  <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="{{base}}feed.xml" />
   <link rel="icon" href="{{base}}favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="{{base}}favicon.svg" />
-  <link rel="stylesheet" href="{{base}}assets/css/style.css?v=5" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="screen" />
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" onload="document.querySelectorAll('pre code').forEach((b) => { hljs.highlightElement(b); })"></script>
+  <link rel="stylesheet" href="{{base}}assets/css/style.css?v={{csshash}}" />
+  <script>
+    (function () {
+      if (!document.querySelector("pre code")) return;
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css";
+      document.head.appendChild(link);
+      var s = document.createElement("script");
+      s.defer = true;
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js";
+      s.onload = function () {
+        document.querySelectorAll("pre code").forEach(function (b) { hljs.highlightElement(b); });
+      };
+      document.head.appendChild(s);
+    })();
+  </script>
   {{extrahead}}
   <script>
     (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();

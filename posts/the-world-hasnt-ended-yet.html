@@ -11,10 +11,29 @@
   <meta property="og:type" content="article" />
   <meta property="og:image" content="https://andreigman.com/favicon.svg" />
   <meta name="twitter:card" content="summary" />
-  <link rel="icon" href="../favicon.svg" />
+  <meta name="theme-color" content="#121617" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f5f8f6" media="(prefers-color-scheme: light)" />
+  <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="../feed.xml" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="../favicon.svg" />
-  <link rel="stylesheet" href="../assets/css/style.css?v=5" />
-  <script type="application/ld+json">
+  <link rel="stylesheet" href="../assets/css/style.css?v=f45eb5ec" />
+  <script>
+    (function () {
+      if (!document.querySelector("pre code")) return;
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css";
+      document.head.appendChild(link);
+      var s = document.createElement("script");
+      s.defer = true;
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js";
+      s.onload = function () {
+        document.querySelectorAll("pre code").forEach(function (b) { hljs.highlightElement(b); });
+      };
+      document.head.appendChild(s);
+    })();
+  </script>
+    <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -28,62 +47,88 @@
   "url": "https://andreigman.com/posts/the-world-hasnt-ended-yet.html"
 }
   </script>
+  <script>
+    (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
+  </script>
 </head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to content</a>
 
-  <header class="site-header">
-    <div class="container nav">
-      <a href="../index.html" class="logo">andreigman<span>.com</span></a>
-      <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
-      <nav class="nav-menu" id="navMenu">
+<body>
+<div class="site-bg" aria-hidden="true"></div>
+<div class="phase2-grain" aria-hidden="true"></div>
+
+<a href="../#main-content" class="skip-link">Skip to content</a>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="../index.html" class="logo">andreigman<span>.com</span></a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
         <a href="../index.html">Home</a>
         <a href="../about.html">About</a>
-        <a href="../blog.html" class="active">Blog</a>
+        <a href="../blog.html" class="active" aria-current="page">Blog</a>
         <a href="../resources.html">Resources</a>
+        <a href="../projects.html">Projects</a>
         <a href="../media-watched.html">Media-Watched</a>
         <a href="../functions.html">Functions</a>
+        <a href="../play.html">Play</a>
         <a href="../credits.html">Credits</a>
-      </nav>
-      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+      <button type="button" class="nav-menu-search" id="navMenuSearch" aria-label="Search site">Search</button>
+    </nav>
+
+    <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+  </div>
+</header>
+
+<main id="main-content">
+  <section class="section">
+    <div class="container narrow">
+
+      <a href="../blog.html" class="blog-back-link">&larr; Back to Blog</a>
+
+      <header class="post-header">
+        <p class="mini-meta"><span class="tag">Diary</span> &middot; <time datetime="2026-07-25">July 25, 2026</time> &middot; 3 min</p>
+        <h1>The World hasn't ended yet</h1>
+        <p class="lead">Everything seems to move on into a good direction. I haven't been that happy for a whole year</p>
+      </header>
+
+      <article class="post-body">
+        <p>I am so happy that finally I could feel the holiday as normal people do. I am relaxing, I made some new friends. We created a Discord server and a Minecraft server as well. These days I am relaxing, watching movies, playing video-games, working at my website and I have started to learn for driving school. I am feeling that I could handle all of them. I have not been that happy, like I am right now, since last year. After 6 horror months (December 2025 to July 2026) of burnouts, isolation and depression: so I can feel alive again, the world has not ended yet as Mark Borja from Until Then once said.</p>
+      </article>
+
     </div>
-  </header>
-
-  <main id="main-content">
-    <section class="section">
-      <div class="container narrow">
-        <a href="../blog.html" class="blog-back-link">← Back to Blog</a>
-        <header class="post-header">
-          <p class="mini-meta"><span class="tag">Diary</span> · <time datetime="2026-07-25">July 25, 2026</time> · 3 min read</p>
-          <h1>The World hasn't ended yet</h1>
-          <p class="lead">Everything seems to move on into a good direction. I haven't been that happy for a whole year</p>
-        </header>
-        <article class="post-body">
-<p>I am so happy that finally I could feel the holiday as normal people do. I am relaxing, I made some new friends. We created a Discord server and a Minecraft server as well. These days I am relaxing, watching movies, playing video-games, working at my website and I have started to learn for driving school. I am feeling that I could handle all of them. I have not been that happy, like I am right now, since last year. After 6 horror months (December 2025 to July 2026) of burnouts, isolation and depression: so I can feel alive again, the world has not ended yet as Mark Borja from Until Then once said.</p>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <h3 class="logo">andreigman<span>.com</span></h3>
-        <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
-      </div>
-      <div>
-        <h4>Pages</h4>
-        <a href="../about.html">About</a>
-        <a href="../blog.html">Blog</a>
-        <a href="../resources.html">Resources</a>
-        <a href="../media-watched.html">Media-Watched</a>
-        <a href="../functions.html">Functions</a>
-        <a href="../credits.html">Credits</a>
-      </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h3 class="logo">andreigman<span>.com</span></h3>
+      <p>A personal site for sharing what I learn, building a clean professional identity, and keeping my university notes in one place.</p>
+      <p class="footer-contact"><a href="mailto:florea.andreid07@gmail.com">florea.andreid07@gmail.com</a></p>
     </div>
-  </footer>
+    <div>
+      <h4>Pages</h4>
+      <a href="../about.html">About</a>
+      <a href="../blog.html">Blog</a>
+      <a href="../resources.html">Resources</a>
+      <a href="../projects.html">Projects</a>
+      <a href="../media-watched.html">Media-Watched</a>
+      <a href="../functions.html">Functions</a>
+      <a href="../play.html">Play</a>
+      <a href="../credits.html">Credits</a>
+    </div>
+  </div>
+</footer>
 
-  <script defer src="../assets/js/script.js?v=5"></script>
-  <script defer src="../assets/js/search.js?v=5"></script>
+<button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+  <script defer src="../assets/js/main.js"></script>
 </body>
 </html>

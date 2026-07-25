@@ -174,10 +174,27 @@ const MediaUI = {
       if (e.target === overlay) close();
     });
 
+    const focusable = overlay.querySelectorAll(
+      'button:not([disabled]), a[href], select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusable[0];
+    const lastFocusable = focusable[focusable.length - 1];
+
     const onKey = (e) => {
       if (e.key === "Escape") {
+        e.preventDefault();
         close();
         document.removeEventListener("keydown", onKey);
+        return;
+      }
+      if (e.key === "Tab" && focusable.length) {
+        if (e.shiftKey && document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
       }
     };
     document.addEventListener("keydown", onKey);

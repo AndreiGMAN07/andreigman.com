@@ -406,3 +406,171 @@
   text-align: center;
   font-family: inherit;
 }
+
+/* ── Timer presets ── */
+.timer-presets {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-btn:hover {
+  background: rgba(54, 168, 93, 0.14);
+  border-color: rgba(54, 168, 93, 0.5);
+  color: var(--primary-2);
+}
+
+/* ── Copy button within display ── */
+.copy-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.15rem 0.35rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: color 0.15s, background 0.15s;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.copy-btn:hover {
+  color: var(--primary-2);
+  background: rgba(54, 168, 93, 0.12);
+}
+
+.tool-display {
+  position: relative;
+}
+
+.tool-display .copy-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.calc-result-label .copy-btn {
+  margin-left: 0.4rem;
+}
+
+/* ── Calculator history ── */
+.sci-history {
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.sc-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.sc-history-clear {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.15rem 0.45rem;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.sc-history-clear:hover {
+  color: #f87171;
+  border-color: #f87171;
+}
+
+.sc-history-list {
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.sc-history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  gap: 0.5rem;
+}
+
+.sc-history-item:last-child {
+  border-bottom: none;
+}
+
+.sc-history-item:hover {
+  background: rgba(54, 168, 93, 0.08);
+}
+
+.sc-history-item-expr {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-history-item-result {
+  color: var(--primary-2);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Result actions row ── */
+.sc-result-actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: -0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.history-toggle-btn {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+
+.history-toggle-btn:hover {
+  color: var(--primary-2);
+  background: rgba(54, 168, 93, 0.1);
+  border-color: rgba(54, 168, 93, 0.4);
+}
+
+/* ── Sci calc keyboard hint ── */
+.sci-calc[tabindex="-1"] {
+  outline: none;
+}
+
+.sci-calc[tabindex="-1"]:focus {
+  box-shadow: 0 0 0 2px rgba(54, 168, 93, 0.3);
+  border-radius: var(--radius);
+}

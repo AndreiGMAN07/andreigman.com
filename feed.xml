@@ -1,30 +1,37 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<?xml version='1.0' encoding='UTF-8'?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
   <channel>
     <title>andreigman.com</title>
     <link>https://andreigman.com</link>
     <description>Personal blog of Andrei — thoughts, notes, and diary entries.</description>
     <language>en</language>
-    <lastBuildDate>Sun, 19 Jul 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://andreigman.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Sat, 25 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://andreigman.com/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The World hasn't ended yet</title>
+      <link>https://andreigman.com/posts/the-world-hasnt-ended-yet.html</link>
+      <description>Everything seems to move on into a good direction. I haven't been that happy for a whole year</description>
+      <pubDate>Sat, 25 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://andreigman.com/posts/the-world-hasnt-ended-yet.html</guid>
+    </item>
     <item>
       <title>New people, new ages</title>
       <link>https://andreigman.com/posts/blog-post-03.html</link>
-      <description>I've met some of my new college buddies and I think that...</description>
+      <description>I've met my "new family", a new unknown horizon.</description>
       <pubDate>Mon, 13 Jul 2026 00:00:00 +0000</pubDate>
       <guid>https://andreigman.com/posts/blog-post-03.html</guid>
     </item>
     <item>
       <title>The END??</title>
       <link>https://andreigman.com/posts/blog-post-02.html</link>
-      <description>If something has finished, does it truly mean the end?</description>
+      <description>If something has finished, does it truly mean the end? A reflection on endings and beginnings.</description>
       <pubDate>Thu, 02 Jul 2026 00:00:00 +0000</pubDate>
       <guid>https://andreigman.com/posts/blog-post-02.html</guid>
     </item>
     <item>
       <title>My first blog entry</title>
       <link>https://andreigman.com/posts/blog-post-01.html</link>
-      <description>A short intro about why I started writing here.</description>
+      <description>A short intro about why I started writing here, what I want to document, and where I see myself going.</description>
       <pubDate>Thu, 25 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://andreigman.com/posts/blog-post-01.html</guid>
     </item>

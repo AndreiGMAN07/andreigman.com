@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>andreigman.com – Blog</title>
-  <meta name="description" content="A mix of personal reflections, ideas I'm exploring, things I'm learning, and random thoughts I don't want to lose." />
-  <meta property="og:title" content="andreigman.com – Blog" />
-  <meta property="og:description" content="A mix of personal reflections, ideas I'm exploring, things I'm learning, and random thoughts I don't want to lose." />
-  <meta property="og:url" content="https://andreigman.com/blog.html" />
+  <title>andreigman.com | Projects</title>
+  <meta name="description" content="Personal projects and university work by Andrei." />
+  <meta property="og:title" content="andreigman.com | Projects" />
+  <meta property="og:description" content="Personal projects and university work by Andrei." />
+  <meta property="og:url" content="https://andreigman.com/projects.html" />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://andreigman.com/favicon.svg" />
   <meta name="twitter:card" content="summary" />
@@ -58,9 +58,9 @@
     <nav class="nav-menu" id="navMenu">
         <a href="index.html">Home</a>
         <a href="about.html">About</a>
-        <a href="blog.html" class="active" aria-current="page">Blog</a>
+        <a href="blog.html">Blog</a>
         <a href="resources.html">Resources</a>
-        <a href="projects.html">Projects</a>
+        <a href="projects.html" class="active" aria-current="page">Projects</a>
         <a href="media-watched.html">Media-Watched</a>
         <a href="functions.html">Functions</a>
         <a href="play.html">Play</a>
@@ -72,36 +72,20 @@
   </div>
 </header>
 
-<main id="main-content">
+<main id="main-content" class="page">
+  <section class="section projects-hero">
+    <div class="container narrow center-page">
+      <p class="eyebrow">Portfolio</p>
+      <h1>My Projects</h1>
+      <p class="lead">A collection of things I'm building and working on &mdash; university assignments, side experiments, and personal tools.</p>
+    </div>
+  </section>
+
+  <div class="hero-divider" aria-hidden="true"></div>
+
   <section class="section">
     <div class="container">
-
-      <div class="section-head">
-        <p class="eyebrow">Blog</p>
-        <h1>Thoughts, notes &amp; diary</h1>
-        <p class="lead">A mix of personal reflections, ideas I'm exploring, things I'm learning, and random thoughts I don't want to lose.</p>
-      </div>
-
-      <div class="blog-tags" id="blogTags">
-        <span class="blog-sort-wrap">
-          <select id="blogSort" aria-label="Sort posts">
-            <option value="date-desc">Newest first</option>
-            <option value="date-asc">Oldest first</option>
-            <option value="title-asc">Title A&ndash;Z</option>
-            <option value="title-desc">Title Z&ndash;A</option>
-          </select>
-        </span>
-      </div>
-
-      <div class="blog-layout">
-        <div class="grid-3" id="blogList" aria-live="polite"></div>
-
-        <aside class="blog-sidebar card">
-          <h3>Recent posts</h3>
-          <ul class="clean-list" id="recentPosts"></ul>
-        </aside>
-      </div>
-
+      <div id="projectsContainer" aria-live="polite"></div>
     </div>
   </section>
 </main>
@@ -131,6 +115,6 @@
 </button>
 
   <script defer src="assets/js/main.js"></script>
-  <script defer src="assets/js/blog.js?v=f1d03a02"></script>
+  <script defer src="assets/js/projects.js?v=35dc7d32"></script>
 </body>
 </html>

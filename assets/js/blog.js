@@ -1,0 +1,141 @@
+(function () {
+  let postsData = [];
+  let activeTag = "all";
+
+  function tagLabel(t) {
+    if (!t) return "Thoughts";
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+
+  function sortPosts(posts) {
+    const sortEl = document.getElementById("blogSort");
+    const sortVal = sortEl ? sortEl.value : "date-desc";
+    const sorted = posts.slice();
+    switch (sortVal) {
+      case "date-desc":
+        sorted.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+        break;
+      case "date-asc":
+        sorted.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+        break;
+      case "title-asc":
+        sorted.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+        break;
+      case "title-desc":
+        sorted.sort((a, b) => (b.title || "").localeCompare(a.title || ""));
+        break;
+    }
+    return sorted;
+  }
+
+  function renderTags(posts) {
+    const container = document.getElementById("blogTags");
+    if (!container) return;
+
+    const tags = Array.from(new Set(posts.map((p) => p.tag || "thoughts"))).sort();
+    const sortWrap = container.querySelector(".blog-sort-wrap");
+
+    container.innerHTML = "";
+    const allBtn = document.createElement("button");
+    allBtn.type = "button";
+    allBtn.className = "blog-tag active";
+    allBtn.dataset.tag = "all";
+    allBtn.setAttribute("aria-pressed", "true");
+    allBtn.textContent = "All";
+    container.appendChild(allBtn);
+
+    tags.forEach((tag) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "blog-tag";
+      btn.dataset.tag = tag;
+      btn.setAttribute("aria-pressed", "false");
+      btn.textContent = tagLabel(tag);
+      container.appendChild(btn);
+    });
+
+    if (sortWrap) container.appendChild(sortWrap);
+
+    container.querySelectorAll(".blog-tag").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        container.querySelectorAll(".blog-tag").forEach((t) => {
+          t.classList.remove("active");
+          t.setAttribute("aria-pressed", "false");
+        });
+        btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
+        activeTag = btn.dataset.tag;
+        filterVisibleCards();
+      });
+    });
+  }
+
+  function postCardHtml(p) {
+    const tag = p.tag || "thoughts";
+    const meta = [p.dateDisplay || "", tagLabel(tag)];
+    if (p.readTime) meta.push(p.readTime);
+    return (
+      '<article class="card hover-card" data-tag="' +
+      tag +
+      '">' +
+      '<p class="mini-meta">' +
+      meta.join(" &middot; ") +
+      "</p>" +
+      "<h3>" +
+      (p.title || "(untitled)") +
+      "</h3>" +
+      "<p>" +
+      (p.blurb || "") +
+      "</p>" +
+      '<a href="' +
+      (p.file || "#") +
+      '" class="text-link">Read post</a>' +
+      "</article>"
+    );
+  }
+
+  function filterVisibleCards() {
+    document.querySelectorAll("#blogList .card").forEach((card) => {
+      card.style.display =
+        activeTag === "all" || card.dataset.tag === activeTag ? "" : "none";
+    });
+  }
+
+  function renderPosts() {
+    const list = document.getElementById("blogList");
+    if (!list || !postsData.length) return;
+
+    const sorted = sortPosts(postsData);
+    list.innerHTML = sorted.map(postCardHtml).join("");
+
+    if (typeof window.initScrollReveal === "function") {
+      window.initScrollReveal();
+    }
+
+    filterVisibleCards();
+
+    const recentList = document.getElementById("recentPosts");
+    if (recentList) {
+      recentList.innerHTML = sorted
+        .slice(0, 3)
+        .map((p) => '<li><a href="' + p.file + '">' + p.title + "</a></li>")
+        .join("");
+    }
+  }
+
+  document.getElementById("blogSort")?.addEventListener("change", renderPosts);
+
+  (async function () {
+    try {
+      const res = await fetch("posts/posts.json", { cache: "no-cache" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !Array.isArray(data.posts) || data.posts.length === 0) return;
+      postsData = data.posts;
+      renderTags(postsData);
+      renderPosts();
+    } catch (e) {
+      /* offline or missing feed */
+    }
+  })();
+})();

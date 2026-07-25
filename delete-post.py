@@ -1,24 +1,31 @@
 #!/usr/bin/env python3
 """
-delete-post.py — remove a post from posts/, blog.html, and posts.json
+delete-post.py — remove a post from src/data/posts.json and src/posts/
 Usage:
   python3 delete-post.py "Are we all right?"
   python3 delete-post.py are-we-all-right
+
+After deleting, run: python3 build.py
 """
 
-import sys, os, re, json, argparse
+import argparse
+import json
+import os
+import re
+import sys
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-POSTS_DIR = os.path.join(BASE, "posts")
-BLOG_FILE = os.path.join(BASE, "blog.html")
-FEED_FILE = os.path.join(POSTS_DIR, "posts.json")
+POSTS_DATA = os.path.join(BASE, "src", "data", "posts.json")
+POSTS_SRC = os.path.join(BASE, "src", "posts")
+
 
 def slugify(s):
     s = s.lower().strip()
-    s = re.sub(r'[^\w\s-]', '', s)
-    s = re.sub(r'[\s_]+', '-', s)
-    s = re.sub(r'-+', '-', s)
-    return s.strip('-')
+    s = re.sub(r"[^\w\s-]", "", s)
+    s = re.sub(r"[\s_]+", "-", s)
+    s = re.sub(r"-+", "-", s)
+    return s.strip("-")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Delete a blog post")
@@ -26,69 +33,42 @@ def main():
     args = parser.parse_args()
 
     slug = slugify(args.post)
-    post_file = os.path.join(POSTS_DIR, f"{slug}.html")
+    body_file = os.path.join(POSTS_SRC, f"{slug}.html")
     removed_any = False
 
-    # 1. Delete HTML file
-    if os.path.exists(post_file):
-        os.remove(post_file)
-        print(f"  \u2713 deleted {post_file}")
+    if os.path.exists(body_file):
+        os.remove(body_file)
+        print(f"  ✓ deleted {body_file}")
         removed_any = True
     else:
-        print(f"  - {post_file} not found")
+        print(f"  - {body_file} not found")
 
-    # 2. Remove card from blog.html
-    if os.path.exists(BLOG_FILE):
-        with open(BLOG_FILE, "r") as f:
-            html = f.read()
-
-        # Match the article block containing this slug
-        pattern = re.compile(
-            r'<article class="card hover-card" data-tag="[^"]*">\s*'
-            r'<p class="mini-meta">[^<]*</p>\s*'
-            r'<h3>[^<]*</h3>\s*'
-            r'<p>[^<]*</p>\s*'
-            r'<a href="posts/' + re.escape(slug) + r'\.html" class="text-link">Read post</a>\s*'
-            r'</article>\n?',
-            re.DOTALL
-        )
-
-        new_html, n = pattern.subn('', html)
-        if n > 0:
-            with open(BLOG_FILE, "w") as f:
-                f.write(new_html)
-            print(f"  \u2713 removed card from {BLOG_FILE}")
-            removed_any = True
-        else:
-            print(f"  - card not found in {BLOG_FILE}")
-    else:
-        print(f"  - {BLOG_FILE} not found")
-
-    # 3. Remove entry from posts.json
-    if os.path.exists(FEED_FILE):
-        with open(FEED_FILE, "r") as f:
-            feed = json.load(f)
-
-        before = len(feed.get("posts", []))
-        feed["posts"] = [p for p in feed["posts"] if p.get("id") != slug and p.get("slug") != slug]
-        after = len(feed["posts"])
-
+    if os.path.exists(POSTS_DATA):
+        with open(POSTS_DATA, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        before = len(data.get("posts", []))
+        data["posts"] = [
+            p for p in data.get("posts", []) if p.get("slug") != slug and p.get("id") != slug
+        ]
+        after = len(data["posts"])
         if after < before:
-            with open(FEED_FILE, "w") as f:
-                json.dump(feed, f, indent=2)
+            with open(POSTS_DATA, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
                 f.write("\n")
-            print(f"  \u2713 removed entry from {FEED_FILE}")
+            print(f"  ✓ removed entry from {POSTS_DATA}")
             removed_any = True
         else:
-            print(f"  - entry not found in {FEED_FILE}")
+            print(f"  - entry not found in {POSTS_DATA}")
     else:
-        print(f"  - {FEED_FILE} not found")
+        print(f"  - {POSTS_DATA} not found")
 
     if not removed_any:
-        print(f"\n! Nothing was removed. No post found matching \"{args.post}\"")
+        print(f'\n! Nothing was removed. No post found matching "{args.post}"')
         sys.exit(1)
 
-    print(f"\nDone. Run: git add . && git commit -m \"delete post: {args.post}\" && git push")
+    print("\nDone! Run: python3 build.py")
+    print(f'Then: git add . && git commit -m "delete post: {args.post}"')
+
 
 if __name__ == "__main__":
     main()

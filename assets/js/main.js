@@ -3,11 +3,54 @@ const navMenu = document.getElementById("navMenu");
 const themeToggle = document.getElementById("themeToggle");
 const root = document.documentElement;
 
+function closeMobileMenu() {
+  if (!navMenu || !navToggle) return;
+  navMenu.classList.remove("show");
+  navToggle.setAttribute("aria-expanded", "false");
+  navToggle.setAttribute("aria-label", "Open menu");
+}
+
+function openMobileMenu() {
+  if (!navMenu || !navToggle) return;
+  navMenu.classList.add("show");
+  navToggle.setAttribute("aria-expanded", "true");
+  navToggle.setAttribute("aria-label", "Close menu");
+}
+
 if (navToggle && navMenu) {
   navToggle.addEventListener("click", () => {
-    const isOpen = navMenu.classList.toggle("show");
-    navToggle.setAttribute("aria-expanded", isOpen);
-    navToggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+    if (navMenu.classList.contains("show")) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && navMenu.classList.contains("show")) {
+      e.preventDefault();
+      closeMobileMenu();
+      navToggle.focus();
+    }
+  });
+
+  navMenu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMobileMenu);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab" || !navMenu.classList.contains("show")) return;
+    const focusable = navMenu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
   });
 }
 
@@ -61,7 +104,7 @@ const initScrollReveal = () => {
     }
   });
 
-  const grids = document.querySelectorAll(".grid-2, .grid-3, .media-grid, .bio-certs");
+  const grids = document.querySelectorAll(".grid-2, .grid-3, .grid-auto-fit, .media-grid, .bio-certs");
   grids.forEach((grid) => {
     const cards = grid.querySelectorAll(".card, .hover-card, .bio-cert-card, .media-card:not(.media-skeleton)");
     cards.forEach((card, index) => {
@@ -91,7 +134,6 @@ const initScrollReveal = () => {
 document.addEventListener("DOMContentLoaded", initScrollReveal);
 window.initScrollReveal = initScrollReveal;
 
-/* ── Back to top ── */
 const backToTop = document.getElementById("backToTop");
 if (backToTop) {
   const toggleBtt = () => {
@@ -99,31 +141,16 @@ if (backToTop) {
   };
   toggleBtt();
   window.addEventListener("scroll", toggleBtt, { passive: true });
-  backToTop.addEventListener("click", () => {
+  backToTop.addEventListener("click", (e) => {
+    e.preventDefault();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   PHASE 2 — Scroll progress + page-transition curtain wipe
-   All additive, scoped to their own elements. No conflicts with
-   existing nav toggle / theme toggle / reveal observer.
-   ═══════════════════════════════════════════════════════════════ */
 
 (function () {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion) return;
 
-  /* --- Grain overlay layer (injected once, sits above content visually but
-       is non-interactive and very faint; respects --grain-opacity via CSS) --- */
-  if (!document.querySelector("body > .phase2-grain")) {
-    const grain = document.createElement("div");
-    grain.className = "phase2-grain";
-    grain.setAttribute("aria-hidden", "true");
-    document.body.appendChild(grain);
-  }
-
-  /* --- Scroll progress indicator (inserted once into sticky header) --- */
   const header = document.querySelector(".site-header");
   if (header && !header.querySelector(".scroll-progress")) {
     const track = document.createElement("div");
@@ -135,7 +162,7 @@ if (backToTop) {
 
     const updateBar = () => {
       const doc = document.documentElement;
-      const max = (doc.scrollHeight - doc.clientHeight) || 1;
+      const max = doc.scrollHeight - doc.clientHeight || 1;
       const pct = Math.min(100, Math.max(0, (window.scrollY / max) * 100));
       bar.style.width = pct + "%";
     };
@@ -144,11 +171,6 @@ if (backToTop) {
     window.addEventListener("resize", updateBar, { passive: true });
   }
 
-  /* --- Page-transition green curtain wipe ---
-     Reads existing .page-transition + .page-transition__loader markup
-     if present on the page; if absent, builds it once. Triggers on
-     internal <a> clicks that navigate to a .html file in the same
-     origin (not external, not hash links, not target=_blank).        */
   let curtain = document.querySelector(".page-transition");
 
   if (!curtain) {
@@ -167,6 +189,13 @@ if (backToTop) {
     return /\.html(\?|$|#)/.test(href) || href.endsWith("/");
   };
 
+  let pendingNav = null;
+
+  const clearCurtain = () => {
+    curtain.classList.remove("active");
+    pendingNav = null;
+  };
+
   document.addEventListener("click", function (e) {
     const a = e.target.closest("a");
     if (!a) return;
@@ -175,54 +204,56 @@ if (backToTop) {
     if (a.target === "_blank" || a.hasAttribute("download")) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
-    // Same URL: don't fire curtain
     const url = new URL(href, window.location.href);
     if (url.href === window.location.href) return;
 
-    e.preventDefault();
+    pendingNav = url.href;
     curtain.classList.add("active");
-    setTimeout(() => { window.location.href = url.href; }, 280);
+    e.preventDefault();
+
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (pendingNav) window.location.href = pendingNav;
+      }, 120);
+    });
+
+    setTimeout(() => {
+      if (pendingNav) window.location.href = pendingNav;
+    }, 5000);
   });
 
-  // Safety net: if bfcache restore leaves curtain visible, clear it.
   window.addEventListener("pageshow", function (ev) {
-    if (ev.persisted) curtain.classList.remove("active");
+    if (ev.persisted) clearCurtain();
   });
   window.addEventListener("load", function () {
-    // Hide curtain if a new page loaded with it stuck open
-    requestAnimationFrame(() => curtain.classList.remove("active"));
+    requestAnimationFrame(clearCurtain);
   });
-
-  // Handle back/forward navigation: close curtain immediately
-  window.addEventListener("popstate", function () {
-    curtain.classList.remove("active");
-  });
+  window.addEventListener("popstate", clearCurtain);
 })();
 
-/* ═══════════════════════════════════════════════════════════════
-   PHASE 4 — Full-screen search overlay
-   Vanilla JS, no dependencies. Fuzzy match across posts.json + pages.
-   Triggered by: clicking the nav search icon, or pressing "/" or
-   Ctrl/Cmd+K. Closed by Esc, clicking the backdrop, or selecting.
-   ═══════════════════════════════════════════════════════════════ */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    if (window.location.pathname.includes("/posts/")) return;
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
 (function () {
   const NAV_PAGES = [
-    { title: "Home",            href: "index.html",          kind: "page",   keywords: "home start landing main" },
-    { title: "About",           href: "about.html",          kind: "page",   keywords: "about me bio biography education certificates social" },
-    { title: "Blog",            href: "blog.html",           kind: "page",   keywords: "blog posts thoughts diary notes writing" },
-    { title: "Resources",       href: "resources.html",      kind: "page",   keywords: "resources notes courses files study university" },
-    { title: "Media-Watched",   href: "media-watched.html",  kind: "page",   keywords: "media watched archive anime games movies tv" },
-    { title: "Functions",       href: "functions.html",      kind: "page",   keywords: "functions tools calculator timer stopwatch" },
-    { title: "Credits",         href: "credits.html",       kind: "page",   keywords: "credits tools used about site" },
-    { title: "Anime & Manga",   href: "media-anime.html",    kind: "media",  keywords: "anime manga anilist" },
-    { title: "Games",           href: "media-games.html",   kind: "media",  keywords: "games igdb twitch coming soon" },
-    { title: "Movies & TV",     href: "media-movies.html",  kind: "media",  keywords: "movies tv tmdb films series" }
+    { title: "Home", href: "index.html", kind: "page", keywords: "home start landing main" },
+    { title: "About", href: "about.html", kind: "page", keywords: "about me bio biography education certificates social" },
+    { title: "Blog", href: "blog.html", kind: "page", keywords: "blog posts thoughts diary notes writing" },
+    { title: "Resources", href: "resources.html", kind: "page", keywords: "resources notes courses files study university" },
+    { title: "Media-Watched", href: "media-watched.html", kind: "page", keywords: "media watched archive anime games movies tv" },
+    { title: "Functions", href: "functions.html", kind: "page", keywords: "functions tools calculator timer stopwatch" },
+    { title: "Play", href: "play.html", kind: "page", keywords: "play games mini arcade" },
+    { title: "Credits", href: "credits.html", kind: "page", keywords: "credits tools used about site" },
+    { title: "Anime & Manga", href: "media-anime.html", kind: "media", keywords: "anime manga anilist" },
+    { title: "Games", href: "media-games.html", kind: "media", keywords: "games igdb twitch coming soon" },
+    { title: "Movies & TV", href: "media-movies.html", kind: "media", keywords: "movies tv tmdb films series" },
   ];
 
-  // Each page lists its own known posts. For posts/, the URLs are relative to root.
-  const POST_HREF_ROOT = "posts/";
-
-  // Detect if we're in a sub-directory (e.g. posts/*.html) so we can adjust hrefs
   function detectDepth() {
     const p = window.location.pathname;
     if (p.includes("/posts/")) return "../";
@@ -270,13 +301,15 @@ if (backToTop) {
       const res = await fetch(depth + "posts/posts.json", { cache: "no-cache" });
       if (!res.ok) return [];
       const data = await res.json();
-      postsCache = (data && data.posts) ? data.posts.map(p => ({
-        title: p.title,
-        href: depth + (p.file || ""),
-        kind: "post",
-        tag: p.tag || "",
-        keywords: (p.tag || "") + " " + (p.blurb || "") + " " + (p.dateDisplay || "")
-      })) : [];
+      postsCache = (data && data.posts)
+        ? data.posts.map((p) => ({
+            title: p.title,
+            href: depth + (p.file || ""),
+            kind: "post",
+            tag: p.tag || "",
+            keywords: (p.tag || "") + " " + (p.blurb || "") + " " + (p.dateDisplay || ""),
+          }))
+        : [];
       return postsCache;
     } catch (e) {
       return [];
@@ -292,7 +325,7 @@ if (backToTop) {
     let qi = 0, score = 0, lastIdx = -1;
     for (let ti = 0; ti < text.length && qi < query.length; ti++) {
       if (text[ti] === query[qi]) {
-        score += (ti - lastIdx === 1) ? 10 : 5;
+        score += ti - lastIdx === 1 ? 10 : 5;
         lastIdx = ti;
         qi++;
       }
@@ -304,14 +337,23 @@ if (backToTop) {
     const pool = NAV_PAGES.concat(posts);
     if (!query.trim()) return [];
     return pool
-      .map(p => {
+      .map((p) => {
         const s = fuzzyScore(query, p.title) * 2 + fuzzyScore(query, p.keywords) + fuzzyScore(query, p.title);
         return { item: p, score: s };
       })
-      .filter(r => r.score > 0)
+      .filter((r) => r.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 8)
-      .map(r => r.item);
+      .map((r) => r.item);
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   function renderResults(query, posts) {
@@ -326,24 +368,40 @@ if (backToTop) {
       box.innerHTML = '<div class="search-overlay__empty">No matches for "' + escapeHtml(query) + '".</div>';
       return;
     }
-    box.innerHTML = results.map((r, i) =>
-      '<a href="' + r.href + '" class="search-result" data-idx="' + i + '" tabindex="0">' +
-        '<span class="search-result__kind search-result__kind--' + r.kind + '">' + (r.tag || r.kind) + '</span>' +
-        '<span class="search-result__title">' + escapeHtml(r.title) + '</span>' +
-      '</a>'
-    ).join("");
-  }
-
-  function escapeHtml(s) {
-    return String(s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+    box.innerHTML = results
+      .map(
+        (r, i) =>
+          '<a href="' +
+          r.href +
+          '" class="search-result" data-idx="' +
+          i +
+          '" tabindex="0">' +
+          '<span class="search-result__kind search-result__kind--' +
+          r.kind +
+          '">' +
+          (r.tag || r.kind) +
+          "</span>" +
+          '<span class="search-result__title">' +
+          escapeHtml(r.title) +
+          "</span>" +
+          "</a>"
+      )
+      .join("");
   }
 
   let activeIdx = -1;
+  let overlayEl = null;
+  let inputEl = null;
+  let lastFocus = null;
+
+  function getFocusable() {
+    if (!overlayEl) return [];
+    return Array.from(
+      overlayEl.querySelectorAll(
+        'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => el.offsetParent !== null || el === inputEl);
+  }
 
   function highlightActive() {
     const items = document.querySelectorAll(".search-result");
@@ -352,11 +410,9 @@ if (backToTop) {
     if (active && active.scrollIntoView) active.scrollIntoView({ block: "nearest" });
   }
 
-  let overlayEl = null;
-  let inputEl = null;
-
   async function openSearch() {
     const depth = detectDepth();
+    lastFocus = document.activeElement;
     overlayEl = buildOverlay();
     inputEl = document.getElementById("searchInput");
     overlayEl.classList.add("search-overlay--open");
@@ -372,13 +428,17 @@ if (backToTop) {
     document.body.classList.remove("search-open");
     if (inputEl) inputEl.value = "";
     activeIdx = -1;
+    if (lastFocus && typeof lastFocus.focus === "function") {
+      lastFocus.focus();
+    }
   }
 
   function isOpen() {
     return overlayEl && overlayEl.classList.contains("search-overlay--open");
   }
 
-  // Inject the nav trigger button once
+  window.openSiteSearch = openSearch;
+
   function injectNavTrigger() {
     if (document.querySelector(".nav-search-btn")) return;
     const themeBtn = document.querySelector("#themeToggle");
@@ -393,18 +453,54 @@ if (backToTop) {
     themeBtn.parentNode.insertBefore(btn, themeBtn);
   }
 
-  // Global keyboard handling
+  function wireMobileSearch() {
+    const mobileBtn = document.getElementById("navMenuSearch");
+    if (mobileBtn) {
+      mobileBtn.addEventListener("click", () => {
+        openSearch();
+        const navMenu = document.getElementById("navMenu");
+        if (navMenu && navMenu.classList.contains("show")) {
+          navMenu.classList.remove("show");
+          const toggle = document.getElementById("navToggle");
+          if (toggle) toggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+  }
+
   document.addEventListener("keydown", (e) => {
-    // Open: "/" when not focused in an input/textarea, or Ctrl/Cmd+K anywhere
-    const isTyping = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)
-                  || document.activeElement.isContentEditable;
+    const isTyping =
+      /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) ||
+      document.activeElement.isContentEditable;
+
     if ((e.key === "/" && !isTyping) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")) {
       e.preventDefault();
       openSearch();
       return;
     }
+
     if (!isOpen()) return;
-    if (e.key === "Escape") { e.preventDefault(); closeSearch(); return; }
+
+    if (e.key === "Tab") {
+      const focusable = getFocusable();
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+      return;
+    }
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeSearch();
+      return;
+    }
     if (e.key === "ArrowDown") {
       e.preventDefault();
       const items = document.querySelectorAll(".search-result");
@@ -417,12 +513,11 @@ if (backToTop) {
       highlightActive();
     } else if (e.key === "Enter") {
       const items = document.querySelectorAll(".search-result");
-      const target = (activeIdx >= 0 && activeIdx < items.length) ? items[activeIdx] : items[0];
+      const target = activeIdx >= 0 && activeIdx < items.length ? items[activeIdx] : items[0];
       if (target) target.click();
     }
   });
 
-  // Re-render as user types
   document.addEventListener("input", async (e) => {
     if (e.target && e.target.id === "searchInput") {
       activeIdx = -1;
@@ -431,10 +526,14 @@ if (backToTop) {
     }
   });
 
-  // Init: inject trigger, wire nothing else (overlay built lazily on open)
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", injectNavTrigger);
-  } else {
+  function initSearch() {
     injectNavTrigger();
+    wireMobileSearch();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSearch);
+  } else {
+    initSearch();
   }
 })();

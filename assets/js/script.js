@@ -3,11 +3,54 @@ const navMenu = document.getElementById("navMenu");
 const themeToggle = document.getElementById("themeToggle");
 const root = document.documentElement;
 
+function closeMobileMenu() {
+  if (!navMenu || !navToggle) return;
+  navMenu.classList.remove("show");
+  navToggle.setAttribute("aria-expanded", "false");
+  navToggle.setAttribute("aria-label", "Open menu");
+}
+
+function openMobileMenu() {
+  if (!navMenu || !navToggle) return;
+  navMenu.classList.add("show");
+  navToggle.setAttribute("aria-expanded", "true");
+  navToggle.setAttribute("aria-label", "Close menu");
+}
+
 if (navToggle && navMenu) {
   navToggle.addEventListener("click", () => {
-    const isOpen = navMenu.classList.toggle("show");
-    navToggle.setAttribute("aria-expanded", isOpen);
-    navToggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+    if (navMenu.classList.contains("show")) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && navMenu.classList.contains("show")) {
+      e.preventDefault();
+      closeMobileMenu();
+      navToggle.focus();
+    }
+  });
+
+  navMenu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMobileMenu);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab" || !navMenu.classList.contains("show")) return;
+    const focusable = navMenu.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
   });
 }
 
@@ -61,7 +104,7 @@ const initScrollReveal = () => {
     }
   });
 
-  const grids = document.querySelectorAll(".grid-2, .grid-3, .media-grid, .bio-certs");
+  const grids = document.querySelectorAll(".grid-2, .grid-3, .grid-auto-fit, .media-grid, .bio-certs");
   grids.forEach((grid) => {
     const cards = grid.querySelectorAll(".card, .hover-card, .bio-cert-card, .media-card:not(.media-skeleton)");
     cards.forEach((card, index) => {
@@ -91,7 +134,6 @@ const initScrollReveal = () => {
 document.addEventListener("DOMContentLoaded", initScrollReveal);
 window.initScrollReveal = initScrollReveal;
 
-/* ── Back to top ── */
 const backToTop = document.getElementById("backToTop");
 if (backToTop) {
   const toggleBtt = () => {
@@ -99,31 +141,16 @@ if (backToTop) {
   };
   toggleBtt();
   window.addEventListener("scroll", toggleBtt, { passive: true });
-  backToTop.addEventListener("click", () => {
+  backToTop.addEventListener("click", (e) => {
+    e.preventDefault();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   PHASE 2 — Scroll progress + page-transition curtain wipe
-   All additive, scoped to their own elements. No conflicts with
-   existing nav toggle / theme toggle / reveal observer.
-   ═══════════════════════════════════════════════════════════════ */
 
 (function () {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion) return;
 
-  /* --- Grain overlay layer (injected once, sits above content visually but
-       is non-interactive and very faint; respects --grain-opacity via CSS) --- */
-  if (!document.querySelector("body > .phase2-grain")) {
-    const grain = document.createElement("div");
-    grain.className = "phase2-grain";
-    grain.setAttribute("aria-hidden", "true");
-    document.body.appendChild(grain);
-  }
-
-  /* --- Scroll progress indicator (inserted once into sticky header) --- */
   const header = document.querySelector(".site-header");
   if (header && !header.querySelector(".scroll-progress")) {
     const track = document.createElement("div");
@@ -135,7 +162,7 @@ if (backToTop) {
 
     const updateBar = () => {
       const doc = document.documentElement;
-      const max = (doc.scrollHeight - doc.clientHeight) || 1;
+      const max = doc.scrollHeight - doc.clientHeight || 1;
       const pct = Math.min(100, Math.max(0, (window.scrollY / max) * 100));
       bar.style.width = pct + "%";
     };
@@ -144,11 +171,6 @@ if (backToTop) {
     window.addEventListener("resize", updateBar, { passive: true });
   }
 
-  /* --- Page-transition green curtain wipe ---
-     Reads existing .page-transition + .page-transition__loader markup
-     if present on the page; if absent, builds it once. Triggers on
-     internal <a> clicks that navigate to a .html file in the same
-     origin (not external, not hash links, not target=_blank).        */
   let curtain = document.querySelector(".page-transition");
 
   if (!curtain) {
@@ -167,6 +189,13 @@ if (backToTop) {
     return /\.html(\?|$|#)/.test(href) || href.endsWith("/");
   };
 
+  let pendingNav = null;
+
+  const clearCurtain = () => {
+    curtain.classList.remove("active");
+    pendingNav = null;
+  };
+
   document.addEventListener("click", function (e) {
     const a = e.target.closest("a");
     if (!a) return;
@@ -175,26 +204,37 @@ if (backToTop) {
     if (a.target === "_blank" || a.hasAttribute("download")) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
-    // Same URL: don't fire curtain
     const url = new URL(href, window.location.href);
     if (url.href === window.location.href) return;
 
-    e.preventDefault();
+    pendingNav = url.href;
     curtain.classList.add("active");
-    setTimeout(() => { window.location.href = url.href; }, 280);
+    e.preventDefault();
+
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (pendingNav) window.location.href = pendingNav;
+      }, 120);
+    });
+
+    setTimeout(() => {
+      if (pendingNav) window.location.href = pendingNav;
+    }, 5000);
   });
 
-  // Safety net: if bfcache restore leaves curtain visible, clear it.
   window.addEventListener("pageshow", function (ev) {
-    if (ev.persisted) curtain.classList.remove("active");
+    if (ev.persisted) clearCurtain();
   });
   window.addEventListener("load", function () {
-    // Hide curtain if a new page loaded with it stuck open
-    requestAnimationFrame(() => curtain.classList.remove("active"));
+    requestAnimationFrame(clearCurtain);
   });
-
-  // Handle back/forward navigation: close curtain immediately
-  window.addEventListener("popstate", function () {
-    curtain.classList.remove("active");
-  });
+  window.addEventListener("popstate", clearCurtain);
 })();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    if (window.location.pathname.includes("/posts/")) return;
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}

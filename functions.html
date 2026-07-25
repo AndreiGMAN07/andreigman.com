@@ -11,18 +11,38 @@
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://andreigman.com/favicon.svg" />
   <meta name="twitter:card" content="summary" />
+  <meta name="theme-color" content="#121617" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f5f8f6" media="(prefers-color-scheme: light)" />
+  <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="feed.xml" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=5" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" media="screen" />
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" onload="document.querySelectorAll('pre code').forEach((b) => { hljs.highlightElement(b); })"></script>
-    <link rel="stylesheet" href="assets/css/functions.css?v=5" />
+  <link rel="stylesheet" href="assets/css/style.css?v=f45eb5ec" />
+  <script>
+    (function () {
+      if (!document.querySelector("pre code")) return;
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css";
+      document.head.appendChild(link);
+      var s = document.createElement("script");
+      s.defer = true;
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js";
+      s.onload = function () {
+        document.querySelectorAll("pre code").forEach(function (b) { hljs.highlightElement(b); });
+      };
+      document.head.appendChild(s);
+    })();
+  </script>
+    <link rel="stylesheet" href="assets/css/functions.css?v=f45eb5ec" />
   <script>
     (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
   </script>
 </head>
 
 <body>
+<div class="site-bg" aria-hidden="true"></div>
+<div class="phase2-grain" aria-hidden="true"></div>
+
 <a href="#main-content" class="skip-link">Skip to content</a>
 
 <header class="site-header">
@@ -40,10 +60,12 @@
         <a href="about.html">About</a>
         <a href="blog.html">Blog</a>
         <a href="resources.html">Resources</a>
+        <a href="projects.html">Projects</a>
         <a href="media-watched.html">Media-Watched</a>
         <a href="functions.html" class="active" aria-current="page">Functions</a>
         <a href="play.html">Play</a>
         <a href="credits.html">Credits</a>
+      <button type="button" class="nav-menu-search" id="navMenuSearch" aria-label="Search site">Search</button>
     </nav>
 
     <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
@@ -64,6 +86,12 @@
         <!-- TOOL 1 -->
         <div class="card">
           <h3 class="stack">&#9201; Countdown Timer</h3>
+          <div class="timer-presets">
+            <button type="button" class="preset-btn" data-minutes="25">25 min</button>
+            <button type="button" class="preset-btn" data-minutes="15">15 min</button>
+            <button type="button" class="preset-btn" data-minutes="5">5 min</button>
+            <button type="button" class="preset-btn" data-minutes="1">1 min</button>
+          </div>
           <div class="timer-inputs">
             <input type="number" id="timerH" min="0" max="99" value="0" placeholder="HH" />
             <span>:</span>
@@ -71,7 +99,9 @@
             <span>:</span>
             <input type="number" id="timerS" min="0" max="59" value="0" placeholder="SS" />
           </div>
-          <div class="tool-display" id="timerDisplay">00:00:00</div>
+          <div class="tool-display" id="timerDisplay">00:00:00
+            <button type="button" class="copy-btn" id="timerCopyBtn" aria-label="Copy timer display" title="Copy">&#128203;</button>
+          </div>
           <div class="tool-alert" id="timerAlert">&#9200; Time's up!</div>
           <div class="btn-row">
             <button class="btn btn-primary" id="timerStartBtn">Start</button>
@@ -83,7 +113,9 @@
         <!-- TOOL 2 -->
         <div class="card">
           <h3 class="stack">&#9202; Stopwatch</h3>
-          <div class="tool-display" id="swDisplay">00:00:00.000</div>
+          <div class="tool-display" id="swDisplay">00:00:00.000
+            <button type="button" class="copy-btn" id="swCopyBtn" aria-label="Copy stopwatch display" title="Copy">&#128203;</button>
+          </div>
           <div class="btn-row">
             <button class="btn btn-primary" id="swToggleBtn">Start</button>
             <button class="btn btn-secondary" id="swLapBtn" disabled>Lap</button>
@@ -93,12 +125,25 @@
         </div>
 
         <!-- TOOL 3 -->
-        <div class="card sci-calc">
+        <div class="card sci-calc" id="sciCalcCard" tabindex="-1">
           <h3 class="stack">&#129518; Scientific Calculator</h3>
+
+          <div class="sci-history" id="scHistory" hidden>
+            <div class="sc-history-header">
+              <span class="calc-section-label">History</span>
+              <button type="button" class="sc-history-clear" id="scHistoryClear" aria-label="Clear history">Clear</button>
+            </div>
+            <div class="sc-history-list" id="scHistoryList"></div>
+          </div>
 
           <div class="sci-calc-display">
             <div class="sci-calc-expr" id="scExpr"></div>
             <div class="sci-calc-result" id="scResult">0</div>
+          </div>
+
+          <div class="sc-result-actions">
+            <button type="button" class="copy-btn" id="scCopyBtn" aria-label="Copy result" title="Copy">&#128203;</button>
+            <button type="button" class="history-toggle-btn" id="scHistoryToggle" aria-label="Toggle history" title="History">&#128214;</button>
           </div>
 
           <div class="mode-row">
@@ -201,7 +246,7 @@
           <button class="btn btn-primary" id="limCalcBtn" style="width: 100%">Calculate Limit</button>
 
           <div class="calc-result-box" id="limResultBox">
-            <div class="calc-result-label">Result</div>
+            <div class="calc-result-label">Result <button type="button" class="copy-btn" id="limCopyBtn" aria-label="Copy result" title="Copy">&#128203;</button></div>
             <div class="calc-result-value" id="limResultValue"></div>
             <div class="calc-steps" id="limSteps"></div>
           </div>
@@ -258,9 +303,56 @@
           <button class="btn btn-primary" id="intCalcBtn" style="width: 100%">Calculate Integral</button>
 
           <div class="calc-result-box" id="intResultBox">
-            <div class="calc-result-label">Result</div>
+            <div class="calc-result-label">Result <button type="button" class="copy-btn" id="intCopyBtn" aria-label="Copy result" title="Copy">&#128203;</button></div>
             <div class="calc-result-value" id="intResultValue"></div>
             <div class="calc-steps" id="intSteps"></div>
+          </div>
+        </div>
+
+        <!-- TOOL 6 -->
+        <div class="card tool-card" style="grid-column: 1 / -1">
+          <h3 class="stack">&#42800; Derivative Calculator</h3>
+
+          <div class="calc-notation" id="derivNotation">
+            d/d<span id="derivNotVar">x</span> [ <span id="derivNotExpr">f(x)</span> ]
+          </div>
+
+          <div class="calc-row">
+            <label for="derivExpr">f(x) =</label>
+            <input class="calc-input" id="derivExpr" type="text" placeholder="e.g. x^3 + 2*x^2 - 5*x + 1" autocomplete="off" />
+          </div>
+
+          <div class="calc-row">
+            <label>Variable</label>
+            <select class="calc-select" id="derivVar">
+              <option value="x">x</option>
+              <option value="t">t</option>
+              <option value="u">u</option>
+            </select>
+            <label>At x =</label>
+            <input class="calc-input" id="derivPoint" type="text" placeholder="(optional)" style="max-width: 90px" />
+          </div>
+
+          <div>
+            <div class="calc-section-label">Examples</div>
+            <div class="hint-list">
+              <button class="hint-btn" data-deriv-expr="x^2" data-deriv-point="">d/dx x&sup2;</button>
+              <button class="hint-btn" data-deriv-expr="x^3+2*x^2-5*x" data-deriv-point="">d/dx x&sup3;+2x&sup2;&minus;5x</button>
+              <button class="hint-btn" data-deriv-expr="sin(x)" data-deriv-point="0">d/dx sin(x) at 0</button>
+              <button class="hint-btn" data-deriv-expr="cos(x)" data-deriv-point="pi">d/dx cos(x) at &pi;</button>
+              <button class="hint-btn" data-deriv-expr="e^x" data-deriv-point="">d/dx e&#8319;</button>
+              <button class="hint-btn" data-deriv-expr="ln(x)" data-deriv-point="2">d/dx ln(x) at 2</button>
+              <button class="hint-btn" data-deriv-expr="sqrt(x)" data-deriv-point="4">d/dx &radic;x at 4</button>
+              <button class="hint-btn" data-deriv-expr="1/x" data-deriv-point="1">d/dx 1/x at 1</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="derivCalcBtn" style="width: 100%">Calculate Derivative</button>
+
+          <div class="calc-result-box" id="derivResultBox">
+            <div class="calc-result-label">Result <button type="button" class="copy-btn" id="derivCopyBtn" aria-label="Copy result" title="Copy">&#128203;</button></div>
+            <div class="calc-result-value" id="derivResultValue"></div>
+            <div class="calc-steps" id="derivSteps"></div>
           </div>
         </div>
 
@@ -272,13 +364,15 @@
   <div class="container footer-grid">
     <div>
       <h3 class="logo">andreigman<span>.com</span></h3>
-      <p>Personal site, professional identity, study archive, a place where I can nerd out and that gives me an opportunity to not chicken out with challenges.</p>
+      <p>A personal site for sharing what I learn, building a clean professional identity, and keeping my university notes in one place.</p>
+      <p class="footer-contact"><a href="mailto:florea.andreid07@gmail.com">florea.andreid07@gmail.com</a></p>
     </div>
     <div>
       <h4>Pages</h4>
       <a href="about.html">About</a>
       <a href="blog.html">Blog</a>
       <a href="resources.html">Resources</a>
+      <a href="projects.html">Projects</a>
       <a href="media-watched.html">Media-Watched</a>
       <a href="functions.html">Functions</a>
       <a href="play.html">Play</a>
@@ -287,11 +381,11 @@
   </div>
 </footer>
 
-<button class="back-to-top" id="backToTop" aria-label="Back to top">
+<button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
   <script defer src="assets/js/main.js"></script>
-  <script defer src="assets/js/functions.js?v=5"></script>
+  <script defer src="assets/js/functions.js?v=f45eb5ec"></script>
 </body>
 </html>
