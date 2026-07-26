@@ -287,6 +287,61 @@
           </div>
         </div>
 
+        <!-- TOOL 7: Unit Converter -->
+        <div class="card tool-card" style="grid-column: 1 / -1">
+          <h3 class="stack">&#8646; Unit Converter</h3>
+
+          <div class="uc-row">
+            <div class="uc-half">
+              <label class="uc-label">Category</label>
+              <select class="calc-select uc-category" id="ucCategory">
+                <option value="length">Length</option>
+                <option value="mass">Mass / Weight</option>
+                <option value="temp">Temperature</option>
+                <option value="time">Time</option>
+                <option value="speed">Speed</option>
+                <option value="area">Area</option>
+                <option value="volume">Volume</option>
+                <option value="pressure">Pressure</option>
+                <option value="energy">Energy</option>
+                <option value="power">Power</option>
+                <option value="force">Force</option>
+                <option value="freq">Frequency</option>
+                <option value="data">Data</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="uc-row">
+            <div class="uc-half">
+              <label class="uc-label">From</label>
+              <select class="calc-select uc-unit" id="ucFrom"></select>
+            </div>
+            <div class="uc-half">
+              <label class="uc-label">To</label>
+              <select class="calc-select uc-unit" id="ucTo"></select>
+            </div>
+          </div>
+
+          <div class="uc-row">
+            <div class="uc-half">
+              <label class="uc-label">Value</label>
+              <input class="calc-input" id="ucValue" type="number" value="1" step="any" autocomplete="off" />
+            </div>
+            <div class="uc-half">
+              <label class="uc-label">Result</label>
+              <div class="uc-result" id="ucResult">1</div>
+            </div>
+          </div>
+
+          <div class="uc-row" id="ucFormulaRow" hidden>
+            <div class="uc-half">
+              <label class="uc-label">Formula</label>
+              <div class="uc-formula" id="ucFormula"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>

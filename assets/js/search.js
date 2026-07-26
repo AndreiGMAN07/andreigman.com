@@ -71,6 +71,7 @@
         : [];
       return postsCache;
     } catch (e) {
+      console.warn("Search: failed to load post index", e);
       return [];
     }
   }

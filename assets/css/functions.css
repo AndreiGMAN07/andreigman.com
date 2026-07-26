@@ -574,3 +574,53 @@
   box-shadow: 0 0 0 2px rgba(54, 168, 93, 0.3);
   border-radius: var(--radius);
 }
+
+/* ── Unit Converter ── */
+.uc-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.uc-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.3rem;
+}
+
+.uc-half {
+  flex: 1;
+  min-width: 160px;
+}
+
+.uc-category {
+  width: 100%;
+}
+
+.uc-unit {
+  width: 100%;
+}
+
+.uc-result {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-2);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.uc-formula {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-family: monospace;
+  word-break: break-all;
+}

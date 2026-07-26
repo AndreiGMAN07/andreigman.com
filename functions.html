@@ -16,7 +16,7 @@
   <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="feed.xml" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=f45eb5ec" />
+  <link rel="stylesheet" href="assets/css/style.css?v=a6001739" />
   <script>
     (function () {
       if (!document.querySelector("pre code")) return;
@@ -33,7 +33,7 @@
       document.head.appendChild(s);
     })();
   </script>
-    <link rel="stylesheet" href="assets/css/functions.css?v=f45eb5ec" />
+    <link rel="stylesheet" href="assets/css/functions.css?v=a6001739" />
   <script>
     (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
   </script>
@@ -356,6 +356,61 @@
           </div>
         </div>
 
+        <!-- TOOL 7: Unit Converter -->
+        <div class="card tool-card" style="grid-column: 1 / -1">
+          <h3 class="stack">&#8646; Unit Converter</h3>
+
+          <div class="uc-row">
+            <div class="uc-half">
+              <label class="uc-label">Category</label>
+              <select class="calc-select uc-category" id="ucCategory">
+                <option value="length">Length</option>
+                <option value="mass">Mass / Weight</option>
+                <option value="temp">Temperature</option>
+                <option value="time">Time</option>
+                <option value="speed">Speed</option>
+                <option value="area">Area</option>
+                <option value="volume">Volume</option>
+                <option value="pressure">Pressure</option>
+                <option value="energy">Energy</option>
+                <option value="power">Power</option>
+                <option value="force">Force</option>
+                <option value="freq">Frequency</option>
+                <option value="data">Data</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="uc-row">
+            <div class="uc-half">
+              <label class="uc-label">From</label>
+              <select class="calc-select uc-unit" id="ucFrom"></select>
+            </div>
+            <div class="uc-half">
+              <label class="uc-label">To</label>
+              <select class="calc-select uc-unit" id="ucTo"></select>
+            </div>
+          </div>
+
+          <div class="uc-row">
+            <div class="uc-half">
+              <label class="uc-label">Value</label>
+              <input class="calc-input" id="ucValue" type="number" value="1" step="any" autocomplete="off" />
+            </div>
+            <div class="uc-half">
+              <label class="uc-label">Result</label>
+              <div class="uc-result" id="ucResult">1</div>
+            </div>
+          </div>
+
+          <div class="uc-row" id="ucFormulaRow" hidden>
+            <div class="uc-half">
+              <label class="uc-label">Formula</label>
+              <div class="uc-formula" id="ucFormula"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -369,14 +424,16 @@
     </div>
     <div>
       <h4>Pages</h4>
-      <a href="about.html">About</a>
-      <a href="blog.html">Blog</a>
-      <a href="resources.html">Resources</a>
-      <a href="projects.html">Projects</a>
-      <a href="media-watched.html">Media-Watched</a>
-      <a href="functions.html">Functions</a>
-      <a href="play.html">Play</a>
-      <a href="credits.html">Credits</a>
+      <nav aria-label="Footer navigation">
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="projects.html">Projects</a>
+        <a href="media-watched.html">Media-Watched</a>
+        <a href="functions.html">Functions</a>
+        <a href="play.html">Play</a>
+        <a href="credits.html">Credits</a>
+      </nav>
     </div>
   </div>
 </footer>
@@ -386,6 +443,6 @@
 </button>
 
   <script defer src="assets/js/main.js"></script>
-  <script defer src="assets/js/functions.js?v=f45eb5ec"></script>
+  <script defer src="assets/js/functions.js?v=a6001739"></script>
 </body>
 </html>

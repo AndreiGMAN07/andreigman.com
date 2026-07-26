@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import re
+from typing import Any, Optional
 import xml.etree.ElementTree as ET
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -21,12 +22,14 @@ PROJECTS_OUT = os.path.join(ROOT, "projects")
 PROJECT_TEMPLATE = os.path.join(PAGES_SRC, "project-template.html")
 SITE_URL = "https://andreigman.com"
 
-# ── Read partials ──
-def read_file(p):
+# ── File I/O ──
+def read_file(p: str) -> str:
+    """Read and return a file's contents as UTF-8 text."""
     with open(p, "r", encoding="utf-8") as f:
         return f.read()
 
-def write_file(p, content):
+def write_file(p: str, content: str) -> None:
+    """Write text content to a file, creating parent directories if needed."""
     os.makedirs(os.path.dirname(p) or ROOT, exist_ok=True)
     with open(p, "w", encoding="utf-8") as f:
         f.write(content)
@@ -42,8 +45,8 @@ JS_DIR = os.path.join(ROOT, "assets", "js")
 CSS_HASH = hashlib.md5(read_file(CSS_PATH).encode("utf-8")).hexdigest()[:8]
 
 
-def _hash_assets(names):
-    """Combined MD5 hash of a set of JS files, used for cache-busting."""
+def _hash_assets(names: list[str]) -> str:
+    """Return the first 8 hex chars of the MD5 hash of the given JS source files."""
     h = hashlib.md5()
     for name in names:
         path = os.path.join(JS_DIR, name)
@@ -52,7 +55,7 @@ def _hash_assets(names):
     return h.hexdigest()[:8]
 
 
-MAIN_JS_HASH = _hash_assets(["script.js", "search.js", "blog.js", "home-posts.js"])
+MAIN_JS_HASH = _hash_assets(["script.js", "search.js", "blog.js", "home-posts.js", "post-utils.js"])
 PROJECTS_JS_HASH = _hash_assets(["projects.js"])
 MEDIA_JS_HASH = _hash_assets([
     "media-config.js",
@@ -99,33 +102,38 @@ STATIC_PAGES = [
 ]
 
 
-def month_display(iso):
+def month_display(iso: str) -> str:
+    """Convert an ISO date string (YYYY-MM-DD) to 'Month YYYY' format."""
     if not iso:
         return ""
     d = datetime.date.fromisoformat(iso)
     return d.strftime("%B %Y")
 
 
-def format_date(iso):
+def format_date(iso: str) -> str:
+    """Convert an ISO date string to 'Month DD, YYYY' format."""
     if not iso:
         return ""
     d = datetime.date.fromisoformat(iso)
     return d.strftime("%B %d, %Y")
 
 
-def tag_label(tag):
+def tag_label(tag: str) -> str:
+    """Return capitalised tag (e.g. 'diary' → 'Diary'), defaulting to 'Thoughts'."""
     if not tag:
         return "Thoughts"
     return tag[0].upper() + tag[1:]
 
 
-def rss_date(iso):
+def rss_date(iso: str) -> str:
+    """Convert an ISO date string to RFC 2822 date format for RSS feeds."""
     d = datetime.date.fromisoformat(iso)
     dt = datetime.datetime(d.year, d.month, d.day, tzinfo=datetime.timezone.utc)
     return dt.strftime("%a, %d %b %Y %H:%M:%S +0000")
 
 
-def load_posts_data():
+def load_posts_data() -> list[dict[str, Any]]:
+    """Load and return the posts list from src/data/posts.json."""
     if not os.path.exists(POSTS_DATA):
         return []
     with open(POSTS_DATA, "r", encoding="utf-8") as f:
@@ -137,7 +145,8 @@ def load_posts_data():
     return posts
 
 
-def build_nav(base, active_id):
+def build_nav(base: str, active_id: Optional[str]) -> str:
+    """Generate the navigation link HTML, marking the active page."""
     lines = []
     for pid, label in NAV:
         if pid == active_id:
@@ -149,7 +158,8 @@ def build_nav(base, active_id):
     return "\n".join(lines)
 
 
-def build_head(meta, base, extrahead):
+def build_head(meta: dict[str, str], base: str, extrahead: str) -> str:
+    """Render the <head> HTML by filling placeholders in the head partial."""
     s = head_tpl
     for k in ("title", "description", "ogtitle", "ogdesc", "ogurl", "ogtype", "ogimage"):
         s = s.replace("{{" + k + "}}", meta.get(k, ""))
@@ -159,20 +169,30 @@ def build_head(meta, base, extrahead):
     return s
 
 
-def build_header(base, active_id):
+def build_header(base: str, active_id: Optional[str]) -> str:
+    """Render the site header by filling placeholders in the header partial."""
     s = header_tpl
     s = s.replace("{{navlinks}}", build_nav(base, active_id))
     s = s.replace("{{base}}", base)
     return s
 
 
-def build_scripts(base, old_scripts):
+def build_scripts(base: str, old_scripts: list[str]) -> str:
+    """Join script tags into a block for injection at the end of <body>."""
     if not old_scripts:
         return ""
     return "\n".join("  " + s if not s.startswith("  ") else s for s in old_scripts)
 
 
-def assemble_page(page_src, meta, active, base, extrahead, old_scripts):
+def assemble_page(
+    page_src: str,
+    meta: dict[str, str],
+    active: Optional[str],
+    base: str,
+    extrahead: str,
+    old_scripts: list[str],
+) -> str:
+    """Assemble a complete HTML page from a template, head, header, footer, and scripts."""
     head = build_head(meta, base, extrahead)
     header = build_header(base, active)
     scripts = build_scripts(base, old_scripts)
@@ -185,11 +205,13 @@ def assemble_page(page_src, meta, active, base, extrahead, old_scripts):
     )
 
 
-def post_body_path(slug):
+def post_body_path(slug: str) -> str:
+    """Return the filesystem path to a post's HTML body file."""
     return os.path.join(POSTS_SRC, f"{slug}.html")
 
 
-def read_post_body(slug):
+def read_post_body(slug: str) -> str:
+    """Read a post's HTML body from src/posts/{slug}.html, returning a fallback if missing."""
     path = post_body_path(slug)
     if not os.path.exists(path):
         print(f"  ! missing body: {path}")
@@ -197,8 +219,8 @@ def read_post_body(slug):
     return read_file(path).strip()
 
 
-def build_runtime_posts_json(posts):
-    """Generate posts/posts.json (v1) consumed by client JS."""
+def build_runtime_posts_json(posts: list[dict]) -> None:
+    """Generate posts/posts.json (v1) consumed by client-side JS for blog listings."""
     runtime = {
         "version": 1,
         "posts": [],
@@ -222,10 +244,10 @@ def build_runtime_posts_json(posts):
     print(f"  ✓ posts/posts.json ({len(runtime['posts'])} posts)")
 
 
-def build_post_pages(posts):
+def build_post_pages(posts: list[dict]) -> None:
     """Render each post from post-template.html into posts/{slug}.html."""
-    expected = set()
-    for p in posts:
+    expected: set[str] = set()
+    for i, p in enumerate(posts):
         slug = p.get("slug") or p.get("id")
         expected.add(f"{slug}.html")
         body = read_post_body(slug)
@@ -270,6 +292,28 @@ def build_post_pages(posts):
         page = page.replace("{{blurb}}", blurb)
         page = page.replace("{{body}}", body)
 
+        # Prev / Next navigation
+        prev_link = ""
+        next_link = ""
+        if i > 0:
+            prev_p = posts[i - 1]
+            prev_slug = prev_p.get("slug") or prev_p.get("id")
+            prev_link = (
+                '<a href="' + prev_slug + '.html" class="post-nav__link post-nav__link--prev">'
+                '&larr; ' + (prev_p.get("title", "")) +
+                "</a>"
+            )
+        if i < len(posts) - 1:
+            next_p = posts[i + 1]
+            next_slug = next_p.get("slug") or next_p.get("id")
+            next_link = (
+                '<a href="' + next_slug + '.html" class="post-nav__link post-nav__link--next">'
+                + (next_p.get("title", "")) + " &rarr;" +
+                "</a>"
+            )
+        page = page.replace("{{prev}}", prev_link)
+        page = page.replace("{{next}}", next_link)
+
         output = assemble_page(
             page,
             meta,
@@ -295,7 +339,8 @@ def build_post_pages(posts):
                 print(f"  ✓ removed orphan posts/{name}")
 
 
-def load_projects_data():
+def load_projects_data() -> list[dict]:
+    """Load and return the projects list from src/data/projects.json."""
     if not os.path.exists(PROJECTS_DATA):
         return []
     with open(PROJECTS_DATA, "r", encoding="utf-8") as f:
@@ -303,9 +348,9 @@ def load_projects_data():
     return data.get("projects", [])
 
 
-def build_runtime_projects_json(projects):
-    """Generate projects/projects.json consumed by client JS."""
-    runtime = {"version": 1, "projects": []}
+def build_runtime_projects_json(projects: list[dict]) -> None:
+    """Generate projects/projects.json consumed by client-side JS."""
+    runtime: dict[str, Any] = {"version": 1, "projects": []}
     for p in projects:
         slug = p.get("slug") or p.get("id")
         entry = {
@@ -325,11 +370,11 @@ def build_runtime_projects_json(projects):
     print(f"  \u2713 projects/projects.json ({len(runtime['projects'])} projects)")
 
 
-def build_project_pages(projects):
+def build_project_pages(projects: list[dict]) -> None:
     """Render each project from project-template.html into projects/{slug}.html."""
     if not project_tpl:
         return
-    expected = set()
+    expected: set[str] = set()
     for p in projects:
         slug = p.get("slug") or p.get("id")
         expected.add(f"{slug}.html")
@@ -405,7 +450,8 @@ def build_project_pages(projects):
                 print(f"  \u2713 removed orphan projects/{name}")
 
 
-def build_feed(posts):
+def build_feed(posts: list[dict]) -> None:
+    """Generate feed.xml (RSS 2.0 with Atom self-link) from the posts list."""
     channel = ET.Element("channel")
     ET.SubElement(channel, "title").text = "andreigman.com"
     ET.SubElement(channel, "link").text = SITE_URL
@@ -444,24 +490,29 @@ def build_feed(posts):
     print(f"  ✓ feed.xml ({len(posts)} items)")
 
 
-def build_sitemap(posts, projects=None):
+def build_sitemap(posts: list[dict], projects: Optional[list[dict]] = None) -> None:
+    """Generate sitemap.xml with lastmod dates for all pages, posts, and projects."""
+    today = datetime.date.today().isoformat()
     urlset = ET.Element(
         "urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     )
     for page, priority in STATIC_PAGES:
         url = ET.SubElement(urlset, "url")
         ET.SubElement(url, "loc").text = f"{SITE_URL}/{page}"
+        ET.SubElement(url, "lastmod").text = today
         ET.SubElement(url, "priority").text = str(priority)
     for p in posts:
         slug = p.get("slug") or p.get("id")
         url = ET.SubElement(urlset, "url")
         ET.SubElement(url, "loc").text = f"{SITE_URL}/posts/{slug}.html"
+        ET.SubElement(url, "lastmod").text = p.get("date", today)
         ET.SubElement(url, "priority").text = "0.6"
     if projects:
         for p in projects:
             slug = p.get("slug") or p.get("id")
             url = ET.SubElement(urlset, "url")
             ET.SubElement(url, "loc").text = f"{SITE_URL}/projects/{slug}.html"
+            ET.SubElement(url, "lastmod").text = p.get("date", today)
             ET.SubElement(url, "priority").text = "0.5"
     tree = ET.ElementTree(urlset)
     ET.indent(tree, space="  ")
@@ -475,17 +526,20 @@ PAGES = []
 
 
 def add(
-    id_,
-    src,
-    dest,
-    meta,
-    active=None,
-    base="",
-    extrahead="",
-    old_scripts=None,
-    main=True,
-):
-    scripts = old_scripts or []
+    id_: str,
+    src: str,
+    dest: str,
+    meta: dict[str, str],
+    active: Optional[str] = None,
+    base: str = "",
+    extrahead: str = "",
+    old_scripts: Optional[list[str]] = None,
+    main: bool = True,
+) -> None:
+    """
+    Register a page to be built. Prepends main.js to scripts unless main=False.
+    """
+    scripts: list[str] = old_scripts or []
     if main:
         scripts = [f'<script defer src="{base}assets/js/main.js"></script>'] + scripts
     PAGES.append((id_, src, dest, meta, active or id_, base, extrahead, scripts))
@@ -739,11 +793,11 @@ add(
 )
 
 
-def bundle_js():
-    """Concatenate JS source files into bundles."""
+def bundle_js() -> None:
+    """Concatenate JS source files into static bundles (main.js, media-core.js, games-play.js)."""
     js_dir = os.path.join(ROOT, "assets", "js")
     bundles = {
-        "main.js": ["script.js", "search.js"],
+        "main.js": ["script.js", "search.js", "post-utils.js"],
         "media-core.js": [
             "media-config.js",
             "media-api.js",
@@ -775,7 +829,8 @@ def bundle_js():
         print(f"  ✓ {out_name} ({kb:.1f} KB, {len(sources)} files)")
 
 
-def build():
+def build() -> None:
+    """Main build entry point: bundle JS, build blog artifacts, project artifacts, and pages."""
     print(f"CSS hash: {CSS_HASH}")
     posts = load_posts_data()
     posts.sort(key=lambda p: p.get("date", ""), reverse=True)

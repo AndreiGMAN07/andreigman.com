@@ -2,11 +2,6 @@
   let postsData = [];
   let activeTag = "all";
 
-  function tagLabel(t) {
-    if (!t) return "Thoughts";
-    return t.charAt(0).toUpperCase() + t.slice(1);
-  }
-
   function sortPosts(posts) {
     const sortEl = document.getElementById("blogSort");
     const sortVal = sortEl ? sortEl.value : "date-desc";
@@ -50,7 +45,7 @@
       btn.className = "blog-tag";
       btn.dataset.tag = tag;
       btn.setAttribute("aria-pressed", "false");
-      btn.textContent = tagLabel(tag);
+      btn.textContent = PostUtils.tagLabel(tag);
       container.appendChild(btn);
     });
 
@@ -70,30 +65,6 @@
     });
   }
 
-  function postCardHtml(p) {
-    const tag = p.tag || "thoughts";
-    const meta = [p.dateDisplay || "", tagLabel(tag)];
-    if (p.readTime) meta.push(p.readTime);
-    return (
-      '<article class="card hover-card" data-tag="' +
-      tag +
-      '">' +
-      '<p class="mini-meta">' +
-      meta.join(" &middot; ") +
-      "</p>" +
-      "<h3>" +
-      (p.title || "(untitled)") +
-      "</h3>" +
-      "<p>" +
-      (p.blurb || "") +
-      "</p>" +
-      '<a href="' +
-      (p.file || "#") +
-      '" class="text-link">Read post</a>' +
-      "</article>"
-    );
-  }
-
   function filterVisibleCards() {
     document.querySelectorAll("#blogList .card").forEach((card) => {
       card.style.display =
@@ -106,7 +77,7 @@
     if (!list || !postsData.length) return;
 
     const sorted = sortPosts(postsData);
-    list.innerHTML = sorted.map(postCardHtml).join("");
+    list.innerHTML = sorted.map(function (p) { return PostUtils.postCardHtml(p); }).join("");
 
     if (typeof window.initScrollReveal === "function") {
       window.initScrollReveal();
@@ -118,7 +89,7 @@
     if (recentList) {
       recentList.innerHTML = sorted
         .slice(0, 3)
-        .map((p) => '<li><a href="' + p.file + '">' + p.title + "</a></li>")
+        .map(function (p) { return '<li><a href="' + p.file + '">' + p.title + "</a></li>"; })
         .join("");
     }
   }
@@ -135,7 +106,8 @@
       renderTags(postsData);
       renderPosts();
     } catch (e) {
-      /* offline or missing feed */
+      console.warn("Blog: failed to load posts", e);
+      PostUtils.showToast("Could not load blog posts. Check your connection.", true);
     }
   })();
 })();

@@ -72,9 +72,28 @@ def main():
 
     desc = args.desc or input("Short description: ").strip()
     tags_raw = args.tags or input("Tags (comma-separated): ").strip()
-    tags = [t.strip() for t in tags_raw.split(",") if t.strip()]
+    tags = [t.strip().lower() for t in tags_raw.split(",") if t.strip()]
+    seen = set()
+    tags_clean = []
+    for t in tags:
+        if t not in seen:
+            seen.add(t)
+            tags_clean.append(t)
+    tags = tags_clean
 
     slug = slugify(title)
+
+    # Validate slug uniqueness
+    existing_data = load_data()
+    for p in existing_data.get("projects", []):
+        existing_slug = p.get("slug") or p.get("id")
+        if existing_slug == slug:
+            print(f'  ! A project with slug "{slug}" already exists.')
+            proceed = input("  Add duplicate entry anyway? [y/N] ").strip().lower()
+            if proceed != "y":
+                print("Aborted.")
+                sys.exit(1)
+            break
 
     image = args.image or input("Main image path (or leave blank): ").strip()
     images_raw = args.images or ""

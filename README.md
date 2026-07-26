@@ -59,3 +59,12 @@ python3 build.py
 - Run `python3 build.py` after any change to partials, pages, posts, or CSS/JS sources.
 - `posts/posts.json` is auto-generated — do not edit by hand.
 - CSS cache busting uses an MD5 hash injected at build time.
+
+## Image optimization guidelines
+
+- Place project/article images in `assets/images/projects/` and `assets/images/posts/`
+- Use modern formats: **AVIF** or **WebP** over JPEG/PNG for smaller file sizes
+- Recommended max dimensions: 1920×1080 for hero images, 800×600 for thumbnails
+- Keep file sizes under 200 KB for thumbnails, under 500 KB for full-size
+- Use `loading="lazy"` on `<img>` tags below the fold (already applied to project galleries)
+- Always include descriptive `alt` text on meaningful images; use `alt=""` (empty) for decorative images

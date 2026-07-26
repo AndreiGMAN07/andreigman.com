@@ -142,6 +142,7 @@
         }
       })
       .catch(function () {
+        console.warn("Projects: failed to load project data");
         renderEmpty();
       });
   }

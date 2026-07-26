@@ -16,7 +16,7 @@
   <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="feed.xml" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=f45eb5ec" />
+  <link rel="stylesheet" href="assets/css/style.css?v=a6001739" />
   <script>
     (function () {
       if (!document.querySelector("pre code")) return;
@@ -83,6 +83,11 @@
 
       <div class="res-bar">
         <button id="manageToggle" class="btn btn-sm">&#9998; Manage</button>
+        <div class="res-bar-right">
+          <button id="exportBtn" class="btn btn-sm">&#128229; Export</button>
+          <button id="importBtn" class="btn btn-sm">&#128230; Import</button>
+          <input type="file" id="importFileInput" accept=".json" hidden />
+        </div>
       </div>
 
       <div class="grid-3" id="resourcesGrid">
@@ -154,14 +159,16 @@
     </div>
     <div>
       <h4>Pages</h4>
-      <a href="about.html">About</a>
-      <a href="blog.html">Blog</a>
-      <a href="resources.html">Resources</a>
-      <a href="projects.html">Projects</a>
-      <a href="media-watched.html">Media-Watched</a>
-      <a href="functions.html">Functions</a>
-      <a href="play.html">Play</a>
-      <a href="credits.html">Credits</a>
+      <nav aria-label="Footer navigation">
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="projects.html">Projects</a>
+        <a href="media-watched.html">Media-Watched</a>
+        <a href="functions.html">Functions</a>
+        <a href="play.html">Play</a>
+        <a href="credits.html">Credits</a>
+      </nav>
     </div>
   </div>
 </footer>
@@ -171,6 +178,6 @@
 </button>
 
   <script defer src="assets/js/main.js"></script>
-  <script defer src="assets/js/resources.js?v=f45eb5ec"></script>
+  <script defer src="assets/js/resources.js?v=a6001739"></script>
 </body>
 </html>

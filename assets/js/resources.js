@@ -269,6 +269,61 @@ function initResources() {
       }
     });
   });
+
+  // Export
+  document.getElementById("exportBtn")?.addEventListener("click", function () {
+    if (prompt("Enter admin key to export:") !== "Gratar69") {
+      toast("Access denied", true);
+      return;
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "resources-backup.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast("Exported resources");
+  });
+
+  // Import
+  const importInput = document.getElementById("importFileInput");
+  document.getElementById("importBtn")?.addEventListener("click", function () {
+    if (prompt("Enter admin key to import:") !== "Gratar69") {
+      toast("Access denied", true);
+      return;
+    }
+    if (importInput) importInput.click();
+  });
+  if (importInput) {
+    importInput.addEventListener("change", function () {
+      const file = importInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!imported || typeof imported !== "object") throw new Error("Invalid format");
+          for (const key of Object.keys(DEFAULTS)) {
+            if (!Array.isArray(imported[key])) {
+              imported[key] = [];
+            }
+          }
+          data = imported;
+          saveData(data);
+          renderAll();
+          toast("Imported " + file.name);
+        } catch (err) {
+          toast("Invalid JSON file", true);
+          console.warn("Resources: import error", err);
+        }
+      };
+      reader.readAsText(file);
+      importInput.value = "";
+    });
+  }
 }
 
 if (document.readyState === "loading") {

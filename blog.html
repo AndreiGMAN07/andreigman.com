@@ -16,7 +16,7 @@
   <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="feed.xml" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=f45eb5ec" />
+  <link rel="stylesheet" href="assets/css/style.css?v=a6001739" />
   <script>
     (function () {
       if (!document.querySelector("pre code")) return;
@@ -96,7 +96,7 @@
       <div class="blog-layout">
         <div class="grid-3" id="blogList" aria-live="polite"></div>
 
-        <aside class="blog-sidebar card">
+        <aside class="blog-sidebar card" aria-label="Recent posts">
           <h3>Recent posts</h3>
           <ul class="clean-list" id="recentPosts"></ul>
         </aside>
@@ -114,14 +114,16 @@
     </div>
     <div>
       <h4>Pages</h4>
-      <a href="about.html">About</a>
-      <a href="blog.html">Blog</a>
-      <a href="resources.html">Resources</a>
-      <a href="projects.html">Projects</a>
-      <a href="media-watched.html">Media-Watched</a>
-      <a href="functions.html">Functions</a>
-      <a href="play.html">Play</a>
-      <a href="credits.html">Credits</a>
+      <nav aria-label="Footer navigation">
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="resources.html">Resources</a>
+        <a href="projects.html">Projects</a>
+        <a href="media-watched.html">Media-Watched</a>
+        <a href="functions.html">Functions</a>
+        <a href="play.html">Play</a>
+        <a href="credits.html">Credits</a>
+      </nav>
     </div>
   </div>
 </footer>
@@ -131,6 +133,6 @@
 </button>
 
   <script defer src="assets/js/main.js"></script>
-  <script defer src="assets/js/blog.js?v=f1d03a02"></script>
+  <script defer src="assets/js/blog.js?v=41209c55"></script>
 </body>
 </html>

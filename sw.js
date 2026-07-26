@@ -5,6 +5,7 @@ const STATIC_ASSETS = [
   "/about.html",
   "/blog.html",
   "/resources.html",
+  "/projects.html",
   "/media-watched.html",
   "/media-anime.html",
   "/media-games.html",
@@ -17,6 +18,7 @@ const STATIC_ASSETS = [
   "/assets/js/main.js",
   "/assets/js/blog.js",
   "/assets/js/home-posts.js",
+  "/assets/js/projects.js",
   "/favicon.svg",
   "/feed.xml",
 ];
@@ -58,7 +60,7 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
 
-  if (url.pathname.endsWith("/posts.json")) {
+  if (url.pathname.endsWith("/posts.json") || url.pathname.endsWith("/projects.json")) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
