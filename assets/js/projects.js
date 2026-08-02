@@ -70,7 +70,7 @@
 
     var imagesHtml = allImages
       .map(function (src) {
-        return '<img class="project-modal-img" src="' + escapeHtml(src) + '" alt="' + escapeHtml(project.title) + '" loading="lazy" />';
+        return '<img class="project-modal-img img-lightbox" src="' + escapeHtml(src) + '" alt="' + escapeHtml(project.title) + '" loading="lazy" />';
       })
       .join("");
 

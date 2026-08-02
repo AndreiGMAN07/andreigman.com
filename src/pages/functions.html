@@ -31,7 +31,7 @@
             <input type="number" id="timerS" min="0" max="59" value="0" placeholder="SS" />
           </div>
           <div class="tool-display" id="timerDisplay">00:00:00
-            <button type="button" class="copy-btn" id="timerCopyBtn" aria-label="Copy timer display" title="Copy">&#128203;</button>
+            <button type="button" class="copy-btn" data-copy="timerDisplay" data-copy-filter="clock" aria-label="Copy timer display" title="Copy">&#128203;</button>
           </div>
           <div class="tool-alert" id="timerAlert">&#9200; Time's up!</div>
           <div class="btn-row">
@@ -45,7 +45,7 @@
         <div class="card">
           <h3 class="stack">&#9202; Stopwatch</h3>
           <div class="tool-display" id="swDisplay">00:00:00.000
-            <button type="button" class="copy-btn" id="swCopyBtn" aria-label="Copy stopwatch display" title="Copy">&#128203;</button>
+            <button type="button" class="copy-btn" data-copy="swDisplay" data-copy-filter="decimal" aria-label="Copy stopwatch display" title="Copy">&#128203;</button>
           </div>
           <div class="btn-row">
             <button class="btn btn-primary" id="swToggleBtn">Start</button>
@@ -73,7 +73,7 @@
           </div>
 
           <div class="sc-result-actions">
-            <button type="button" class="copy-btn" id="scCopyBtn" aria-label="Copy result" title="Copy">&#128203;</button>
+            <button type="button" class="copy-btn" data-copy="scResult" aria-label="Copy result" title="Copy">&#128203;</button>
             <button type="button" class="history-toggle-btn" id="scHistoryToggle" aria-label="Toggle history" title="History">&#128214;</button>
           </div>
 
@@ -177,7 +177,7 @@
           <button class="btn btn-primary" id="limCalcBtn" style="width: 100%">Calculate Limit</button>
 
           <div class="calc-result-box" id="limResultBox">
-            <div class="calc-result-label">Result <button type="button" class="copy-btn" id="limCopyBtn" aria-label="Copy result" title="Copy">&#128203;</button></div>
+            <div class="calc-result-label">Result <button type="button" class="copy-btn" data-copy="limResultValue" aria-label="Copy result" title="Copy">&#128203;</button></div>
             <div class="calc-result-value" id="limResultValue"></div>
             <div class="calc-steps" id="limSteps"></div>
           </div>
@@ -234,7 +234,7 @@
           <button class="btn btn-primary" id="intCalcBtn" style="width: 100%">Calculate Integral</button>
 
           <div class="calc-result-box" id="intResultBox">
-            <div class="calc-result-label">Result <button type="button" class="copy-btn" id="intCopyBtn" aria-label="Copy result" title="Copy">&#128203;</button></div>
+            <div class="calc-result-label">Result <button type="button" class="copy-btn" data-copy="intResultValue" aria-label="Copy result" title="Copy">&#128203;</button></div>
             <div class="calc-result-value" id="intResultValue"></div>
             <div class="calc-steps" id="intSteps"></div>
           </div>
@@ -281,7 +281,7 @@
           <button class="btn btn-primary" id="derivCalcBtn" style="width: 100%">Calculate Derivative</button>
 
           <div class="calc-result-box" id="derivResultBox">
-            <div class="calc-result-label">Result <button type="button" class="copy-btn" id="derivCopyBtn" aria-label="Copy result" title="Copy">&#128203;</button></div>
+            <div class="calc-result-label">Result <button type="button" class="copy-btn" data-copy="derivResultValue" aria-label="Copy result" title="Copy">&#128203;</button></div>
             <div class="calc-result-value" id="derivResultValue"></div>
             <div class="calc-steps" id="derivSteps"></div>
           </div>

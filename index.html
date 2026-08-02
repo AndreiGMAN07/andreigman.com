@@ -16,7 +16,7 @@
   <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="feed.xml" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=a6001739" />
+  <link rel="stylesheet" href="assets/css/style.css?v=2f7ee4df" />
   <script>
     (function () {
       if (!document.querySelector("pre code")) return;
@@ -50,7 +50,11 @@
   }
   </script>
   <script>
-    (function(){var t=localStorage.getItem("site-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();
+    (function(){var t=localStorage.getItem("site-theme");
+      if(t){document.documentElement.setAttribute("data-theme",t);}
+      else if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches){
+        document.documentElement.setAttribute("data-theme","light");
+      }})();
   </script>
 </head>
 
@@ -192,6 +196,6 @@
 </button>
 
   <script defer src="assets/js/main.js"></script>
-  <script defer src="assets/js/home-posts.js?v=41209c55"></script>
+  <script defer src="assets/js/home-posts.js?v=8ba5e5cc"></script>
 </body>
 </html>

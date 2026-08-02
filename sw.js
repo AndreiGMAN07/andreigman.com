@@ -1,4 +1,4 @@
-const CACHE_NAME = "andreigman-v2";
+const CACHE_NAME = "andreigman-v3";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -15,9 +15,14 @@ const STATIC_ASSETS = [
   "/credits.html",
   "/404.html",
   "/assets/css/style.css",
+  "/assets/css/functions.css",
+  "/assets/css/games-play.css",
+  "/assets/css/media.css",
   "/assets/js/main.js",
-  "/assets/js/blog.js",
-  "/assets/js/home-posts.js",
+  "/assets/js/functions.js",
+  "/assets/js/media-core.js",
+  "/assets/js/games-play.js",
+  "/assets/js/resources.js",
   "/assets/js/projects.js",
   "/favicon.svg",
   "/feed.xml",

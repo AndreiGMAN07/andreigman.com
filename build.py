@@ -63,6 +63,7 @@ MEDIA_JS_HASH = _hash_assets([
     "media-archive.js",
     "media-ui.js",
 ])
+FUNCTIONS_SOURCES = ["timer", "math-helpers", "calculator", "calculus", "converter", "init"]
 GAMES_JS_HASH = _hash_assets([
     "game-core.js",
     "game-dino.js",
@@ -71,6 +72,7 @@ GAMES_JS_HASH = _hash_assets([
     "game-atari-breakout.js",
     "game-conway.js",
 ])
+FUNCTIONS_JS_HASH = _hash_assets([f"functions/{s}.js" for s in FUNCTIONS_SOURCES])
 
 # ── Nav definition ──
 NAV = [
@@ -394,7 +396,7 @@ def build_project_pages(projects: list[dict]) -> None:
 
         if all_images:
             imgs = "\n".join(
-                f'    <img class="project-page-img" src="../{img}" alt="{title}" loading="lazy" />'
+                f'    <img class="project-page-img img-lightbox" src="../{img}" alt="{title}" loading="lazy" />'
                 for img in all_images
             )
             imgs_html = f'  <div class="project-page-images">\n{imgs}\n  </div>\n'
@@ -669,7 +671,7 @@ add(
         "ogimage": f"{SITE_URL}/favicon.svg",
     },
     extrahead=f'  <link rel="stylesheet" href="assets/css/functions.css?v={CSS_HASH}" />',
-    old_scripts=[f'<script defer src="assets/js/functions.js?v={CSS_HASH}"></script>'],
+    old_scripts=[f'<script defer src="assets/js/functions.js?v={FUNCTIONS_JS_HASH}"></script>'],
 )
 
 GAMES_HEAD = f'  <link rel="stylesheet" href="assets/css/games-play.css?v={CSS_HASH}" />'
@@ -812,6 +814,7 @@ def bundle_js() -> None:
             "game-atari-breakout.js",
             "game-conway.js",
         ],
+        "functions.js": [f"functions/{s}.js" for s in FUNCTIONS_SOURCES],
     }
     print("Bundling JS...")
     for out_name, sources in bundles.items():

@@ -170,65 +170,6 @@ if (backToTop) {
     window.addEventListener("scroll", updateBar, { passive: true });
     window.addEventListener("resize", updateBar, { passive: true });
   }
-
-  let curtain = document.querySelector(".page-transition");
-
-  if (!curtain) {
-    curtain = document.createElement("div");
-    curtain.className = "page-transition";
-    const loader = document.createElement("div");
-    loader.className = "page-transition__loader";
-    curtain.appendChild(loader);
-    document.body.appendChild(curtain);
-  }
-
-  const isInternalHtml = (href) => {
-    if (!href) return false;
-    if (href.startsWith("http") || href.startsWith("//")) return false;
-    if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return false;
-    return /\.html(\?|$|#)/.test(href) || href.endsWith("/");
-  };
-
-  let pendingNav = null;
-
-  const clearCurtain = () => {
-    curtain.classList.remove("active");
-    pendingNav = null;
-  };
-
-  document.addEventListener("click", function (e) {
-    const a = e.target.closest("a");
-    if (!a) return;
-    const href = a.getAttribute("href");
-    if (!isInternalHtml(href)) return;
-    if (a.target === "_blank" || a.hasAttribute("download")) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-
-    const url = new URL(href, window.location.href);
-    if (url.href === window.location.href) return;
-
-    pendingNav = url.href;
-    curtain.classList.add("active");
-    e.preventDefault();
-
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        if (pendingNav) window.location.href = pendingNav;
-      }, 120);
-    });
-
-    setTimeout(() => {
-      if (pendingNav) window.location.href = pendingNav;
-    }, 5000);
-  });
-
-  window.addEventListener("pageshow", function (ev) {
-    if (ev.persisted) clearCurtain();
-  });
-  window.addEventListener("load", function () {
-    requestAnimationFrame(clearCurtain);
-  });
-  window.addEventListener("popstate", clearCurtain);
 })();
 
 if ("serviceWorker" in navigator) {
@@ -238,6 +179,32 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   });
 }
+
+// ponytail: simple image lightbox via native dialog
+(() => {
+  const open = (img) => {
+    let lb = document.querySelector("dialog.lightbox");
+    if (!lb) {
+      lb = document.createElement("dialog");
+      lb.className = "lightbox";
+      lb.addEventListener("click", (e) => { if (e.target === lb) lb.close(); });
+      lb.addEventListener("close", () => { lb.innerHTML = ""; });
+      document.body.appendChild(lb);
+    }
+    const copy = document.createElement("img");
+    copy.src = img.currentSrc || img.src;
+    copy.alt = img.alt || "";
+    lb.innerHTML = "";
+    lb.appendChild(copy);
+    lb.showModal();
+  };
+  document.addEventListener("click", (e) => {
+    const img = e.target.closest("img.img-lightbox");
+    if (!img) return;
+    e.preventDefault();
+    open(img);
+  });
+})();
 
 (function () {
   const NAV_PAGES = [

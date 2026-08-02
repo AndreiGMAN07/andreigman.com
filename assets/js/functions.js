@@ -140,6 +140,130 @@ function swReset() {
 }
 
 /* ══════════════════════════════════════
+   TIMER PRESETS
+══════════════════════════════════════ */
+function timerSetPreset(minutes) {
+  const total = minutes * 60;
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  document.getElementById("timerH").value = h;
+  document.getElementById("timerM").value = m;
+  document.getElementById("timerS").value = s;
+}
+/* ══════════════════════════════════════
+   COPY TO CLIPBOARD
+══════════════════════════════════════ */
+function copyText(text) {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(function () {
+      console.warn("Clipboard: failed to copy");
+    });
+  }
+}
+
+/* ══════════════════════════════════════
+   SHARED MATH HELPERS
+══════════════════════════════════════ */
+function fmtNum(n) {
+  if (typeof n !== "number" || isNaN(n)) return "NaN";
+  if (!isFinite(n)) return n > 0 ? "+∞" : "−∞";
+  const rounded = parseFloat(n.toFixed(8));
+  if (Math.abs(rounded - Math.round(rounded)) < 1e-8) return String(Math.round(rounded));
+  return String(parseFloat(rounded.toFixed(6)));
+}
+
+function parseMathValue(str) {
+  const s = String(str).trim().toLowerCase();
+  if (s === "inf" || s === "+inf" || s === "infinity" || s === "+infinity") return Infinity;
+  if (s === "-inf" || s === "-infinity") return -Infinity;
+  if (s === "pi") return Math.PI;
+  if (s === "e") return Math.E;
+  const v = parseFloat(s);
+  return isNaN(v) ? null : v;
+}
+
+function preprocessMathExpr(expr) {
+  let s = sanitizeMathInput(expr).trim();
+  s = s.replace(/\s+/g, "");
+  s = s.replace(/π/g, "pi");
+  s = s.replace(/√/g, "sqrt");
+  s = s.replace(/\^/g, "**");
+
+  s = s.replace(/\bacot\b/g, "ACOT");
+  s = s.replace(/\basin\b/g, "Math.asin");
+  s = s.replace(/\bacos\b/g, "Math.acos");
+  s = s.replace(/\batan\b/g, "Math.atan");
+  s = s.replace(/\bsin\b/g, "Math.sin");
+  s = s.replace(/\bcos\b/g, "Math.cos");
+  s = s.replace(/\btan\b/g, "Math.tan");
+  s = s.replace(/\bcot\b/g, "COT");
+  s = s.replace(/\bsqrt\b/g, "Math.sqrt");
+  s = s.replace(/\babs\b/g, "Math.abs");
+  s = s.replace(/\bln\b/g, "Math.log");
+  s = s.replace(/\blog\b/g, "Math.log10");
+  s = s.replace(/\bpi\b/g, "Math.PI");
+  s = s.replace(/\be\^\(([^()]+)\)/g, "Math.exp($1)");
+  s = s.replace(/\be\^([a-zA-Z0-9.+\-*/]+)/g, "Math.exp($1)");
+  s = s.replace(/\be\b/g, "Math.E");
+
+  return s;
+}
+
+function evalMathExpr(expr, variable, value) {
+  try {
+    let s = preprocessMathExpr(expr);
+    const re = new RegExp("\\b" + variable + "\\b", "g");
+    s = s.replace(re, "(" + value + ")");
+    const COT = x => 1 / Math.tan(x);
+    const ACOT = x => Math.PI / 2 - Math.atan(x);
+    return Function("COT", "ACOT", '"use strict"; return (' + s + ');')(COT, ACOT);
+  } catch (e) {
+    console.warn("Math: eval error", e);
+    return NaN;
+  }
+}
+
+function splitTopLevelTerms(expr) {
+  const s = expr.replace(/\s+/g, "");
+  const terms = [];
+  let cur = "";
+  let depth = 0;
+
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (i > 0 && depth === 0 && (ch === "+" || ch === "-")) {
+      if (cur === "+" || cur === "-") {
+        cur = ch;
+      } else {
+        terms.push(cur);
+        cur = ch;
+      }
+    } else {
+      cur += ch;
+    }
+  }
+  if (cur) terms.push(cur);
+  return terms;
+}
+
+function simpson(expr, variable, a, b, n = 1000) {
+  if (n % 2 !== 0) n++;
+  const h = (b - a) / n;
+  let sum = evalMathExpr(expr, variable, a) + evalMathExpr(expr, variable, b);
+
+  for (let i = 1; i < n; i++) {
+    const x = a + i * h;
+    const fx = evalMathExpr(expr, variable, x);
+    if (!isFinite(fx) || isNaN(fx)) return NaN;
+    sum += (i % 2 === 0 ? 2 : 4) * fx;
+  }
+  return (h / 3) * sum;
+}
+/* ══════════════════════════════════════
    SCIENTIFIC CALCULATOR
 ══════════════════════════════════════ */
 let scExpr = "";
@@ -274,106 +398,124 @@ function scEquals() {
 }
 
 /* ══════════════════════════════════════
-   SHARED MATH HELPERS
+   SCIENTIFIC CALCULATOR HISTORY
 ══════════════════════════════════════ */
-function fmtNum(n) {
-  if (typeof n !== "number" || isNaN(n)) return "NaN";
-  if (!isFinite(n)) return n > 0 ? "+∞" : "−∞";
-  const rounded = parseFloat(n.toFixed(8));
-  if (Math.abs(rounded - Math.round(rounded)) < 1e-8) return String(Math.round(rounded));
-  return String(parseFloat(rounded.toFixed(6)));
-}
+const SC_HISTORY_KEY = "sc-history";
+const SC_HISTORY_MAX = 10;
 
-function parseMathValue(str) {
-  const s = String(str).trim().toLowerCase();
-  if (s === "inf" || s === "+inf" || s === "infinity" || s === "+infinity") return Infinity;
-  if (s === "-inf" || s === "-infinity") return -Infinity;
-  if (s === "pi") return Math.PI;
-  if (s === "e") return Math.E;
-  const v = parseFloat(s);
-  return isNaN(v) ? null : v;
-}
-
-function preprocessMathExpr(expr) {
-  let s = sanitizeMathInput(expr).trim();
-  s = s.replace(/\s+/g, "");
-  s = s.replace(/π/g, "pi");
-  s = s.replace(/√/g, "sqrt");
-  s = s.replace(/\^/g, "**");
-
-  s = s.replace(/\bacot\b/g, "ACOT");
-  s = s.replace(/\basin\b/g, "Math.asin");
-  s = s.replace(/\bacos\b/g, "Math.acos");
-  s = s.replace(/\batan\b/g, "Math.atan");
-  s = s.replace(/\bsin\b/g, "Math.sin");
-  s = s.replace(/\bcos\b/g, "Math.cos");
-  s = s.replace(/\btan\b/g, "Math.tan");
-  s = s.replace(/\bcot\b/g, "COT");
-  s = s.replace(/\bsqrt\b/g, "Math.sqrt");
-  s = s.replace(/\babs\b/g, "Math.abs");
-  s = s.replace(/\bln\b/g, "Math.log");
-  s = s.replace(/\blog\b/g, "Math.log10");
-  s = s.replace(/\bpi\b/g, "Math.PI");
-  s = s.replace(/\be\^\(([^()]+)\)/g, "Math.exp($1)");
-  s = s.replace(/\be\^([a-zA-Z0-9.+\-*/]+)/g, "Math.exp($1)");
-  s = s.replace(/\be\b/g, "Math.E");
-
-  return s;
-}
-
-function evalMathExpr(expr, variable, value) {
+function scLoadHistory() {
   try {
-    let s = preprocessMathExpr(expr);
-    const re = new RegExp("\\b" + variable + "\\b", "g");
-    s = s.replace(re, "(" + value + ")");
-    const COT = x => 1 / Math.tan(x);
-    const ACOT = x => Math.PI / 2 - Math.atan(x);
-    return Function("COT", "ACOT", '"use strict"; return (' + s + ');')(COT, ACOT);
+    const raw = localStorage.getItem(SC_HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
   } catch (e) {
-    console.warn("Math: eval error", e);
-    return NaN;
+    return [];
   }
 }
 
-function splitTopLevelTerms(expr) {
-  const s = expr.replace(/\s+/g, "");
-  const terms = [];
-  let cur = "";
-  let depth = 0;
+function scSaveHistory(items) {
+  try {
+    localStorage.setItem(SC_HISTORY_KEY, JSON.stringify(items));
+  } catch (e) {}
+}
 
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-    if (ch === "(") depth++;
-    if (ch === ")") depth--;
-    if (i > 0 && depth === 0 && (ch === "+" || ch === "-")) {
-      if (cur === "+" || cur === "-") {
-        cur = ch;
-      } else {
-        terms.push(cur);
-        cur = ch;
+function scAddHistory(expr, result) {
+  const items = scLoadHistory();
+  items.unshift({ expr: String(expr), result: String(result) });
+  if (items.length > SC_HISTORY_MAX) items.length = SC_HISTORY_MAX;
+  scSaveHistory(items);
+  scRenderHistory();
+  const panel = document.getElementById("scHistory");
+  if (panel) panel.hidden = false;
+}
+
+function scRenderHistory() {
+  const list = document.getElementById("scHistoryList");
+  if (!list) return;
+  const items = scLoadHistory();
+  if (!items.length) {
+    list.innerHTML = '<div class="sc-history-item" style="color:var(--muted);font-size:0.78rem;cursor:default">No entries yet.</div>';
+    return;
+  }
+  list.innerHTML = items
+    .map(
+      (entry, i) =>
+        '<div class="sc-history-item" data-idx="' +
+        i +
+        '">' +
+        '<span class="sc-history-item-expr">' + entry.expr + "</span>" +
+        '<span class="sc-history-item-result">= ' + entry.result + "</span>" +
+        "</div>"
+    )
+    .join("");
+
+  list.querySelectorAll(".sc-history-item").forEach((el) => {
+    el.addEventListener("click", () => {
+      const idx = parseInt(el.dataset.idx, 10);
+      const items = scLoadHistory();
+      if (items[idx]) {
+        scExpr = items[idx].expr;
+        scUpdate();
       }
-    } else {
-      cur += ch;
-    }
-  }
-  if (cur) terms.push(cur);
-  return terms;
+    });
+  });
 }
 
-function simpson(expr, variable, a, b, n = 1000) {
-  if (n % 2 !== 0) n++;
-  const h = (b - a) / n;
-  let sum = evalMathExpr(expr, variable, a) + evalMathExpr(expr, variable, b);
-
-  for (let i = 1; i < n; i++) {
-    const x = a + i * h;
-    const fx = evalMathExpr(expr, variable, x);
-    if (!isFinite(fx) || isNaN(fx)) return NaN;
-    sum += (i % 2 === 0 ? 2 : 4) * fx;
-  }
-  return (h / 3) * sum;
+function scClearHistory() {
+  scSaveHistory([]);
+  scRenderHistory();
+  const panel = document.getElementById("scHistory");
+  if (panel) panel.hidden = true;
 }
 
+function scToggleHistory() {
+  const panel = document.getElementById("scHistory");
+  if (!panel) return;
+  panel.hidden = !panel.hidden;
+  if (!panel.hidden) scRenderHistory();
+}
+
+/* ══════════════════════════════════════
+   KEYBOARD INPUT FOR CALCULATOR
+══════════════════════════════════════ */
+const SC_KEY_MAP = {
+  "0": "0", "1": "1", "2": "2", "3": "3", "4": "4",
+  "5": "5", "6": "6", "7": "7", "8": "8", "9": "9",
+  ".": ".", "+": "+", "-": "-", "*": "*", "/": "/",
+  "(": "(", ")": ")", "^": "^",
+};
+
+function scHandleKey(e) {
+  const key = e.key;
+
+  if (key === "Enter") {
+    e.preventDefault();
+    scEquals();
+    return;
+  }
+
+  if (key === "Backspace") {
+    e.preventDefault();
+    scBackspace();
+    return;
+  }
+
+  if (key === "Escape") {
+    e.preventDefault();
+    scClear();
+    return;
+  }
+
+  if (key === "Delete") {
+    e.preventDefault();
+    scClear();
+    return;
+  }
+
+  if (key in SC_KEY_MAP) {
+    e.preventDefault();
+    scInsert(SC_KEY_MAP[key]);
+  }
+}
 /* ══════════════════════════════════════
    LIMIT CALCULATOR
 ══════════════════════════════════════ */
@@ -790,151 +932,6 @@ function intCalc() {
 }
 
 /* ══════════════════════════════════════
-   TIMER PRESETS
-══════════════════════════════════════ */
-function timerSetPreset(minutes) {
-  const total = minutes * 60;
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  document.getElementById("timerH").value = h;
-  document.getElementById("timerM").value = m;
-  document.getElementById("timerS").value = s;
-}
-
-/* ══════════════════════════════════════
-   COPY TO CLIPBOARD
-══════════════════════════════════════ */
-function copyText(text) {
-  if (!text) return;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).catch(function () {
-      console.warn("Clipboard: failed to copy");
-    });
-  }
-}
-
-/* ══════════════════════════════════════
-   SCIENTIFIC CALCULATOR HISTORY
-══════════════════════════════════════ */
-const SC_HISTORY_KEY = "sc-history";
-const SC_HISTORY_MAX = 10;
-
-function scLoadHistory() {
-  try {
-    const raw = localStorage.getItem(SC_HISTORY_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function scSaveHistory(items) {
-  try {
-    localStorage.setItem(SC_HISTORY_KEY, JSON.stringify(items));
-  } catch (e) {}
-}
-
-function scAddHistory(expr, result) {
-  const items = scLoadHistory();
-  items.unshift({ expr: String(expr), result: String(result) });
-  if (items.length > SC_HISTORY_MAX) items.length = SC_HISTORY_MAX;
-  scSaveHistory(items);
-  scRenderHistory();
-  const panel = document.getElementById("scHistory");
-  if (panel) panel.hidden = false;
-}
-
-function scRenderHistory() {
-  const list = document.getElementById("scHistoryList");
-  if (!list) return;
-  const items = scLoadHistory();
-  if (!items.length) {
-    list.innerHTML = '<div class="sc-history-item" style="color:var(--muted);font-size:0.78rem;cursor:default">No entries yet.</div>';
-    return;
-  }
-  list.innerHTML = items
-    .map(
-      (entry, i) =>
-        '<div class="sc-history-item" data-idx="' +
-        i +
-        '">' +
-        '<span class="sc-history-item-expr">' + entry.expr + "</span>" +
-        '<span class="sc-history-item-result">= ' + entry.result + "</span>" +
-        "</div>"
-    )
-    .join("");
-
-  list.querySelectorAll(".sc-history-item").forEach((el) => {
-    el.addEventListener("click", () => {
-      const idx = parseInt(el.dataset.idx, 10);
-      const items = scLoadHistory();
-      if (items[idx]) {
-        scExpr = items[idx].expr;
-        scUpdate();
-      }
-    });
-  });
-}
-
-function scClearHistory() {
-  scSaveHistory([]);
-  scRenderHistory();
-  const panel = document.getElementById("scHistory");
-  if (panel) panel.hidden = true;
-}
-
-function scToggleHistory() {
-  const panel = document.getElementById("scHistory");
-  if (!panel) return;
-  panel.hidden = !panel.hidden;
-  if (!panel.hidden) scRenderHistory();
-}
-
-/* ══════════════════════════════════════
-   KEYBOARD INPUT FOR CALCULATOR
-══════════════════════════════════════ */
-const SC_KEY_MAP = {
-  "0": "0", "1": "1", "2": "2", "3": "3", "4": "4",
-  "5": "5", "6": "6", "7": "7", "8": "8", "9": "9",
-  ".": ".", "+": "+", "-": "-", "*": "*", "/": "/",
-  "(": "(", ")": ")", "^": "^",
-};
-
-function scHandleKey(e) {
-  const key = e.key;
-
-  if (key === "Enter") {
-    e.preventDefault();
-    scEquals();
-    return;
-  }
-
-  if (key === "Backspace") {
-    e.preventDefault();
-    scBackspace();
-    return;
-  }
-
-  if (key === "Escape") {
-    e.preventDefault();
-    scClear();
-    return;
-  }
-
-  if (key === "Delete") {
-    e.preventDefault();
-    scClear();
-    return;
-  }
-
-  if (key in SC_KEY_MAP) {
-    e.preventDefault();
-    scInsert(SC_KEY_MAP[key]);
-  }
-}
-
-/* ══════════════════════════════════════
    DERIVATIVE CALCULATOR
 ══════════════════════════════════════ */
 function derivFormatTerm(coeff, power, variable) {
@@ -1153,7 +1150,6 @@ function derivExample(expr, point) {
   document.getElementById("derivPoint").value = point;
   derivUpdateNotation();
 }
-
 /* ══════════════════════════════════════
    UNIT CONVERTER
 ══════════════════════════════════════ */
@@ -1349,7 +1345,6 @@ function ucConvert() {
   formulaRow.hidden = false;
   formulaEl.textContent = formula;
 }
-
 /* ══════════════════════════════════════
    INIT (amended)
 ══════════════════════════════════════ */
@@ -1382,17 +1377,17 @@ function initFunctions() {
     });
   });
 
-  // Copy buttons
-  const timerCopyBtn = document.getElementById("timerCopyBtn");
-  if (timerCopyBtn) timerCopyBtn.addEventListener("click", () => copyText(document.getElementById("timerDisplay")?.textContent?.replace(/[^0-9:]/g, "") || ""));
-  const swCopyBtn = document.getElementById("swCopyBtn");
-  if (swCopyBtn) swCopyBtn.addEventListener("click", () => copyText(document.getElementById("swDisplay")?.textContent?.replace(/[^0-9:.]/g, "") || ""));
-  const scCopyBtn = document.getElementById("scCopyBtn");
-  if (scCopyBtn) scCopyBtn.addEventListener("click", () => copyText(document.getElementById("scResult")?.textContent || ""));
-  const limCopyBtn = document.getElementById("limCopyBtn");
-  if (limCopyBtn) limCopyBtn.addEventListener("click", () => copyText(document.getElementById("limResultValue")?.textContent || ""));
-  const intCopyBtn = document.getElementById("intCopyBtn");
-  if (intCopyBtn) intCopyBtn.addEventListener("click", () => copyText(document.getElementById("intResultValue")?.textContent || ""));
+  // Copy buttons (event delegation)
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest("[data-copy]");
+    if (!btn) return;
+    const src = document.getElementById(btn.dataset.copy);
+    if (!src) return;
+    let text = src.textContent || "";
+    if (btn.dataset.copyFilter === "clock") text = text.replace(/[^0-9:]/g, "");
+    else if (btn.dataset.copyFilter === "decimal") text = text.replace(/[^0-9:.]/g, "");
+    copyText(text);
+  });
 
   // Calculator mode buttons
   document.getElementById("modeDeg")?.addEventListener("click", () => scSetMode("deg"));
@@ -1468,10 +1463,6 @@ function initFunctions() {
     btn.addEventListener("click", function () {
       derivExample(btn.dataset.derivExpr, btn.dataset.derivPoint);
     });
-  });
-  const derivCopyBtn = document.getElementById("derivCopyBtn");
-  if (derivCopyBtn) derivCopyBtn.addEventListener("click", function () {
-    copyText(document.getElementById("derivResultValue")?.textContent || "");
   });
   derivUpdateNotation();
 
