@@ -57,6 +57,8 @@ def _hash_assets(names: list[str]) -> str:
 
 MAIN_JS_HASH = _hash_assets(["script.js", "search.js", "blog.js", "home-posts.js", "post-utils.js"])
 PROJECTS_JS_HASH = _hash_assets(["projects.js"])
+RESOURCES_JS_HASH = _hash_assets(["resources.js"])
+OG_IMAGE = f"{SITE_URL}/assets/images/og-card.svg"
 MEDIA_JS_HASH = _hash_assets([
     "media-config.js",
     "media-api.js",
@@ -168,6 +170,7 @@ def build_head(meta: dict[str, str], base: str, extrahead: str) -> str:
     s = s.replace("{{extrahead}}", extrahead or "")
     s = s.replace("{{base}}", base)
     s = s.replace("{{csshash}}", CSS_HASH)
+    s = s.replace("{{canonical}}", meta.get("ogurl", ""))
     return s
 
 
@@ -279,7 +282,7 @@ def build_post_pages(posts: list[dict]) -> None:
             "ogdesc": blurb,
             "ogurl": f"{SITE_URL}/posts/{slug}.html",
             "ogtype": "article",
-            "ogimage": f"{SITE_URL}/favicon.svg",
+            "ogimage": OG_IMAGE,
         }
         extrahead = f"""  <script type="application/ld+json">
 {ld}
@@ -323,7 +326,7 @@ def build_post_pages(posts: list[dict]) -> None:
             "../",
             extrahead,
             [
-                f'<script defer src="../assets/js/main.js"></script>',
+                f'<script defer src="../assets/js/main.js?v={MAIN_JS_HASH}"></script>',
             ],
         )
         out_path = os.path.join(POSTS_OUT, f"{slug}.html")
@@ -419,7 +422,7 @@ def build_project_pages(projects: list[dict]) -> None:
             "ogdesc": desc,
             "ogurl": f"{SITE_URL}/projects/{slug}.html",
             "ogtype": "website",
-            "ogimage": f"{SITE_URL}/{image}" if image else f"{SITE_URL}/favicon.svg",
+            "ogimage": f"{SITE_URL}/{image}" if image else OG_IMAGE,
         }
 
         page = project_tpl
@@ -436,7 +439,7 @@ def build_project_pages(projects: list[dict]) -> None:
             "projects",
             "../",
             "",
-            [f'<script defer src="../assets/js/main.js"></script>'],
+            [f'<script defer src="../assets/js/main.js?v={MAIN_JS_HASH}"></script>'],
         )
         out_path = os.path.join(PROJECTS_OUT, f"{slug}.html")
         write_file(out_path, output)
@@ -543,7 +546,7 @@ def add(
     """
     scripts: list[str] = old_scripts or []
     if main:
-        scripts = [f'<script defer src="{base}assets/js/main.js"></script>'] + scripts
+        scripts = [f'<script defer src="{base}assets/js/main.js?v={MAIN_JS_HASH}"></script>'] + scripts
     PAGES.append((id_, src, dest, meta, active or id_, base, extrahead, scripts))
 
 
@@ -558,7 +561,7 @@ add(
         "ogdesc": "Personal website of Andrei - blog, resources, and projects.",
         "ogurl": f"{SITE_URL}/index.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     extrahead=f"""<script type="application/ld+json">
   {{
@@ -590,7 +593,7 @@ add(
         "ogdesc": "Learn more about Andrei - background, interests, and why he built this website.",
         "ogurl": f"{SITE_URL}/about.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
 )
 
@@ -605,7 +608,7 @@ add(
         "ogdesc": "A mix of personal reflections, ideas I'm exploring, things I'm learning, and random thoughts I don't want to lose.",
         "ogurl": f"{SITE_URL}/blog.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     old_scripts=[f'<script defer src="assets/js/blog.js?v={MAIN_JS_HASH}"></script>'],
 )
@@ -621,9 +624,9 @@ add(
         "ogdesc": "University notes, course materials, and helpful documents collected in one place.",
         "ogurl": f"{SITE_URL}/resources.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
-    old_scripts=[f'<script defer src="assets/js/resources.js?v={CSS_HASH}"></script>'],
+    old_scripts=[f'<script defer src="assets/js/resources.js?v={RESOURCES_JS_HASH}"></script>'],
 )
 
 add(
@@ -637,7 +640,7 @@ add(
         "ogdesc": "Site credits and acknowledgments for andreigman.com.",
         "ogurl": f"{SITE_URL}/credits.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
 )
 
@@ -652,7 +655,7 @@ add(
         "ogdesc": "Personal projects and university work by Andrei.",
         "ogurl": f"{SITE_URL}/projects.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     old_scripts=[f'<script defer src="assets/js/projects.js?v={PROJECTS_JS_HASH}"></script>'],
 )
@@ -668,7 +671,7 @@ add(
         "ogdesc": "Calculators, timers and more tools on andreigman.com.",
         "ogurl": f"{SITE_URL}/functions.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     extrahead=f'  <link rel="stylesheet" href="assets/css/functions.css?v={CSS_HASH}" />',
     old_scripts=[f'<script defer src="assets/js/functions.js?v={FUNCTIONS_JS_HASH}"></script>'],
@@ -687,7 +690,7 @@ add(
         "ogdesc": "Mini games to cure boredom \u2014 Dino Run and more.",
         "ogurl": f"{SITE_URL}/play.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     extrahead=GAMES_HEAD,
     old_scripts=[f'<script defer src="assets/js/games-play.js?v={GAMES_JS_HASH}"></script>'],
@@ -704,7 +707,7 @@ add(
         "ogdesc": "Page not found.",
         "ogurl": f"{SITE_URL}/404.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     active=None,
 )
@@ -722,7 +725,7 @@ add(
         "ogdesc": "Browse live anime, games, movies and TV \u2014 track what you watch in your personal archive.",
         "ogurl": f"{SITE_URL}/media-watched.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     extrahead=MEDIA_HEAD,
     old_scripts=[
@@ -742,7 +745,7 @@ add(
         "ogdesc": "Live from AniList \u2014 search and add to your archive.",
         "ogurl": f"{SITE_URL}/media-anime.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     active="media-watched",
     extrahead=MEDIA_HEAD,
@@ -763,7 +766,7 @@ add(
         "ogdesc": "Games search powered by IGDB \u2014 coming soon.",
         "ogurl": f"{SITE_URL}/media-games.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     active="media-watched",
     extrahead=MEDIA_HEAD,
@@ -784,7 +787,7 @@ add(
         "ogdesc": "From TMDB \u2014 search and add to your archive.",
         "ogurl": f"{SITE_URL}/media-movies.html",
         "ogtype": "website",
-        "ogimage": f"{SITE_URL}/favicon.svg",
+        "ogimage": OG_IMAGE,
     },
     active="media-watched",
     extrahead=MEDIA_HEAD,

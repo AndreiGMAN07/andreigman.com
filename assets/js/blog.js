@@ -89,7 +89,7 @@
     if (recentList) {
       recentList.innerHTML = sorted
         .slice(0, 3)
-        .map(function (p) { return '<li><a href="' + p.file + '">' + p.title + "</a></li>"; })
+        .map(function (p) { return `<li><a href="${p.file}">${p.title}</a></li>`; })
         .join("");
     }
   }

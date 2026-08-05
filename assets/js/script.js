@@ -54,11 +54,6 @@ if (navToggle && navMenu) {
   });
 }
 
-const savedTheme = localStorage.getItem("site-theme");
-if (savedTheme) {
-  root.setAttribute("data-theme", savedTheme);
-}
-
 if (themeToggle) {
   const setThemeIcon = () => {
     const current = root.getAttribute("data-theme");
@@ -74,15 +69,6 @@ if (themeToggle) {
     localStorage.setItem("site-theme", next);
     setThemeIcon();
   });
-}
-
-const siteHeader = document.querySelector(".site-header");
-if (siteHeader) {
-  const onScroll = () => {
-    siteHeader.classList.toggle("scrolled", window.scrollY > 10);
-  };
-  onScroll();
-  window.addEventListener("scroll", onScroll, { passive: true });
 }
 
 const REVEAL_SELECTORS = [
@@ -134,41 +120,48 @@ const initScrollReveal = () => {
 document.addEventListener("DOMContentLoaded", initScrollReveal);
 window.initScrollReveal = initScrollReveal;
 
-const backToTop = document.getElementById("backToTop");
-if (backToTop) {
-  const toggleBtt = () => {
-    backToTop.classList.toggle("back-to-top--visible", window.scrollY > 300);
-  };
-  toggleBtt();
-  window.addEventListener("scroll", toggleBtt, { passive: true });
-  backToTop.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-}
-
+// ── Scroll effects (header shadow, back-to-top, progress bar) ──
 (function () {
+  const siteHeader = document.querySelector(".site-header");
+  const backToTop = document.getElementById("backToTop");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduceMotion) return;
 
-  const header = document.querySelector(".site-header");
-  if (header && !header.querySelector(".scroll-progress")) {
+  let bar = null;
+  if (!reduceMotion && siteHeader && !siteHeader.querySelector(".scroll-progress")) {
     const track = document.createElement("div");
     track.className = "scroll-progress";
-    const bar = document.createElement("div");
+    bar = document.createElement("div");
     bar.className = "scroll-progress__bar";
     track.appendChild(bar);
-    header.appendChild(track);
+    siteHeader.appendChild(track);
+  }
 
-    const updateBar = () => {
+  let ticking = false;
+  const onScroll = () => {
+    const y = window.scrollY;
+    if (siteHeader) siteHeader.classList.toggle("scrolled", y > 10);
+    if (backToTop) backToTop.classList.toggle("back-to-top--visible", y > 300);
+    if (bar) {
       const doc = document.documentElement;
       const max = doc.scrollHeight - doc.clientHeight || 1;
-      const pct = Math.min(100, Math.max(0, (window.scrollY / max) * 100));
-      bar.style.width = pct + "%";
-    };
-    updateBar();
-    window.addEventListener("scroll", updateBar, { passive: true });
-    window.addEventListener("resize", updateBar, { passive: true });
+      bar.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + "%";
+    }
+  };
+  const requestTick = () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(() => { ticking = false; onScroll(); });
+  };
+
+  onScroll();
+  window.addEventListener("scroll", requestTick, { passive: true });
+  window.addEventListener("resize", requestTick, { passive: true });
+
+  if (backToTop) {
+    backToTop.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   }
 })();
 
@@ -180,6 +173,14 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+const goBackEl = document.getElementById("goBack");
+if (goBackEl) {
+  goBackEl.addEventListener("click", (e) => {
+    e.preventDefault();
+    history.back();
+  });
+}
+
 // ponytail: simple image lightbox via native dialog
 (() => {
   const open = (img) => {
@@ -187,6 +188,7 @@ if ("serviceWorker" in navigator) {
     if (!lb) {
       lb = document.createElement("dialog");
       lb.className = "lightbox";
+      lb.setAttribute("aria-label", "Image preview");
       lb.addEventListener("click", (e) => { if (e.target === lb) lb.close(); });
       lb.addEventListener("close", () => { lb.innerHTML = ""; });
       document.body.appendChild(lb);
@@ -197,6 +199,7 @@ if ("serviceWorker" in navigator) {
     lb.innerHTML = "";
     lb.appendChild(copy);
     lb.showModal();
+    copy.focus();
   };
   document.addEventListener("click", (e) => {
     const img = e.target.closest("img.img-lightbox");

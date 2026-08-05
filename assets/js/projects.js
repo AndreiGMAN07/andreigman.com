@@ -13,20 +13,20 @@
 
   function projectCardHtml(p) {
     const img = p.image
-      ? '<img class="project-thumb" src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.title) + '" loading="lazy" />'
+      ? `<img class="project-thumb" src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" loading="lazy" />`
       : '<div class="project-thumb project-thumb--placeholder" aria-hidden="true">\uD83D\uDCC1</div>';
 
     const tags = (p.tags || [])
-      .map(function (t) { return '<span class="project-tag">' + escapeHtml(t) + "</span>"; })
+      .map(function (t) { return `<span class="project-tag">${escapeHtml(t)}</span>`; })
       .join("");
 
     return (
-      '<article class="card hover-card project-card" data-id="' + escapeHtml(p.id || "") + '">' +
+      `<article class="card hover-card project-card" data-id="${escapeHtml(p.id || "")}">` +
       img +
       '<div class="project-body">' +
-      "<h3>" + escapeHtml(p.title) + "</h3>" +
-      '<p class="project-desc">' + escapeHtml(p.description || "") + "</p>" +
-      '<div class="project-tags">' + tags + "</div>" +
+      `<h3>${escapeHtml(p.title)}</h3>` +
+      `<p class="project-desc">${escapeHtml(p.description || "")}</p>` +
+      `<div class="project-tags">${tags}</div>` +
       "</div>" +
       "</article>"
     );
@@ -70,20 +70,20 @@
 
     var imagesHtml = allImages
       .map(function (src) {
-        return '<img class="project-modal-img img-lightbox" src="' + escapeHtml(src) + '" alt="' + escapeHtml(project.title) + '" loading="lazy" />';
+        return `<img class="project-modal-img img-lightbox" src="${escapeHtml(src)}" alt="${escapeHtml(project.title)}" loading="lazy" />`;
       })
       .join("");
 
     var tagsHtml = (project.tags || [])
-      .map(function (t) { return '<span class="project-tag">' + escapeHtml(t) + "</span>"; })
+      .map(function (t) { return `<span class="project-tag">${escapeHtml(t)}</span>`; })
       .join("");
 
     var detailBtn = project.file
-      ? '<a href="' + depth() + escapeHtml(project.file) + '" class="btn btn-secondary" style="margin-right:0.5rem">View details</a>'
+      ? `<a href="${depth()}${escapeHtml(project.file)}" class="btn btn-secondary" style="margin-right:0.5rem">View details</a>`
       : "";
 
     var linkBtn = project.link
-      ? '<a href="' + escapeHtml(project.link) + '" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Open project</a>'
+      ? `<a href="${escapeHtml(project.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Open project</a>`
       : "";
 
     var overlay = document.createElement("div");
@@ -94,9 +94,9 @@
       '<button type="button" class="media-modal-close" aria-label="Close">&times;</button>' +
       (imagesHtml ? '<div class="project-modal-images">' + imagesHtml + "</div>" : "") +
       '<div class="project-modal-body">' +
-      "<h2>" + escapeHtml(project.title) + "</h2>" +
-      '<div class="project-tags" style="margin-bottom:0.75rem">' + tagsHtml + "</div>" +
-      '<p class="project-modal-desc">' + escapeHtml(project.description || "") + "</p>" +
+      `<h2>${escapeHtml(project.title)}</h2>` +
+      `<div class="project-tags" style="margin-bottom:0.75rem">${tagsHtml}</div>` +
+      `<p class="project-modal-desc">${escapeHtml(project.description || "")}</p>` +
       '<div style="margin-top:1rem">' + detailBtn + linkBtn + "</div>" +
       "</div>" +
       "</div>";

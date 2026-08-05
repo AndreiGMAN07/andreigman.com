@@ -1,4 +1,4 @@
-const CACHE_NAME = "andreigman-v3";
+const CACHE_NAME = "andreigman-v4";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -89,6 +89,24 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => caches.match(event.request).then((c) => c || caches.match("/")))
+    );
+    return;
+  }
+
+  if (url.pathname.startsWith("/assets/")) {
+    event.respondWith(
+      caches.match(url.pathname).then((cached) => {
+        const update = fetch(event.request)
+          .then((response) => {
+            if (response.ok) {
+              const copy = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(url.pathname, copy));
+            }
+            return response;
+          })
+          .catch(() => cached);
+        return cached || update;
+      })
     );
     return;
   }

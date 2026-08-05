@@ -1,3 +1,4 @@
+(() => {
 const STORAGE_KEY = "resourcesData";
 let manageOn = false;
 
@@ -331,3 +332,4 @@ if (document.readyState === "loading") {
 } else {
   initResources();
 }
+})();

@@ -55,16 +55,19 @@ const MediaAPI = {
     };
   },
 
-  normalizeRawg(game) {
+  normalizeIgdb(game) {
+    const cover = (game.cover?.url || "").replace("/t_thumb/", "/t_cover_big/");
     return {
       id: `games-${game.id}`,
       category: "games",
       externalId: game.id,
       title: game.name || "Untitled",
-      posterUrl: game.background_image || "",
-      score: game.rating ?? null,
-      year: game.released ? parseInt(game.released.slice(0, 4), 10) : null,
-      description: game.description_raw || game.short_description || "",
+      posterUrl: cover ? `https:${cover}` : "",
+      score: game.rating != null ? game.rating / 20 : null,
+      year: game.first_release_date
+        ? new Date(game.first_release_date * 1000).getFullYear()
+        : null,
+      description: game.summary || "",
       genres: (game.genres || []).map((g) => g.name).filter(Boolean),
       mediaType: "game",
     };
@@ -173,21 +176,19 @@ const MediaAPI = {
   },
 
   async searchTrendingGames() {
-    const data = await this.proxyFetch(
-      "/api/rawg/games?ordering=-rating&page_size=20"
-    );
-    return (data.results || []).map((g) => this.normalizeRawg(g));
+    const data = await this.proxyFetch("/api/igdb/games?trending=1");
+    return (data || []).map((g) => this.normalizeIgdb(g));
   },
 
   async searchGames(query) {
     const data = await this.proxyFetch(
-      `/api/rawg/games?search=${encodeURIComponent(query)}&page_size=20`
+      `/api/igdb/games?search=${encodeURIComponent(query)}`
     );
-    return (data.results || []).map((g) => this.normalizeRawg(g));
+    return (data || []).map((g) => this.normalizeIgdb(g));
   },
 
   async getGameDetail(id) {
-    const data = await this.proxyFetch(`/api/rawg/games/${Number(id)}`);
-    return this.normalizeRawg(data);
+    const data = await this.proxyFetch(`/api/igdb/games/${Number(id)}`);
+    return this.normalizeIgdb(data[0] || {});
   },
 };

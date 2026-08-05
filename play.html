@@ -3,37 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="canonical" href="https://andreigman.com/play.html" />
   <title>andreigman.com — Play</title>
   <meta name="description" content="Mini games to cure boredom — Dino Run and more." />
   <meta property="og:title" content="andreigman.com — Play" />
   <meta property="og:description" content="Mini games to cure boredom — Dino Run and more." />
   <meta property="og:url" content="https://andreigman.com/play.html" />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://andreigman.com/favicon.svg" />
+  <meta property="og:image" content="https://andreigman.com/assets/images/og-card.svg" />
   <meta name="twitter:card" content="summary" />
   <meta name="theme-color" content="#121617" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#f5f8f6" media="(prefers-color-scheme: light)" />
   <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="feed.xml" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=2f7ee4df" />
+  <link rel="stylesheet" href="assets/css/style.css?v=a272c081" />
   <script>
     (function () {
-      if (!document.querySelector("pre code")) return;
-      var link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css";
-      document.head.appendChild(link);
-      var s = document.createElement("script");
-      s.defer = true;
-      s.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js";
-      s.onload = function () {
-        document.querySelectorAll("pre code").forEach(function (b) { hljs.highlightElement(b); });
+      var loadHighlight = function () {
+        if (!document.querySelector("pre code")) return;
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css";
+        document.head.appendChild(link);
+        var s = document.createElement("script");
+        s.defer = true;
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js";
+        s.onload = function () {
+          document.querySelectorAll("pre code").forEach(function (b) { hljs.highlightElement(b); });
+        };
+        document.head.appendChild(s);
       };
-      document.head.appendChild(s);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadHighlight);
+      } else {
+        loadHighlight();
+      }
     })();
   </script>
-    <link rel="stylesheet" href="assets/css/games-play.css?v=2f7ee4df" />
+    <link rel="stylesheet" href="assets/css/games-play.css?v=a272c081" />
   <script>
     (function(){var t=localStorage.getItem("site-theme");
       if(t){document.documentElement.setAttribute("data-theme",t);}
@@ -126,7 +135,7 @@
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
-  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/main.js?v=36a3ca84"></script>
   <script defer src="assets/js/games-play.js?v=0ee15d84"></script>
 </body>
 </html>

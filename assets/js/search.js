@@ -229,9 +229,10 @@
   }
 
   document.addEventListener("keydown", (e) => {
+    const activeEl = document.activeElement;
     const isTyping =
-      /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) ||
-      document.activeElement.isContentEditable;
+      (activeEl && /^(INPUT|TEXTAREA|SELECT)$/.test(activeEl.tagName)) ||
+      (activeEl && activeEl.isContentEditable);
 
     if ((e.key === "/" && !isTyping) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")) {
       e.preventDefault();
