@@ -55,7 +55,7 @@ def _hash_assets(names: list[str]) -> str:
     return h.hexdigest()[:8]
 
 
-MAIN_JS_HASH = _hash_assets(["script.js", "search.js", "blog.js", "home-posts.js", "post-utils.js"])
+MAIN_JS_HASH = _hash_assets(["script.js", "search.js", "blog.js", "home-posts.js", "post-utils.js", "home-radio.js", "home-stats.js"])
 PROJECTS_JS_HASH = _hash_assets(["projects.js"])
 RESOURCES_JS_HASH = _hash_assets(["resources.js"])
 OG_IMAGE = f"{SITE_URL}/assets/images/og-card.svg"
@@ -579,7 +579,11 @@ add(
     "jobTitle": "Student"
   }}
   </script>""",
-    old_scripts=[f'<script defer src="assets/js/home-posts.js?v={MAIN_JS_HASH}"></script>'],
+    old_scripts=[
+        f'<script defer src="assets/js/home-posts.js?v={MAIN_JS_HASH}"></script>',
+        f'<script defer src="assets/js/home-stats.js?v={MAIN_JS_HASH}"></script>',
+        f'<script defer src="assets/js/home-radio.js?v={MAIN_JS_HASH}"></script>',
+    ],
 )
 
 add(

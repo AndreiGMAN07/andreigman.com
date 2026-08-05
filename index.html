@@ -18,7 +18,7 @@
   <link rel="alternate" type="application/rss+xml" title="andreigman.com RSS" href="feed.xml" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="favicon.svg" />
-  <link rel="stylesheet" href="assets/css/style.css?v=a272c081" />
+  <link rel="stylesheet" href="assets/css/style.css?v=c755af8a" />
   <script>
     (function () {
       var loadHighlight = function () {
@@ -67,7 +67,7 @@
   </script>
 </head>
 
-<body>
+<body class="homepage">
 <div class="site-bg" aria-hidden="true"></div>
 <div class="phase2-grain" aria-hidden="true"></div>
 
@@ -101,82 +101,206 @@
 </header>
 
 <main id="main-content">
-  <section class="hero">
-    <div class="container hero-grid">
+  <section class="cyber-hero">
+    <div class="cyber-hero__grid" aria-hidden="true"></div>
+    <div class="cyber-hero__scan" aria-hidden="true"></div>
+    <div class="container cyber-hero__content">
       <div class="hero-text">
-        <p class="eyebrow">Personal blog &bull; Notes &bull; Resources</p>
-        <h1>Hi, I'm Andrei. Welcome to my space on the web.</h1>
+        <p class="eyebrow">// personal_space &bull; andreigman &bull; est. 2026</p>
+        <h1 class="cyber-title" data-text="Hi, I'm Andrei">Hi, I'm Andrei<span class="cyber-blink" aria-hidden="true">_</span></h1>
         <p class="lead">
-          Welcome to my website. This is where I share my story, publish blog entries,
-          organize my resources, and grow as I figure things out.
+          Welcome to my space on the web &mdash; a personal terminal where I publish blog
+          entries, organize resources, track media, and grow as I figure things out.
         </p>
         <div class="hero-actions">
           <a href="about.html" class="btn btn-primary">About me</a>
           <a href="blog.html" class="btn btn-secondary">Read blog</a>
           <a href="media-watched.html" class="btn btn-secondary">Media-Watched</a>
+          <a href="#site-radio" class="btn btn-secondary">Site Radio</a>
         </div>
-      </div>
-
-      <div class="hero-card card">
-        <h3>Website goals</h3>
-        <ul>
-          <li>Present myself professionally</li>
-          <li>Publish a personal digital diary with my true feelings</li>
-          <li>Store useful university resources</li>
-          <li>Keep a clean digital identity</li>
-        </ul>
       </div>
     </div>
   </section>
 
-  <div class="hero-divider" aria-hidden="true"></div>
+  <section class="section cyber-stats" aria-label="Site statistics">
+    <div class="container cyber-stats__grid">
+      <div class="cyber-stat card">
+        <p class="cyber-stat__num" id="statPosts" data-count="0">0</p>
+        <p class="cyber-stat__label">blog posts</p>
+      </div>
+      <div class="cyber-stat card">
+        <p class="cyber-stat__num" id="statProjects" data-count="0">0</p>
+        <p class="cyber-stat__label">projects</p>
+      </div>
+      <div class="cyber-stat card">
+        <p class="cyber-stat__num" data-count="3">0</p>
+        <p class="cyber-stat__label">live media feeds</p>
+      </div>
+      <div class="cyber-stat card">
+        <p class="cyber-stat__num" data-count="4">0</p>
+        <p class="cyber-stat__label">site modules</p>
+      </div>
+    </div>
+  </section>
 
   <section class="section">
     <div class="container">
       <div class="section-head">
-        <p class="eyebrow">Latest</p>
+        <p class="eyebrow">// MAIN_MODULES</p>
+        <h2>Explore the system</h2>
+      </div>
+
+      <div class="biz-grid">
+        <article class="biz-card card">
+          <div class="biz-card__icon" aria-hidden="true">&#8962;</div>
+          <div class="biz-card__body">
+            <h3>About</h3>
+            <p>Who I am, my background, my interests, and why I built this website.</p>
+            <a href="about.html" class="biz-card__link">Open About &rarr;</a>
+          </div>
+        </article>
+
+        <article class="biz-card card">
+          <div class="biz-card__icon" aria-hidden="true">&#9998;</div>
+          <div class="biz-card__body">
+            <h3>Blog</h3>
+            <p>A personal diary mixed with ideas, updates, reflections, and technical notes.</p>
+            <a href="blog.html" class="biz-card__link">Open Blog &rarr;</a>
+          </div>
+        </article>
+
+        <article class="biz-card card">
+          <div class="biz-card__icon" aria-hidden="true">&#9642;</div>
+          <div class="biz-card__body">
+            <h3>Resources</h3>
+            <p>University notes, course materials, and helpful documents collected in one place.</p>
+            <a href="resources.html" class="biz-card__link">Open Resources &rarr;</a>
+          </div>
+        </article>
+
+        <article class="biz-card card">
+          <div class="biz-card__icon" aria-hidden="true">&#9654;</div>
+          <div class="biz-card__body">
+            <h3>Media-Watched</h3>
+            <p>Browse live anime, games, movies and TV &mdash; track what you watch in your personal archive.</p>
+            <a href="media-watched.html" class="biz-card__link">Open Media-Watched &rarr;</a>
+          </div>
+        </article>
+
+        <article class="biz-card card">
+          <div class="biz-card__icon" aria-hidden="true">&#129006;</div>
+          <div class="biz-card__body">
+            <h3>Functions</h3>
+            <p>Interactive math tools and calculators for quick, everyday calculations.</p>
+            <a href="functions.html" class="biz-card__link">Open Functions &rarr;</a>
+          </div>
+        </article>
+
+        <article class="biz-card card">
+          <div class="biz-card__icon" aria-hidden="true">&#127918;</div>
+          <div class="biz-card__body">
+            <h3>Play</h3>
+            <p>Retro games and arcade classics to play right in your browser.</p>
+            <a href="play.html" class="biz-card__link">Open Play &rarr;</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="site-radio">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">SITE_RADIO // session-only</p>
+        <h2>Radio station</h2>
+      </div>
+
+      <div class="radio-panel card">
+        <label class="radio-device" id="radioUpload" for="radioFiles">
+          <input type="file" id="radioFiles" accept="audio/*,.flac,.mp3,.ogg,.m4a,.wav" multiple hidden />
+          <span class="radio-device__brand">OLD RADIO</span>
+          <span class="radio-device__led" aria-hidden="true"></span>
+
+          <div class="radio-device__row">
+            <div class="radio-device__speaker" aria-hidden="true">
+              <span class="radio-device__speaker-ring"></span>
+            </div>
+
+            <div class="radio-device__rside">
+              <div class="radio-device__dial" aria-hidden="true">
+                <span class="radio-device__dial-band">
+                  <span class="radio-device__tick" style="left: 10%">10</span>
+                  <span class="radio-device__tick" style="left: 27%">50</span>
+                  <span class="radio-device__tick" style="left: 48%">100</span>
+                  <span class="radio-device__tick" style="left: 69%">150</span>
+                  <span class="radio-device__tick" style="left: 90%">200</span>
+                </span>
+                <span class="radio-device__freq" id="deviceFreq">&mdash;</span>
+                <span class="radio-device__needle" id="deviceNeedle"></span>
+              </div>
+              <div class="radio-device__display">
+                <p class="radio-device__title" id="deviceTitle">NO SIGNAL</p>
+                <p class="radio-device__artist" id="deviceArtist">insert audio below</p>
+                <span class="radio-device__vol" id="deviceVol" aria-hidden="true">VOL 100</span>
+                <div class="radio-device__eq" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="radio-device__controls">
+            <button type="button" class="radio-device__knob radio-device__knob--play" id="devicePlay" aria-label="Play or pause"></button>
+            <button type="button" class="radio-device__knob radio-device__knob--vol" id="volumeBtn" aria-label="Volume"></button>
+            <span class="radio-device__mono" aria-hidden="true">AM &bull; FM &bull; WEB</span>
+          </div>
+
+          <div class="radio-device__slot">
+            <span class="radio-device__slot-main">DROP AUDIO FILES HERE</span>
+            <span class="radio-device__slot-sub">or click to browse &mdash; FLAC, MP3, OGG, M4A, WAV</span>
+          </div>
+        </label>
+
+        <div class="radio-folder">
+          <button type="button" class="radio-folder__btn" id="radioFolderBtn">[ + ] Upload folder</button>
+          <span class="radio-folder__hint">keeps the folder tree in the playlist</span>
+        </div>
+        <input type="file" id="radioFolder" webkitdirectory multiple hidden />
+
+        <p id="radioError" class="radio-error" hidden></p>
+        <ul id="radioList" class="radio-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">// LATEST_INPUT</p>
         <h2>Recent posts</h2>
       </div>
       <div class="grid-auto-fit" id="latestPosts" aria-live="polite"></div>
       <p class="section-cta"><a href="blog.html" class="text-link">View all posts &rarr;</a></p>
     </div>
   </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="section-head">
-        <p class="eyebrow">Main areas</p>
-        <h2>What you&rsquo;ll find here</h2>
-      </div>
-
-      <div class="grid-auto-fit">
-        <article class="card hover-card">
-          <h3>About</h3>
-          <p>Who I am, my background, my interests, and why I built this website.</p>
-          <a href="about.html" class="text-link">Open page</a>
-        </article>
-
-        <article class="card hover-card">
-          <h3>Blog</h3>
-          <p>A personal diary mixed with ideas, updates, reflections, and technical notes.</p>
-          <a href="blog.html" class="text-link">Open page</a>
-        </article>
-
-        <article class="card hover-card">
-          <h3>Resources</h3>
-          <p>University notes, course materials, and helpful documents collected in one place.</p>
-          <a href="resources.html" class="text-link">Open page</a>
-        </article>
-
-        <article class="card hover-card">
-          <h3>Media-Watched</h3>
-          <p>Browse live anime, games, movies and TV &mdash; track what you watch in your personal archive.</p>
-          <a href="media-watched.html" class="text-link">Open page</a>
-        </article>
-      </div>
-    </div>
-  </section>
 </main>
+
+<div class="radio-dock" id="radioDock" hidden>
+  <div class="radio-dock__cover" id="dockCover" aria-hidden="true"></div>
+  <div class="radio-dock__meta">
+    <p class="radio-dock__title" id="dockTitle">No track</p>
+    <p class="radio-dock__artist" id="dockArtist">upload files above</p>
+  </div>
+  <div class="radio-dock__controls">
+    <button type="button" id="dockPrev" aria-label="Previous track">&#171;</button>
+    <button type="button" id="dockPlay" aria-label="Play" class="radio-dock__play">&#9654;</button>
+    <button type="button" id="dockNext" aria-label="Next track">&#187;</button>
+  </div>
+  <div class="radio-dock__seek">
+    <input type="range" id="dockSeek" min="0" max="1000" value="0" aria-label="Seek" />
+    <span class="radio-dock__time" id="dockTime">0:00 / 0:00</span>
+  </div>
+</div>
 <footer class="site-footer">
   <div class="container footer-grid">
     <div>
@@ -204,7 +328,9 @@
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
-  <script defer src="assets/js/main.js?v=36a3ca84"></script>
-  <script defer src="assets/js/home-posts.js?v=36a3ca84"></script>
+  <script defer src="assets/js/main.js?v=ad19c647"></script>
+  <script defer src="assets/js/home-posts.js?v=ad19c647"></script>
+  <script defer src="assets/js/home-stats.js?v=ad19c647"></script>
+  <script defer src="assets/js/home-radio.js?v=ad19c647"></script>
 </body>
 </html>
